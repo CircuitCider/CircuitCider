@@ -1,8 +1,9 @@
 pub mod ui;
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow, input::common_conditions::input_toggle_active};
 use bevy_egui::{EguiPlugin, EguiContext};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+
 
 fn main() {
     App::new()
@@ -10,7 +11,10 @@ fn main() {
         .add_systems(Startup, setup)
         .add_plugins(EguiPlugin)
         .add_systems(Update, ui_example_system)
-        .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(
+            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
+        )
+        .add_plugins(ui::ui::MainMenuUI)
         .run();
 }
 
