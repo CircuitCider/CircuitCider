@@ -6,17 +6,17 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = {version = "0.11", features = ["dynamic_linking"]}
-bevy-inspector-egui = "0.20.0"
-bevy_egui = "0.22"
-egui = "0.23"
-bevy_quickmenu = "0.2.0"
+bevy = {version = "0.12", features = ["dynamic_linking"]}
+bevy-inspector-egui = "0.21.0"
+bevy_egui = "0.23"
+egui = "0.24"
+#bevy_quickmenu = "0.2.0"
 
 # Enable a small amount of optimization in debug mode
-[profile.dev]
-opt-level = 1
+#[profile.dev]
+#opt-level = 1
 
 # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-[profile.dev.package."*"]
-opt-level = 3
+#[profile.dev.package."*"]
+#opt-level = 3
 

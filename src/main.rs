@@ -10,7 +10,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
         .add_plugins(EguiPlugin)
-        .add_systems(Update, ui_example_system)
+        //.add_systems(Update, ui_example_system)
         .add_plugins(
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         )
@@ -54,16 +54,16 @@ fn setup(
     });
 }
 
-fn ui_example_system(
-    mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
+// fn ui_example_system(
+//     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
 
-) {
-    for mut context in primary_window.iter_mut() {
-        egui::Window::new("Hello").show(context.get_mut(), |ui| {
-            ui.label("click me");
-            if ui.button("world").clicked() {
-                println!("hello!")
-            }
-        });
-    }
-}
+// ) {
+//     for mut context in primary_window.iter_mut() {
+//         egui::Window::new("Hello").show(context.get_mut(), |ui| {
+//             ui.label("click me");
+//             if ui.button("world").clicked() {
+//                 println!("hello!")
+//             }
+//         });
+//     }
+// }
