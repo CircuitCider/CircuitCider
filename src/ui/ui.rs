@@ -2,6 +2,21 @@ use bevy::prelude::*;
 
 pub struct MainMenuUI;
 
+
+const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+
+
+#[derive(Component)]
+pub struct StartArenaWidget;
+
+#[derive(Component)]
+pub struct StartEditorWidget;
+
+#[derive(Component)]
+pub struct ExitAppWidget;
+
 #[derive(Component)]
 pub struct StartButton;
 impl Plugin for MainMenuUI {
@@ -12,39 +27,103 @@ impl Plugin for MainMenuUI {
 }
 
 
-/*fn button_system(
+pub fn start_arena(
     mut interaction_query: Query<
         (
             &Interaction,
             &mut BackgroundColor,
             &mut BorderColor,
-            &Children,
         ),
-        (Changed<Interaction>, With<Button>),
-    >,
-    mut text_query: Query<&mut Text>,
-) {
-    for (interaction, mut color, mut border_color, children) in &mut interaction_query {
-        let mut text = text_query.get_mut(children[0]).unwrap();
+        (Changed<Interaction>, With<Button>, With<StartArenaWidget>)>
+    ) {
+    for (interaction, mut color, mut border_color) in &mut interaction_query {
+        //let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
-                text.sections[0].value = "Press".to_string();
-                *color = PRESSED_BUTTON.into();
+                //text.sections[0].value = "Press".to_string();
+                //*color = PRESSED_BUTTON.into();
                 border_color.0 = Color::RED;
+
+                println!("starting editor")
             }
             Interaction::Hovered => {
-                text.sections[0].value = "Hover".to_string();
-                *color = HOVERED_BUTTON.into();
+                //text.sections[0].value = "Hover".to_string();
+                //*color = HOVERED_BUTTON.into();
                 border_color.0 = Color::WHITE;
             }
             Interaction::None => {
-                text.sections[0].value = "Button".to_string();
-                *color = NORMAL_BUTTON.into();
+                //text.sections[0].value = "Button".to_string();
+                //*color = NORMAL_BUTTON.into();
                 border_color.0 = Color::BLACK;
             }
         }
     }
-}*/
+}
+pub fn start_editor(
+    mut interaction_query: Query<
+    (
+        &Interaction,
+        &mut BackgroundColor,
+        &mut BorderColor,
+    ),
+    (Changed<Interaction>, With<Button>, With<StartEditorWidget>)>
+) {
+    for (interaction, mut color, mut border_color) in &mut interaction_query {
+        //let mut text = text_query.get_mut(children[0]).unwrap();
+        match *interaction {
+            Interaction::Pressed => {
+                //text.sections[0].value = "Press".to_string();
+                //*color = PRESSED_BUTTON.into();
+                border_color.0 = Color::RED;
+
+                println!("Opening the editor")
+            }
+            Interaction::Hovered => {
+                //text.sections[0].value = "Hover".to_string();
+                //*color = HOVERED_BUTTON.into();
+                border_color.0 = Color::WHITE;
+            }
+            Interaction::None => {
+                //text.sections[0].value = "Button".to_string();
+                //*color = NORMAL_BUTTON.into();
+                border_color.0 = Color::BLACK;
+            }
+        }
+    }
+}
+
+pub fn exit_app_button(
+    mut interaction_query: Query<
+    (
+        &Interaction,
+        &mut BackgroundColor,
+        &mut BorderColor,
+    ),
+    (Changed<Interaction>, With<Button>, With<ExitAppWidget>)>
+) {
+    for (interaction, mut color, mut border_color) in &mut interaction_query {
+        //let mut text = text_query.get_mut(children[0]).unwrap();
+        match *interaction {
+            Interaction::Pressed => {
+                //text.sections[0].value = "Press".to_string();
+                //*color = PRESSED_BUTTON.into();
+                border_color.0 = Color::RED;
+
+                std::process::exit(0);
+            }
+            Interaction::Hovered => {
+                //text.sections[0].value = "Hover".to_string();
+                //*color = HOVERED_BUTTON.into();
+                border_color.0 = Color::WHITE;
+            }
+            Interaction::None => {
+                //text.sections[0].value = "Button".to_string();
+                //*color = NORMAL_BUTTON.into();
+                border_color.0 = Color::BLACK;
+            }
+        }
+    }
+}
 
 fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
@@ -140,7 +219,9 @@ fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         ))
         .with_children(|parent| {
             parent
-                .spawn(ButtonBundle {
+                .spawn(
+                    (
+                    ButtonBundle {
                     style: Style {
                         width: Val::Px(241.0),
                         height: Val::Px(75.0),
@@ -154,11 +235,14 @@ fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                     border_color: Color::BLACK.into(),
                     background_color: Color::rgb_u8(88, 117, 79).into(),
                     ..default()
-                })
+                    },
+                    StartArenaWidget
+                )
+            )
                 .with_children(|parent| {
                     parent.spawn((
                         TextBundle::from_section(
-                        "Start",
+                        "Arena",
                         TextStyle {
                             font: asset_server.load("TauroCondensed-eZrGB.ttf"),
                             font_size: (40.0),
@@ -179,21 +263,26 @@ fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         })
         .with_children(|parent| {
             parent
-                .spawn(ButtonBundle {
-                    style: Style {
-                        width: Val::Px(241.0),
-                        height: Val::Px(75.0),
-                        border: UiRect::all(Val::Percent(2.0)),
-                        top: Val::Percent(0.0),
-                        left: Val::Px(-19.5),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
+                .spawn(
+                    (
+                    ButtonBundle {
+                        style: Style {
+                            width: Val::Px(241.0),
+                            height: Val::Px(75.0),
+                            border: UiRect::all(Val::Percent(2.0)),
+                            top: Val::Percent(0.0),
+                            left: Val::Px(-19.5),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
                     border_color: Color::BLACK.into(),
                     background_color: Color::rgb_u8(58, 78, 108).into(),
                     ..default()
-                })
+                    },
+                    StartEditorWidget
+                )
+            )
                 .with_children(|parent| {
                     parent.spawn((
                         TextBundle::from_section(
@@ -219,21 +308,25 @@ fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         .with_children(|parent| {
             parent
                 .spawn(
+                    (
                     ButtonBundle {
-                    style: Style {
-                        width: Val::Px(241.0),
-                        height: Val::Px(75.0),
-                        border: UiRect::all(Val::Percent(2.0)),
-                        top: Val::Percent(35.5),
-                        left: Val::Px(-195.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
+                        style: Style {
+                            width: Val::Px(241.0),
+                            height: Val::Px(75.0),
+                            border: UiRect::all(Val::Percent(2.0)),
+                            top: Val::Percent(35.5),
+                            left: Val::Px(-195.0),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
+                        border_color: Color::BLACK.into(),
+                        background_color: Color::rgb_u8(148, 52, 52).into(),
                         ..default()
                     },
-                    border_color: Color::BLACK.into(),
-                    background_color: Color::rgb_u8(148, 52, 52).into(),
-                    ..default()
-                })
+                    ExitAppWidget,
+                )
+            )
                 .with_children(|parent| {
                     parent.spawn((
                         TextBundle::from_section(
