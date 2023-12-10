@@ -1,31 +1,57 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, transform::commands};
+use super::components::*;
 
-pub struct MainMenuUI;
+// pub struct MainMenuUI;
 
+// impl Plugin for MainMenuUI {
+//     fn build(&self, app: &mut App) {
+//         app.add_systems(Startup, spawn_start_menu);
+//         //app.add_systems(Update, button_system);
+//     }
+// }
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 
-#[derive(Component)]
-pub struct StartArenaWidget;
-
-#[derive(Component)]
-pub struct StartEditorWidget;
-
-#[derive(Component)]
-pub struct ExitAppWidget;
-
-#[derive(Component)]
-pub struct StartButton;
-impl Plugin for MainMenuUI {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_start_menu);
-        //app.add_systems(Update, button_system);
-    }
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
+pub enum AppState {
+    #[default]
+    MainMenuUI,
+    Editor,
 }
 
+
+pub fn despawn_start_menu(
+    mut commands: Commands,
+    arena_button: Query<Entity, With<StartArenaWidget>>,
+    editor_button: Query<Entity, With<StartEditorWidget>>,
+    exit_button: Query<Entity, With<ExitAppWidget>>,
+    logo: Query<Entity, With<LogoWidget>>,
+    title: Query<Entity, With<TitleWidget>>,
+    main_menu_background: Query<Entity, With<MainMenuBackgroundWidget>>,
+
+) {
+    for button in arena_button.iter() {
+        commands.entity(button).despawn_recursive();
+    }
+    for button in editor_button.iter() {
+        commands.entity(button).despawn_recursive();
+    }
+    for button in exit_button.iter() {
+        commands.entity(button).despawn_recursive();
+    }
+    for widget in logo.iter() {
+        commands.entity(widget).despawn_recursive();
+    }
+    for widget in title.iter() {
+        commands.entity(widget).despawn_recursive();
+    }
+    for widget in main_menu_background.iter() {
+        commands.entity(widget).despawn_recursive();
+    }
+}
 
 pub fn start_arena(
     mut interaction_query: Query<
@@ -66,7 +92,9 @@ pub fn start_editor(
         &mut BackgroundColor,
         &mut BorderColor,
     ),
-    (Changed<Interaction>, With<Button>, With<StartEditorWidget>)>
+    (Changed<Interaction>, With<Button>, With<StartEditorWidget>)>,
+    mut app_state: Res<State<AppState>>,
+    mut commands: Commands
 ) {
     for (interaction, mut color, mut border_color) in &mut interaction_query {
         //let mut text = text_query.get_mut(children[0]).unwrap();
@@ -76,7 +104,8 @@ pub fn start_editor(
                 //*color = PRESSED_BUTTON.into();
                 border_color.0 = Color::RED;
 
-                println!("Opening the editor")
+                println!("Opening the editor");
+                commands.insert_resource(NextState(Some(AppState::Editor)));                
             }
             Interaction::Hovered => {
                 //text.sections[0].value = "Hover".to_string();
@@ -125,7 +154,9 @@ pub fn exit_app_button(
     }
 }
 
-fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn spawn_start_menu(
+    mut commands: Commands, asset_server: Res<AssetServer>
+) {
     commands.spawn((
         NodeBundle {
             style: Style {
@@ -141,9 +172,13 @@ fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Name::new("Main Menu Background"),
+        MainMenuBackgroundWidget,
+
     ));
     commands
-        .spawn(NodeBundle {
+        .spawn(
+            (
+                NodeBundle {
             style: Style {
                 max_width: Val::Percent(36.0),
                 position_type: PositionType::Absolute,
@@ -155,7 +190,9 @@ fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
             background_color: Color::rgb(0.15, 0.15, 0.15).into(),
             border_color: Color::BLACK.into(),
             ..default()
-        })
+        },
+        MainMenuBackgroundWidget
+            ))
         .with_children(|parent| {
             // text
             parent.spawn((
@@ -174,7 +211,9 @@ fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                     ..default()
                 }),
                 Name::new("CircuitCider Text"),
-            ));
+                TitleWidget
+            ),
+        );
         });
 
     commands.spawn((
@@ -196,6 +235,7 @@ fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
         Name::new("Logo"),
         UiImage::new(asset_server.load("bevyteam5_upscaled.png")),
+        LogoWidget,
     ));
 
     commands
@@ -216,6 +256,7 @@ fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             Name::new("Button Nodes"),
+            MainMenuBackgroundWidget,
         ))
         .with_children(|parent| {
             parent

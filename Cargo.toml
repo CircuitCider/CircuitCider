@@ -10,6 +10,13 @@ bevy = {version = "0.12", features = ["dynamic_linking"]}
 bevy-inspector-egui = "0.21.0"
 bevy_egui = "0.23"
 egui = "0.24"
+bevy_serialization_extras = { git = "https://github.com/rydb/bevy_serialization_extras", rev = "286d4f4" }
+bevy_camera_extras = "0.1.6"
+bevy_component_extras = "*"
+bevy_ui_extras = "0.3"
+
+#bevy_flycam = "0.12"
+
 #bevy_quickmenu = "0.2.0"
 
 # Enable a small amount of optimization in debug mode
