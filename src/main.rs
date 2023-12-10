@@ -1,5 +1,4 @@
 pub mod ui;
-pub mod serialization;
 
 use bevy::{prelude::*, window::PrimaryWindow, input::common_conditions::input_toggle_active};
 use bevy_camera_extras::plugins::DefaultCameraPlugin;
