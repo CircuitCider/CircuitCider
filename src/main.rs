@@ -51,17 +51,6 @@ pub fn set_robot_to_follow(
     }
 }
 
-// pub fn attach_fly_cam(
-//     camera_query: Query<Entity, With<Camera>>,
-//     mut commands: Commands,
-
-// ) {
-//     for e in camera_query.iter() {
-//         commands.entity(e)
-//         .insert(FlyCam)
-//         ;
-//     }
-// }
 
 pub fn serialization_demo_setup(
     mut commands: Commands,
