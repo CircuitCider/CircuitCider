@@ -1,0 +1,23 @@
+[package]
+name = "robot_editor"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+app_core = {path = "../app_core", version = "0.1"}
+bevy = {version = "0.12", features = ["dynamic_linking"]}
+bevy-inspector-egui = "0.22"
+bevy_egui = "0.24"
+egui = "0.24"
+bevy_serialization_extras = "0.3.1"
+bevy_serialization_core = "0.1.1"
+bevy_serialization_physics = "0.1.1"
+bevy_serialization_urdf = "0.1.1"
+bevy_camera_extras = "0.1.6"
+bevy_component_extras = "*"
+bevy_ui_extras = "0.4.1"
+bevy_rapier3d = "0.23"
+strum = "0.26"
+strum_macros = "0.26"

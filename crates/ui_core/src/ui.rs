@@ -1,4 +1,7 @@
 use bevy::{prelude::*, transform::commands};
+use robot_editor::states::RobotEditorState;
+use crate::states::MainMenuState;
+
 use super::components::*;
 
 // pub struct MainMenuUI;
@@ -15,12 +18,6 @@ const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
-pub enum AppState {
-    #[default]
-    MainMenuUI,
-    Editor,
-}
 
 
 pub fn despawn_start_menu(
@@ -93,7 +90,7 @@ pub fn start_editor(
         &mut BorderColor,
     ),
     (Changed<Interaction>, With<Button>, With<StartEditorWidget>)>,
-    mut app_state: Res<State<AppState>>,
+    mut app_state: Res<State<MainMenuState>>,
     mut commands: Commands
 ) {
     for (interaction, mut color, mut border_color) in &mut interaction_query {
@@ -105,7 +102,9 @@ pub fn start_editor(
                 border_color.0 = Color::RED;
 
                 println!("Opening the editor");
-                commands.insert_resource(NextState(Some(AppState::Editor)));                
+                commands.insert_resource(NextState(Some(MainMenuState::Inactive)));      
+                commands.insert_resource(NextState(Some(RobotEditorState::Active)));                
+          
             }
             Interaction::Hovered => {
                 //text.sections[0].value = "Hover".to_string();
@@ -199,7 +198,7 @@ pub fn spawn_start_menu(
                 TextBundle::from_section(
                     "Circuit Cider",
                     TextStyle {
-                        font: asset_server.load("TauroCondensed-eZrGB.ttf"),
+                        font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
                         font_size: 60.0,
                         color: Color::rgb(0.9, 0.9, 0.9),
                         ..default()
@@ -234,7 +233,7 @@ pub fn spawn_start_menu(
             ..default()
         },
         Name::new("Logo"),
-        UiImage::new(asset_server.load("bevyteam5_upscaled.png")),
+        UiImage::new(asset_server.load("root://bevyteam5_upscaled.png")),
         LogoWidget,
     ));
 
@@ -285,7 +284,7 @@ pub fn spawn_start_menu(
                         TextBundle::from_section(
                         "Arena",
                         TextStyle {
-                            font: asset_server.load("TauroCondensed-eZrGB.ttf"),
+                            font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
                             font_size: (40.0),
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
@@ -329,7 +328,7 @@ pub fn spawn_start_menu(
                         TextBundle::from_section(
                         "CUSTOMIZE",
                         TextStyle {
-                            font: asset_server.load("TauroCondensed-eZrGB.ttf"),
+                            font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
                             font_size: (40.0),
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
@@ -373,7 +372,7 @@ pub fn spawn_start_menu(
                         TextBundle::from_section(
                         "EXIT",
                         TextStyle {
-                            font: asset_server.load("TauroCondensed-eZrGB.ttf"),
+                            font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
                             font_size: (40.0),
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
