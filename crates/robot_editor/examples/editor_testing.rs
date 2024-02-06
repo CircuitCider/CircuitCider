@@ -1,9 +1,11 @@
 use bevy::{asset::io::{file::FileAssetReader, AssetSource}, prelude::*};
 use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_mod_picking::{picking_core::Pickable, DefaultPickingPlugins, PickableBundle};
 use bevy_rapier3d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
-use bevy_serialization_extras::prelude::{AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin, SerializationPlugin};
-use bevy_serialization_urdf::{loaders::urdf_loader::Urdf, plugin::UrdfSerializationPlugin};
+use bevy_serialization_extras::prelude::{link::LinkFlag, AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin, SerializationPlugin};
+use bevy_serialization_urdf::{loaders::urdf_loader::Urdf, plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin}};
+use bevy_transform_gizmo::TransformGizmoPlugin;
 use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState};
 use app_core::{plugins::AppSourcesPlugin, ROOT};
 
@@ -13,6 +15,7 @@ pub fn main() {
     
     // app sources
     .add_plugins(AppSourcesPlugin)
+    .add_plugins(AssetSourcesUrdfPlugin)
 
     .add_plugins(DefaultPlugins)
     .add_plugins(RobotEditorPlugin)  
@@ -22,31 +25,38 @@ pub fn main() {
     .add_plugins(PhysicsSerializationPlugin)
     .add_plugins(UrdfSerializationPlugin)
     
+    // Picking/selecting
+    .add_plugins(
+        (
+            DefaultPickingPlugins,
+            TransformGizmoPlugin::new(
+                Quat::from_rotation_y(-0.2), 
+            )
+        )
+    )
+
     // physics
     .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
     .add_plugins(RapierDebugRenderPlugin::default())
 
 
-    .add_systems(Startup, setup_camera)
+    .add_systems(Startup, setup)
     .add_systems(PostStartup, turn_on_editor)
-    .add_systems(OnEnter(RobotEditorState::Active), spawn_robot)
-
+    .add_systems(Update, make_robots_editable)
     .run()
     ;
 }
 
-
-pub fn spawn_robot(
-    mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
+pub fn make_robots_editable(
+    unmodified_bots: Query<(Entity, &LinkFlag), Without<Pickable>>,
+    mut commands: Commands,
 ) {
-    urdf_load_requests.requests.push_front(
-        AssetSpawnRequest {
-                source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT).to_owned().into(), 
-                position: Transform::from_xyz(0.0, 15.0, 0.0), 
-                ..Default::default()
-        }
-    )
-    ;
+    for (e, ..) in unmodified_bots.iter() {
+        commands.entity(e)
+        .insert(PickableBundle::default())
+        .insert(        bevy_transform_gizmo::GizmoTransformable)
+        ;
+    }
 }
 
 fn turn_on_editor(
@@ -56,13 +66,57 @@ fn turn_on_editor(
 
 }
 
-fn setup_camera(
+fn setup(
     mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
 ) {
 
-    // camera
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
+    // robot
+    urdf_load_requests.requests.push_front(
+        AssetSpawnRequest {
+                source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT).to_owned().into(), 
+                position: Transform::from_xyz(0.0, 15.0, 0.0), 
+                ..Default::default()
+        }
+    )
+    ;
+
+    // plane
+    commands.spawn(
+    (
+        PbrBundle {
+            mesh: meshes.add(shape::Plane::from_size(50.0).into()),
+            material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+            transform: Transform::from_xyz(0.0, -1.0, 0.0),
+            ..default()
+        },
+        PhysicsBundle::default()
+        )
+    );
+
+    // light
+    commands.spawn(
+        (
+        PointLightBundle {
+        point_light: PointLight {
+            intensity: 1500.0,
+            shadows_enabled: true,
+            ..default()
+        },
+        transform: Transform::from_xyz(4.0, 8.0, 4.0),
         ..default()
-    });
+    },
+    )
+);
+    // camera
+    commands.spawn(
+    (
+        Camera3dBundle {
+        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+        },
+        bevy_transform_gizmo::GizmoPickSource::default()
+    ));
 }
