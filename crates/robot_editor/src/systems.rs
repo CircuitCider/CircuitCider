@@ -9,13 +9,6 @@ use strum_macros::Display;
 
 use crate::components::Wheel;
 
-
-
-
-
-
-
-
 pub fn set_robot_to_follow(
     joints: Query<Entity, (With<JointFlag>, Without<Watched>)>,
     mut commands: Commands,
