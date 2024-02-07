@@ -51,23 +51,11 @@ pub fn main() {
 
     .add_systems(Startup, setup)
     .add_systems(PostStartup, turn_on_editor)
-    .add_systems(Update, make_robots_editable)
     .run()
     ;
 }
 
-pub fn make_robots_editable(
-    unmodified_bots: Query<(Entity, &StructureFlag), Without<Pickable>>,
-    mut commands: Commands,
-) {
-    for (e, ..) in unmodified_bots.iter() {
-        commands.entity(e)
-        .insert(        bevy_transform_gizmo::GizmoTransformable)
-        .insert(PickableBundle::default())
 
-        ;
-    }
-}
 
 fn turn_on_editor(
     mut commands: Commands,

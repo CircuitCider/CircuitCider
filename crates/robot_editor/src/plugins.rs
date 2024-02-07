@@ -21,6 +21,7 @@ impl Plugin for RobotEditorPlugin {
         .add_systems(Update, control_robot.run_if(in_state(RobotEditorState::Active)))
         .add_systems(Update, freeze_spawned_robots)
         .add_systems(Update, bind_left_and_right_wheel)
+        .add_systems(Update, make_robots_editable)
         
         ;
     }

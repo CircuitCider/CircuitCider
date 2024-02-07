@@ -2,6 +2,7 @@ pub use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_component_extras::components::Watched;
 use bevy_egui::EguiContext;
+use bevy_mod_picking::{picking_core::Pickable, PickableBundle};
 use bevy_serialization_extras::prelude::{link::{JointFlag, StructureFlag}, rigidbodies::RigidBodyFlag, *};
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
 use bevy_ui_extras::stylesheets::DEBUG_FRAME_STYLE;
@@ -16,6 +17,19 @@ pub fn set_robot_to_follow(
     for e in joints.iter() {
         commands.entity(e)
         .insert(Watched)
+        ;
+    }
+}
+
+pub fn make_robots_editable(
+    unmodified_bots: Query<(Entity, &StructureFlag), Without<Pickable>>,
+    mut commands: Commands,
+) {
+    for (e, ..) in unmodified_bots.iter() {
+        commands.entity(e)
+        .insert(        bevy_transform_gizmo::GizmoTransformable)
+        .insert(PickableBundle::default())
+
         ;
     }
 }

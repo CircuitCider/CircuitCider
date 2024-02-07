@@ -1,13 +1,16 @@
 use bevy::{asset::io::{file::FileAssetReader, AssetSource}, prelude::*};
+use bevy_camera_extras::plugins::DefaultCameraPlugin;
+use bevy_component_extras::components::{Followed, Watched};
 use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_mod_picking::{picking_core::Pickable, DefaultPickingPlugins, PickableBundle};
+use bevy_mod_picking::{focus::PickingInteraction, picking_core::Pickable, DefaultPickingPlugins, PickableBundle};
 use bevy_rapier3d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
 use bevy_serialization_extras::prelude::{link::{JointFlag, LinkFlag, StructureFlag}, rigidbodies::RigidBodyFlag, AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin, SerializationPlugin};
 use bevy_serialization_urdf::{loaders::urdf_loader::Urdf, plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin}};
 use bevy_transform_gizmo::TransformGizmoPlugin;
+use bevy_ui_extras::systems::visualize_right_sidepanel_for;
+use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState};
 use app_core::{plugins::AppSourcesPlugin, ROOT};
-use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState, systems::WasFrozen};
 
 pub fn main() {
     
@@ -20,11 +23,11 @@ pub fn main() {
     .add_plugins(DefaultPlugins)
     .add_plugins(RobotEditorPlugin)  
 
-    // serialization plugins
-    .add_plugins(SerializationPlugin)
-    .add_plugins(PhysicsSerializationPlugin)
-    .add_plugins(UrdfSerializationPlugin)
-    
+    // camera
+    .add_plugins(
+            DefaultCameraPlugin
+    )
+
     // Picking/selecting
     .add_plugins(
         (
@@ -35,6 +38,12 @@ pub fn main() {
         )
     )
 
+    // serialization plugins
+    .add_plugins(SerializationPlugin)
+    .add_plugins(PhysicsSerializationPlugin)
+    .add_plugins(UrdfSerializationPlugin)
+
+
     // physics
     .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
     .add_plugins(RapierDebugRenderPlugin::default())
@@ -42,31 +51,8 @@ pub fn main() {
 
     .add_systems(Startup, setup)
     .add_systems(PostStartup, turn_on_editor)
-    .add_systems(Update, make_robots_editable)
     .run()
     ;
-}
-
-pub fn freeze_spawned_robots(
-    mut robots: Query<(Entity, &mut RigidBodyFlag), (With<StructureFlag>, Without<JointFlag>, Without<WasFrozen>)>,
-    mut commands: Commands,
-) {
-    for (e, mut body) in robots.iter_mut() {
-        *body = RigidBodyFlag::Fixed;
-        commands.entity(e).insert(WasFrozen);
-    }
-}
-
-pub fn make_robots_editable(
-    unmodified_bots: Query<(Entity, &LinkFlag), Without<Pickable>>,
-    mut commands: Commands,
-) {
-    for (e, ..) in unmodified_bots.iter() {
-        commands.entity(e)
-        .insert(PickableBundle::default())
-        .insert(        bevy_transform_gizmo::GizmoTransformable)
-        ;
-    }
 }
 
 fn turn_on_editor(
@@ -123,10 +109,14 @@ fn setup(
     // camera
     commands.spawn(
     (
+        // Camera3dBundle {
+        // transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        // ..default()
+        // },
         Camera3dBundle {
-        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
+            transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..Default::default()
         },
-        bevy_transform_gizmo::GizmoPickSource::default()
+        bevy_transform_gizmo::GizmoPickSource::default(),
     ));
 }
