@@ -9,7 +9,7 @@ use bevy_serialization_extras::prelude::{link::{JointFlag, LinkFlag, StructureFl
 use bevy_serialization_urdf::{loaders::urdf_loader::Urdf, plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin}};
 use bevy_transform_gizmo::TransformGizmoPlugin;
 use bevy_ui_extras::systems::visualize_right_sidepanel_for;
-use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState};
+use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState, ui::{list_models, CachePrefabsPlugin}};
 use app_core::{plugins::AppSourcesPlugin, ROOT};
 
 pub fn main() {
@@ -19,6 +19,8 @@ pub fn main() {
     // app sources
     .add_plugins(AppSourcesPlugin)
     .add_plugins(AssetSourcesUrdfPlugin)
+    .add_plugins(CachePrefabsPlugin)
+
 
     .add_plugins(DefaultPlugins)
     .add_plugins(RobotEditorPlugin)  
@@ -51,6 +53,7 @@ pub fn main() {
 
     .add_systems(Startup, setup)
     .add_systems(PostStartup, turn_on_editor)
+    
     .run()
     ;
 }
