@@ -2,6 +2,7 @@ use bevy::asset::io::file::FileAssetReader;
 use bevy::asset::io::AssetSource;
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_mod_picking::backends::raycast::bevy_mod_raycast::DefaultRaycastingPlugin;
 
 use crate::systems::*;
 use crate::states::*;
@@ -16,6 +17,9 @@ impl Plugin for RobotEditorPlugin {
 
         .add_plugins(
             WorldInspectorPlugin::default().run_if(in_state(RobotEditorState::Active)),
+        )
+        .add_plugins(
+            DefaultRaycastingPlugin,
         )
         //.add_systems(Update, set_robot_to_follow.run_if(in_state(RobotEditorState::Active)))
         .add_systems(Update, control_robot.run_if(in_state(RobotEditorState::Active)))
