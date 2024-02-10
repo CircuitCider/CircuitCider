@@ -137,14 +137,6 @@ pub fn freeze_spawned_robots(
 }
 
 
-
-
-// #[derive(Component)]
-// pub struct WheelLeft;
-
-// #[derive(Component)]
-// pub struct WheelRight;
-
 /// find what is "probably" the left and right wheel, and give them a marker.
 pub fn bind_left_and_right_wheel(
     robots: Query<(Entity, &Name), (With<JointFlag>, Without<Wheel>)>,

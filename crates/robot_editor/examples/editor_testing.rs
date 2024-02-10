@@ -9,7 +9,7 @@ use bevy_serialization_extras::prelude::{link::{JointFlag, LinkFlag, StructureFl
 use bevy_serialization_urdf::{loaders::urdf_loader::Urdf, plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin}};
 use bevy_transform_gizmo::TransformGizmoPlugin;
 use bevy_ui_extras::systems::visualize_right_sidepanel_for;
-use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState, ui::{list_models, move_placer_to_cursor, CachePrefabsPlugin}};
+use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState, ui::{check_placer_robot_intersections, move_placer_to_cursor, CachePrefabsPlugin}};
 use app_core::{plugins::AppSourcesPlugin, ROOT};
 
 pub fn main() {
@@ -34,9 +34,9 @@ pub fn main() {
     .add_plugins(
         (
             DefaultPickingPlugins,
-            TransformGizmoPlugin::new(
-                Quat::from_rotation_y(-0.2), 
-            )
+            // TransformGizmoPlugin::new(
+            //     Quat::from_rotation_y(-0.2), 
+            // )
         )
     )
 
@@ -54,7 +54,7 @@ pub fn main() {
     .add_systems(Startup, setup)
     .add_systems(PostStartup, turn_on_editor)
     .add_systems(Update, move_placer_to_cursor)
-    
+    .add_systems(Update, check_placer_robot_intersections)
     .run()
     ;
 }
