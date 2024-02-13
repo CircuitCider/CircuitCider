@@ -7,7 +7,7 @@ use bevy_mod_picking::backends::raycast::bevy_mod_raycast::DefaultRaycastingPlug
 use bevy_transform_gizmo::picking;
 use bevy_transform_gizmo::Ui3dNormalization;
 
-use crate::shaders::neon_glow::GizmoMaterial;
+use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::systems::*;
 use crate::states::*;
 use crate::shaders::*;
@@ -25,7 +25,7 @@ impl Plugin for RobotEditorPlugin {
         );
         app
         .add_plugins((
-            MaterialPlugin::<GizmoMaterial>::default(),
+            MaterialPlugin::<NeonGlowMaterial>::default(),
         ));
 
 

@@ -1,6 +1,6 @@
 use std::{any::TypeId, collections::HashMap};
 
-use bevy::{asset::{AssetContainer, LoadedFolder}, prelude::*, window::PrimaryWindow};
+use bevy::{asset::{AssetContainer, LoadedFolder}, ecs::query::WorldQuery, input::mouse::MouseButtonInput, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_mod_picking::backends::raycast::bevy_mod_raycast::{immediate::{Raycast, RaycastSettings, RaycastVisibility}, CursorRay};
 use bevy_rapier3d::{geometry::{Collider, Sensor}, plugin::RapierContext, rapier::geometry::CollisionEventFlags};
@@ -9,7 +9,7 @@ use async_trait::async_trait;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
 
-use crate::shaders::neon_glow::GizmoMaterial;
+use crate::shaders::neon_glow::NeonGlowMaterial;
 
 
 use std::fmt::Debug;
@@ -81,10 +81,13 @@ pub struct ToolMode {
 //     }
 // }
 
-#[derive(Resource, Reflect, PartialEq, Eq, EnumIter, Display)]
+#[derive(Resource, Reflect, Debug, PartialEq, Eq, EnumIter, Display)]
 pub enum BuildToolMode {
     GizmoMode,
     PlacerMode,
+    SelectorMode,
+    //AttachMode,
+    EditerMode,
 }
 
 pub fn select_build_tool(
@@ -93,9 +96,10 @@ pub fn select_build_tool(
 
 ) {
     for mut context in primary_window.iter_mut() {
-        egui::Window::new("Mesh Selector")
+        egui::Window::new("BuildToolMode debug")
         .show(context.get_mut(), |ui| {
-            ui.heading("Spawnable meshes");
+            ui.heading("select mode");
+            ui.label(format!("Current mode: {:#?}", *tool_mode));
             for tool in BuildToolMode::iter() {
                 if ui.button(tool.to_string()).clicked() {
                     *tool_mode = tool
@@ -106,39 +110,86 @@ pub fn select_build_tool(
     }
 }
 
+/// gets rid of placers if current mode is not placermode
+pub fn delete_placers(
+    tool_mode: ResMut<BuildToolMode>,
+    placers: Query<Entity, With<Placer>>,
+    mut commands: Commands,
+) {
+    if *tool_mode != BuildToolMode::PlacerMode {
+        for e in placers.iter() {
+            commands.entity(e)
+            .despawn()
+        }
+    }
+}
+
+/// gets rid of placers if current mode is not placermode
+pub fn delete_attach_candidates(
+    tool_mode: ResMut<BuildToolMode>,
+    placers: Query<Entity, With<AttachCandidate>>,
+    mut commands: Commands,
+) {
+    if *tool_mode != BuildToolMode::EditerMode {
+        for e in placers.iter() {
+            commands.entity(e)
+            .despawn()
+        }
+    }
+}
+
 pub fn move_placer_to_cursor(
     mut raycast: Raycast, 
     cursor_ray: Res<CursorRay>, 
+    tool_mode: ResMut<BuildToolMode>,
     //mut transform: Query<&mut Transform>,
     mut placers: Query<(&mut Transform, &Placer)>,
     mut gizmos: Gizmos
 ) {
-    if let Some(cursor_ray) = **cursor_ray {
-        // get first raycast hit that isn't the placer it self.
-        if let Some((e, hit)) = raycast.debug_cast_ray(cursor_ray, &DONT_EXIT_EARLY, &mut gizmos)
-        .iter()
-        .filter(|(e, ..)| placers.contains(e.clone()) == false)
-        .collect::<Vec<_>>()
-        .first()
-         {
-            for (mut trans, .. ) in placers.iter_mut() {
-                let hit_pos = hit.position();
-                println!("moving placer to cursor {:#?}", hit_pos);
-                trans.translation = hit_pos;
+    if *tool_mode == BuildToolMode::PlacerMode {
+        if let Some(cursor_ray) = **cursor_ray {
+            // get first raycast hit that isn't the placer it self.
+            if let Some((e, hit)) = raycast.debug_cast_ray(cursor_ray, &DONT_EXIT_EARLY, &mut gizmos)
+            .iter()
+            .filter(|(e, ..)| placers.contains(e.clone()) == false)
+            .collect::<Vec<_>>()
+            .first()
+             {
+                for (mut trans, .. ) in placers.iter_mut() {
+                    let hit_pos = hit.position();
+                    //println!("moving placer to cursor {:#?}", hit_pos);
+                    trans.translation = hit_pos;
+                }
             }
+    
         }
-
     }
+
 }
 
+#[derive(Component, Default)]
+pub struct Edited;
+
+/// marker for objects that are not yet a part of a structure but could be
+/// (placed build mode models)
+#[derive(Component, Default)]
+pub struct AttachCandidate;
+
 /// checks for any intersection between the placer and other meshes
-pub fn check_placer_robot_intersections(
+pub fn attach_placer(
+    mut raycast: Raycast, 
+    cursor_ray: Res<CursorRay>, 
     rapier_context: Res<RapierContext>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    placers: Query<(Entity, &Handle<StandardMaterial>, &Placer)>,
+    mut neon_materials: ResMut<Assets<NeonGlowMaterial>>,
+    placers: Query<(Entity, &Handle<NeonGlowMaterial>, &Handle<Mesh>, &Transform, &Placer)>,
+    mouse: Res<Input<MouseButton>>,
+    mut commands: Commands,
+    mut tool_mode: ResMut<BuildToolMode>,
+
 ) {
-    for (e, handle, ..) in placers.iter() {
-        if let Some(mat) = materials.get_mut(handle) {
+    // change part color to show if its intersecting something or not
+    for (e, handle, mesh, trans, ..) in placers.iter() {
+        if let Some(mat) = neon_materials.get_mut(handle) {
             if rapier_context.intersections_with(e)
             .collect::<Vec<_>>()
             .len() > 0 {
@@ -146,9 +197,39 @@ pub fn check_placer_robot_intersections(
             } else {
                 *mat = Color::GREEN.into();
             }
+            if let Some(cursor_ray) = **cursor_ray {
+                if let Some(_) = raycast.cast_ray(cursor_ray, &DONT_EXIT_EARLY)
+                .iter()
+                .filter(|(e, ..)| placers.contains(e.clone()) == false)
+                .collect::<Vec<_>>()
+                .first() {
+                    if mouse.just_pressed(MouseButton::Left) {
+                        println!("placing placer..");
+    
+                        commands.spawn((
+                            MaterialMeshBundle {
+                                mesh: mesh.clone(),
+                                material: handle.clone(),
+                                transform: *trans,
+                                ..default()
+                            },
+                            Edited,
+                            AttachCandidate,
+                            )
+                        )
+                        ;
+                        *tool_mode = BuildToolMode::EditerMode;
+                    }
+                }
+            }
         }
+
     }
+
 }
+
+// /// editor mode for editing attached 
+// pub fn editor_mode_ui
 
 /// list all placeable models
 pub fn placer_mode_ui(
@@ -156,14 +237,14 @@ pub fn placer_mode_ui(
     //cursor_ray: Res<CursorRay>, 
     folders: Res<Assets<LoadedFolder>>,
     model_folder: Res<ModelFolder>,
-    tool_mode: Res<BuildToolMode>,
+    mut tool_mode: ResMut<BuildToolMode>,
     //meshes: Res<Assets<Mesh>>,
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut placer_materials: ResMut<Assets<GizmoMaterial>>,
+    mut placer_materials: ResMut<Assets<NeonGlowMaterial>>,
     mut commands: Commands,
 
 ) {
-    if tool_mode.into_inner() == &BuildToolMode::PlacerMode {
+    //if tool_mode.into_inner() == &BuildToolMode::PlacerMode {
 
         let typeid = TypeId::of::<Mesh>();
     
@@ -187,7 +268,7 @@ pub fn placer_mode_ui(
                                         MaterialMeshBundle {
                                             mesh: mesh_handle,
                                             material: placer_materials.add(
-                                                GizmoMaterial {
+                                                NeonGlowMaterial {
                                                     color:Color::RED.into() 
                                                 }
                                             ),
@@ -199,7 +280,7 @@ pub fn placer_mode_ui(
                                     )
                                 )
                                 ;
-    
+                                *tool_mode = BuildToolMode::PlacerMode
                             }
                         }                        
                     }
@@ -210,7 +291,7 @@ pub fn placer_mode_ui(
             })
             ;
         }
-    }
+    //}
 
 
 }

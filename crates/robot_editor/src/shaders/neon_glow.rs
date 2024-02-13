@@ -9,22 +9,29 @@ use bevy::{
         },
     },
 };
+use bevy_serialization_extras::prelude::material::MaterialFlag;
 
 pub const NEON_GLOW_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(13953800272683943019);
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-pub struct GizmoMaterial {
+pub struct NeonGlowMaterial {
     #[uniform(0)]
     pub color: Color,
 }
 
-impl From<Color> for GizmoMaterial {
+impl From<Color> for NeonGlowMaterial {
     fn from(color: Color) -> Self {
-        GizmoMaterial { color }
+        NeonGlowMaterial { color }
     }
 }
 
-impl Material for GizmoMaterial {
+impl From<NeonGlowMaterial> for Color {
+    fn from(value: NeonGlowMaterial) -> Self {
+        value.color
+    }
+}
+
+impl Material for NeonGlowMaterial {
     fn vertex_shader() -> ShaderRef {
         NEON_GLOW_SHADER_HANDLE.into()
     }
