@@ -3,13 +3,12 @@ use bevy_camera_extras::plugins::DefaultCameraPlugin;
 use bevy_component_extras::components::{Followed, Watched};
 use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_mod_picking::{focus::PickingInteraction, picking_core::Pickable, DefaultPickingPlugins, PickableBundle};
 use bevy_rapier3d::{geometry::Collider, plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
 use bevy_serialization_extras::prelude::{link::{JointFlag, LinkFlag, StructureFlag}, rigidbodies::RigidBodyFlag, AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin, SerializationPlugin};
 use bevy_serialization_urdf::{loaders::urdf_loader::Urdf, plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin}};
 use bevy_transform_gizmo::TransformGizmoPlugin;
 use bevy_ui_extras::systems::visualize_right_sidepanel_for;
-use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState, ui::{attach_placer, delete_attach_candidates, delete_placers, move_placer_to_cursor, CachePrefabsPlugin}};
+use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState, transform_gizmo::{components::{GizmoFocused, TransformWidgetMarker}, plugins::TransformWidgetPlugin}, ui::{attach_placer, delete_attach_candidates, delete_placers, move_placer_to_cursor, CachePrefabsPlugin}};
 use app_core::{plugins::AppSourcesPlugin, ROOT};
 
 pub fn main() {
@@ -19,27 +18,13 @@ pub fn main() {
     // app sources
     .add_plugins(AppSourcesPlugin)
     .add_plugins(AssetSourcesUrdfPlugin)
-    .add_plugins(CachePrefabsPlugin)
+    //.add_plugins(CachePrefabsPlugin)
 
     //.register_type::<Collider>()
     .add_plugins(DefaultPlugins)
     .add_plugins(RobotEditorPlugin)  
 
-    // camera
-    // .add_plugins(
-    //         DefaultCameraPlugin
-    // )
-
-    // Picking/selecting
-    .add_plugins(
-        (
-            DefaultPickingPlugins,
-            // TransformGizmoPlugin::new(
-            //     Quat::from_rotation_y(-0.2), 
-            // )
-        )
-    )
-
+    
     // serialization plugins
     .add_plugins(SerializationPlugin)
     .add_plugins(PhysicsSerializationPlugin)
@@ -50,7 +35,7 @@ pub fn main() {
     .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
     .add_plugins(RapierDebugRenderPlugin::default())
 
-
+    .add_systems(Update, visualize_right_sidepanel_for::<GizmoFocused>)
     .add_systems(Startup, setup)
     .add_systems(PostStartup, turn_on_editor)
     .add_systems(Update, move_placer_to_cursor)
@@ -125,6 +110,6 @@ fn setup(
             transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         },
-        bevy_transform_gizmo::GizmoPickSource::default(),
+        //bevy_transform_gizmo::GizmoPickSource::default(),
     ));
 }

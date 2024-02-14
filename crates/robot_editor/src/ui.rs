@@ -1,8 +1,8 @@
-use std::{any::TypeId, collections::HashMap};
+use std::{any::TypeId, collections::HashMap, io::ErrorKind};
 
-use bevy::{asset::{AssetContainer, LoadedFolder}, ecs::query::WorldQuery, input::mouse::MouseButtonInput, prelude::*, window::PrimaryWindow};
+use bevy::{asset::{AssetContainer, LoadedFolder}, ecs::query::WorldQuery, input::mouse::MouseButtonInput, prelude::*, reflect::erased_serde::Error, window::PrimaryWindow};
 use bevy_egui::EguiContext;
-use bevy_mod_picking::backends::raycast::bevy_mod_raycast::{immediate::{Raycast, RaycastSettings, RaycastVisibility}, CursorRay};
+use bevy_mod_raycast::{immediate::{Raycast, RaycastSettings, RaycastVisibility}, primitives::IntersectionData, CursorRay};
 use bevy_rapier3d::{geometry::{Collider, Sensor}, plugin::RapierContext, rapier::geometry::CollisionEventFlags};
 use bevy_serialization_extras::prelude::{colliders::ColliderFlag, link::StructureFlag};
 use async_trait::async_trait;
@@ -81,7 +81,7 @@ pub struct ToolMode {
 //     }
 // }
 
-#[derive(Resource, Reflect, Debug, PartialEq, Eq, EnumIter, Display)]
+#[derive(Resource, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display)]
 pub enum BuildToolMode {
     GizmoMode,
     PlacerMode,
@@ -110,6 +110,27 @@ pub fn select_build_tool(
     }
 }
 
+
+/// gets first hit with raycast from cursor which matches a given query.
+pub fn get_first_hit_with<T: WorldQuery>(
+    cursor_ray: Res<CursorRay>,
+    mut raycast: Raycast, 
+    hit_match_criteria: &Query<T>
+) -> Option<(Entity, IntersectionData)> 
+{
+    let ray = (**cursor_ray)?;
+    
+    let hit_list = raycast.cast_ray(ray, &DONT_EXIT_EARLY)
+    .iter()
+    .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
+    .collect::<Vec<_>>();
+
+    let first_hit = (*hit_list.first()?).clone();
+
+    Some(first_hit)
+
+}
+
 /// gets rid of placers if current mode is not placermode
 pub fn delete_placers(
     tool_mode: ResMut<BuildToolMode>,
@@ -134,37 +155,27 @@ pub fn delete_attach_candidates(
         for e in placers.iter() {
             commands.entity(e)
             .despawn()
+
+
         }
     }
 }
 
 pub fn move_placer_to_cursor(
-    mut raycast: Raycast, 
+    raycast: Raycast, 
     cursor_ray: Res<CursorRay>, 
     tool_mode: ResMut<BuildToolMode>,
-    //mut transform: Query<&mut Transform>,
     mut placers: Query<(&mut Transform, &Placer)>,
-    mut gizmos: Gizmos
-) {
+)  {
     if *tool_mode == BuildToolMode::PlacerMode {
-        if let Some(cursor_ray) = **cursor_ray {
-            // get first raycast hit that isn't the placer it self.
-            if let Some((e, hit)) = raycast.debug_cast_ray(cursor_ray, &DONT_EXIT_EARLY, &mut gizmos)
-            .iter()
-            .filter(|(e, ..)| placers.contains(e.clone()) == false)
-            .collect::<Vec<_>>()
-            .first()
-             {
-                for (mut trans, .. ) in placers.iter_mut() {
-                    let hit_pos = hit.position();
-                    //println!("moving placer to cursor {:#?}", hit_pos);
-                    trans.translation = hit_pos;
-                }
+        if let Some((_, hit)) = get_first_hit_with(cursor_ray, raycast, &placers) {
+            for (mut trans, .. ) in placers.iter_mut() {
+                let hit_pos = hit.position();
+                //println!("moving placer to cursor {:#?}", hit_pos);
+                trans.translation = hit_pos;
             }
-    
         }
     }
-
 }
 
 #[derive(Component, Default)]
@@ -187,44 +198,69 @@ pub fn attach_placer(
     mut tool_mode: ResMut<BuildToolMode>,
 
 ) {
-    // change part color to show if its intersecting something or not
-    for (e, handle, mesh, trans, ..) in placers.iter() {
-        if let Some(mat) = neon_materials.get_mut(handle) {
-            if rapier_context.intersections_with(e)
-            .collect::<Vec<_>>()
-            .len() > 0 {
-                *mat = Color::RED.into();
-            } else {
-                *mat = Color::GREEN.into();
-            }
-            if let Some(cursor_ray) = **cursor_ray {
-                if let Some(_) = raycast.cast_ray(cursor_ray, &DONT_EXIT_EARLY)
-                .iter()
-                .filter(|(e, ..)| placers.contains(e.clone()) == false)
+    if mouse.just_pressed(MouseButton::Left) {
+        for (e, handle, mesh, trans, ..) in placers.iter() {
+            if let Some(mat) = neon_materials.get_mut(handle) {
+                if rapier_context.intersections_with(e)
                 .collect::<Vec<_>>()
-                .first() {
-                    if mouse.just_pressed(MouseButton::Left) {
-                        println!("placing placer..");
-    
-                        commands.spawn((
-                            MaterialMeshBundle {
-                                mesh: mesh.clone(),
-                                material: handle.clone(),
-                                transform: *trans,
-                                ..default()
-                            },
-                            Edited,
-                            AttachCandidate,
-                            )
-                        )
-                        ;
-                        *tool_mode = BuildToolMode::EditerMode;
-                    }
+                .len() > 0 {
+                    *mat = Color::RED.into();
+                } else {
+                    *mat = Color::GREEN.into();
+
+
                 }
+                println!("placing placer..");
+
+                commands.spawn((
+                    MaterialMeshBundle {
+                        mesh: mesh.clone(),
+                        material: handle.clone(),
+                        transform: *trans,
+                        ..default()
+                    },
+                    Edited,
+                    AttachCandidate,
+                    )
+                )
+                ;
+                *tool_mode = BuildToolMode::EditerMode;
             }
         }
-
     }
+        // change part color to show if its intersecting something or not
+    
+    // for (e, handle, mesh, trans, ..) in placers.iter() {
+    //     if let Some(mat) = neon_materials.get_mut(handle) {
+    //         if rapier_context.intersections_with(e)
+    //         .collect::<Vec<_>>()
+    //         .len() > 0 {
+    //             *mat = Color::RED.into();
+    //         } else {
+    //             *mat = Color::GREEN.into();
+    //         }
+    //             if let Some(_) =  get_first_hit_with(cursor_ray, raycast, &placers ){
+    //                 if mouse.just_pressed(MouseButton::Left) {
+    //                     println!("placing placer..");
+    
+    //                     commands.spawn((
+    //                         MaterialMeshBundle {
+    //                             mesh: mesh.clone(),
+    //                             material: handle.clone(),
+    //                             transform: *trans,
+    //                             ..default()
+    //                         },
+    //                         Edited,
+    //                         AttachCandidate,
+    //                         )
+    //                     )
+    //                     ;
+    //                     *tool_mode = BuildToolMode::EditerMode;
+    //                 }
+    //             }
+    //     }
+
+    // }
 
 }
 

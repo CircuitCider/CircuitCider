@@ -4,6 +4,7 @@ pub mod states;
 pub mod components;
 pub mod ui;
 pub mod shaders;
+pub mod transform_gizmo;
 
 pub mod prelude {
     pub use crate::*;

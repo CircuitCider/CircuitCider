@@ -14,8 +14,9 @@ egui = "0.24"
 bevy_serialization_extras = {path = "../../../bevy_serialization_extras"}
 bevy_serialization_urdf = {path = "../../../bevy_serialization_urdf"}
 bevy_transform_gizmo = "*"
-bevy_mod_picking = "*"
+#bevy_mod_picking = "*"
 bevy_camera_extras = "0.1.8"
+bevy_mod_raycast = "0.16"
 bevy_component_extras = "*"
 bevy_ui_extras = "0.4.1"
 bevy_rapier3d = "0.23"
