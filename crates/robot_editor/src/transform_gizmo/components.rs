@@ -6,7 +6,6 @@ pub struct GizmoFocused;
 #[derive(Component, Reflect, Default)]
 pub struct Widget;
 
-
 #[derive(Component, Clone, Copy, Reflect, Default)]
 #[reflect(Component)]
 pub enum SelectionMode {
@@ -32,14 +31,14 @@ pub struct Tug {
 }
 
 impl Tug {
-    pub fn new(x: f32,y: f32 ,z: f32) -> Self {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self {
-            pull: Vec3::new(x, y, z)
+            pull: Vec3::new(x, y, z),
         }
     }
 }
 
-/// flag + axis of ring, when dragged, things will rotate by their widget in this component's axis 
+/// flag + axis of ring, when dragged, things will rotate by their widget in this component's axis
 #[derive(Component)]
 pub struct Ring {
     pub axis: Vec3,
@@ -48,7 +47,7 @@ pub struct Ring {
 impl Ring {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self {
-            axis: Vec3::new(x, y, z)
+            axis: Vec3::new(x, y, z),
         }
     }
 }
@@ -56,14 +55,12 @@ impl Ring {
 // Collects commands from widgets, applies them to bound widget command reciever
 #[derive(Component)]
 pub struct TransformWidget; /*{
-    pub bound_entity: Entity,
-}*/
+                                pub bound_entity: Entity,
+                            }*/
 
 #[derive(Component)]
 pub struct TransformWidgetMarker {
     pub transform_widget_entity: Entity,
     /// entity to be modified by transform widget
-    pub entity_to_transform: Entity, 
+    pub entity_to_transform: Entity,
 }
-
-

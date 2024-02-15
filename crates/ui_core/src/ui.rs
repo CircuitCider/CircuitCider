@@ -1,6 +1,6 @@
+use crate::states::MainMenuState;
 use bevy::{prelude::*, transform::commands};
 use robot_editor::states::RobotEditorState;
-use crate::states::MainMenuState;
 
 use super::components::*;
 
@@ -17,9 +17,6 @@ const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
-
-
-
 pub fn despawn_start_menu(
     mut commands: Commands,
     arena_button: Query<Entity, With<StartArenaWidget>>,
@@ -28,7 +25,6 @@ pub fn despawn_start_menu(
     logo: Query<Entity, With<LogoWidget>>,
     title: Query<Entity, With<TitleWidget>>,
     main_menu_background: Query<Entity, With<MainMenuBackgroundWidget>>,
-
 ) {
     for button in arena_button.iter() {
         commands.entity(button).despawn_recursive();
@@ -52,13 +48,10 @@ pub fn despawn_start_menu(
 
 pub fn start_arena(
     mut interaction_query: Query<
-        (
-            &Interaction,
-            &mut BackgroundColor,
-            &mut BorderColor,
-        ),
-        (Changed<Interaction>, With<Button>, With<StartArenaWidget>)>
-    ) {
+        (&Interaction, &mut BackgroundColor, &mut BorderColor),
+        (Changed<Interaction>, With<Button>, With<StartArenaWidget>),
+    >,
+) {
     for (interaction, mut color, mut border_color) in &mut interaction_query {
         //let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
@@ -84,14 +77,11 @@ pub fn start_arena(
 }
 pub fn start_editor(
     mut interaction_query: Query<
-    (
-        &Interaction,
-        &mut BackgroundColor,
-        &mut BorderColor,
-    ),
-    (Changed<Interaction>, With<Button>, With<StartEditorWidget>)>,
+        (&Interaction, &mut BackgroundColor, &mut BorderColor),
+        (Changed<Interaction>, With<Button>, With<StartEditorWidget>),
+    >,
     mut app_state: Res<State<MainMenuState>>,
-    mut commands: Commands
+    mut commands: Commands,
 ) {
     for (interaction, mut color, mut border_color) in &mut interaction_query {
         //let mut text = text_query.get_mut(children[0]).unwrap();
@@ -102,9 +92,8 @@ pub fn start_editor(
                 border_color.0 = Color::RED;
 
                 println!("Opening the editor");
-                commands.insert_resource(NextState(Some(MainMenuState::Inactive)));      
-                commands.insert_resource(NextState(Some(RobotEditorState::Active)));                
-          
+                commands.insert_resource(NextState(Some(MainMenuState::Inactive)));
+                commands.insert_resource(NextState(Some(RobotEditorState::Active)));
             }
             Interaction::Hovered => {
                 //text.sections[0].value = "Hover".to_string();
@@ -122,12 +111,9 @@ pub fn start_editor(
 
 pub fn exit_app_button(
     mut interaction_query: Query<
-    (
-        &Interaction,
-        &mut BackgroundColor,
-        &mut BorderColor,
-    ),
-    (Changed<Interaction>, With<Button>, With<ExitAppWidget>)>
+        (&Interaction, &mut BackgroundColor, &mut BorderColor),
+        (Changed<Interaction>, With<Button>, With<ExitAppWidget>),
+    >,
 ) {
     for (interaction, mut color, mut border_color) in &mut interaction_query {
         //let mut text = text_query.get_mut(children[0]).unwrap();
@@ -153,9 +139,7 @@ pub fn exit_app_button(
     }
 }
 
-pub fn spawn_start_menu(
-    mut commands: Commands, asset_server: Res<AssetServer>
-) {
+pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         NodeBundle {
             style: Style {
@@ -172,26 +156,24 @@ pub fn spawn_start_menu(
         },
         Name::new("Main Menu Background"),
         MainMenuBackgroundWidget,
-
     ));
     commands
-        .spawn(
-            (
-                NodeBundle {
-            style: Style {
-                max_width: Val::Percent(36.0),
-                position_type: PositionType::Absolute,
-                border: UiRect::all(Val::Percent(0.6)),
-                left: Val::Px(6.0),
-                margin: UiRect::all(Val::Percent(0.45)),
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    max_width: Val::Percent(36.0),
+                    position_type: PositionType::Absolute,
+                    border: UiRect::all(Val::Percent(0.6)),
+                    left: Val::Px(6.0),
+                    margin: UiRect::all(Val::Percent(0.45)),
+                    ..default()
+                },
+                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                border_color: Color::BLACK.into(),
                 ..default()
             },
-            background_color: Color::rgb(0.15, 0.15, 0.15).into(),
-            border_color: Color::BLACK.into(),
-            ..default()
-        },
-        MainMenuBackgroundWidget
-            ))
+            MainMenuBackgroundWidget,
+        ))
         .with_children(|parent| {
             // text
             parent.spawn((
@@ -210,9 +192,8 @@ pub fn spawn_start_menu(
                     ..default()
                 }),
                 Name::new("CircuitCider Text"),
-                TitleWidget
-            ),
-        );
+                TitleWidget,
+            ));
         });
 
     commands.spawn((
@@ -259,29 +240,26 @@ pub fn spawn_start_menu(
         ))
         .with_children(|parent| {
             parent
-                .spawn(
-                    (
+                .spawn((
                     ButtonBundle {
-                    style: Style {
-                        width: Val::Px(241.0),
-                        height: Val::Px(75.0),
-                        border: UiRect::all(Val::Percent(2.0)),
-                        top: Val::Percent(-35.0),
-                        left: Val::Percent(64.2),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
+                        style: Style {
+                            width: Val::Px(241.0),
+                            height: Val::Px(75.0),
+                            border: UiRect::all(Val::Percent(2.0)),
+                            top: Val::Percent(-35.0),
+                            left: Val::Percent(64.2),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..default()
+                        },
+                        border_color: Color::BLACK.into(),
+                        background_color: Color::rgb_u8(88, 117, 79).into(),
                         ..default()
                     },
-                    border_color: Color::BLACK.into(),
-                    background_color: Color::rgb_u8(88, 117, 79).into(),
-                    ..default()
-                    },
-                    StartArenaWidget
-                )
-            )
+                    StartArenaWidget,
+                ))
                 .with_children(|parent| {
-                    parent.spawn((
-                        TextBundle::from_section(
+                    parent.spawn((TextBundle::from_section(
                         "Arena",
                         TextStyle {
                             font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
@@ -289,22 +267,20 @@ pub fn spawn_start_menu(
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
                     )
-                        .with_style(Style {
-                            margin: UiRect{
-                                top: Val::Px(0.0),
-                                bottom: Val::Px(0.0),
-                                left: Val::Px(10.5),
-                                right: Val::Px(10.5),
-                            },
-                            ..default()
-                        }),
-                    ));
+                    .with_style(Style {
+                        margin: UiRect {
+                            top: Val::Px(0.0),
+                            bottom: Val::Px(0.0),
+                            left: Val::Px(10.5),
+                            right: Val::Px(10.5),
+                        },
+                        ..default()
+                    }),));
                 });
         })
         .with_children(|parent| {
             parent
-                .spawn(
-                    (
+                .spawn((
                     ButtonBundle {
                         style: Style {
                             width: Val::Px(241.0),
@@ -316,16 +292,14 @@ pub fn spawn_start_menu(
                             align_items: AlignItems::Center,
                             ..default()
                         },
-                    border_color: Color::BLACK.into(),
-                    background_color: Color::rgb_u8(58, 78, 108).into(),
-                    ..default()
+                        border_color: Color::BLACK.into(),
+                        background_color: Color::rgb_u8(58, 78, 108).into(),
+                        ..default()
                     },
-                    StartEditorWidget
-                )
-            )
+                    StartEditorWidget,
+                ))
                 .with_children(|parent| {
-                    parent.spawn((
-                        TextBundle::from_section(
+                    parent.spawn((TextBundle::from_section(
                         "CUSTOMIZE",
                         TextStyle {
                             font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
@@ -334,21 +308,19 @@ pub fn spawn_start_menu(
                         },
                     )
                     .with_style(Style {
-                        margin: UiRect{
+                        margin: UiRect {
                             top: Val::Px(0.0),
                             bottom: Val::Px(0.0),
                             left: Val::Px(10.5),
                             right: Val::Px(10.5),
                         },
                         ..default()
-                    }),
-                ));
-            });
-    })
+                    }),));
+                });
+        })
         .with_children(|parent| {
             parent
-                .spawn(
-                    (
+                .spawn((
                     ButtonBundle {
                         style: Style {
                             width: Val::Px(241.0),
@@ -365,11 +337,9 @@ pub fn spawn_start_menu(
                         ..default()
                     },
                     ExitAppWidget,
-                )
-            )
+                ))
                 .with_children(|parent| {
-                    parent.spawn((
-                        TextBundle::from_section(
+                    parent.spawn((TextBundle::from_section(
                         "EXIT",
                         TextStyle {
                             font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
@@ -378,15 +348,14 @@ pub fn spawn_start_menu(
                         },
                     )
                     .with_style(Style {
-                        margin: UiRect{
+                        margin: UiRect {
                             top: Val::Px(0.0),
                             bottom: Val::Px(0.0),
                             left: Val::Px(10.5),
                             right: Val::Px(10.5),
                         },
                         ..default()
-                    }),
-                ));
-            });
-    });
+                    }),));
+                });
+        });
 }

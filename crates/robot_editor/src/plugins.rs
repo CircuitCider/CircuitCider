@@ -8,9 +8,9 @@ use bevy_transform_gizmo::picking;
 use bevy_transform_gizmo::Ui3dNormalization;
 
 use crate::shaders::neon_glow::NeonGlowMaterial;
-use crate::systems::*;
-use crate::states::*;
 use crate::shaders::*;
+use crate::states::*;
+use crate::systems::*;
 use crate::transform_gizmo::plugins::TransformWidgetPlugin;
 use crate::ui::CachePrefabsPlugin;
 
@@ -25,13 +25,7 @@ impl Plugin for RobotEditorPlugin {
             "shaders/neon_glow.wgsl",
             Shader::from_wgsl
         );
-        app
-        .add_plugins((
-            MaterialPlugin::<NeonGlowMaterial>::default(),
-        ));
-
-
-
+        app.add_plugins((MaterialPlugin::<NeonGlowMaterial>::default(),));
 
         app
         // asset_loader

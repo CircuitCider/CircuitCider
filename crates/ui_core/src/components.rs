@@ -20,4 +20,3 @@ pub struct StartButton;
 
 #[derive(Component)]
 pub struct MainMenuBackgroundWidget;
-

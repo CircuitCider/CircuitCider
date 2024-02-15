@@ -23,3 +23,7 @@ bevy_rapier3d = "0.23"
 strum = "0.26"
 strum_macros = "0.26"
 async-trait = "*"
+
+# parrallize compile
+[build]
+rustflags = ["-Z", "threads=8"]

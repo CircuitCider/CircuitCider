@@ -17,10 +17,17 @@ impl Plugin for TransformWidgetPlugin {
         .register_type::<LastMouseInteraction>()
         .register_type::<Tug>()
 
+        // gizmo management
         .add_systems(Update, gizmo_mark_on_click)
         .add_systems(Update, spawn_gizmo_when_needed)
         .add_systems(Update, despawn_gizmo_when_no_targets)
         .add_systems(Update, average_gizmo_position)
+        
+        
+        // gizmo camera management
+        .add_systems(Update, spawn_gizmo_rendering_camera)
+        .add_systems(Update, align_gizmo_camera_to_marker)
+        .add_systems(Update, despawn_gizmo_rendering_camera)
         // .add_systems(Update, (manage_tugs, /*manage_rings*/ widget_spawn_for_selected, transform_widget_behaviour)
         //     .before(widget_despawn_for_deselected)) 
             // COMPOSED SYSTEMS MUST RUN BEFORE DESPAWn BEHAVIOUR RUNS,
