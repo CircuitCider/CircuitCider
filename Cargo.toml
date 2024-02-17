@@ -10,7 +10,7 @@ bevy = {version = "0.12", features = ["dynamic_linking"]}
 bevy-inspector-egui = "0.22"
 bevy_egui = "0.24"
 egui = "0.24"
-bevy_serialization_extras = "0.3"
+bevy_serialization_extras = "0.3.1"
 bevy_serialization_urdf = "0.1"
 bevy_camera_extras = "0.1.6"
 bevy_component_extras = "*"
