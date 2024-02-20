@@ -76,9 +76,9 @@
 
 ### Prerequisites
 * rust
-  ```sh
+```sh
   rustup update
-  ```
+```
 
 ### Installation
 
