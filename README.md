@@ -32,8 +32,7 @@
 
 **CircuitCider** 
 
-is an open-source robot dueler focused on fast paced combat with
-(mostly)realistic physics.
+An open-source robot dueler focused on fast paced combat with (mostly)realistic physics.
 
 
 ### Key Features
