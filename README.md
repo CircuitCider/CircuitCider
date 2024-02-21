@@ -1,23 +1,5 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
 
-
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Stargazers][stars-shield]][stars-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
@@ -48,15 +30,24 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-**CircuitCider** is an open-source project focused on providing a robust simulation environment for robots. At its current stage, the program excels in loading robots from UDRF files, allowing users to explore a diverse range of robotic designs.
+**CircuitCider** 
+
+is an open-source robot dueler focused on fast paced combat with
+(mostly)realistic physics.
+
 
 ### Key Features
 - **UDRF File Compatibility:** Seamlessly import robots using any UDRF file, ensuring flexibility in exploring various robotic models.
 
 ### Upcoming Features
-- **AI Integration:** Planned future updates will introduce advanced AI functionalities, empowering users to implement intelligent behaviors and decision-making processes for their simulated robots.
-- **Combat Simulation:** Experience thrilling robot battles within the program, testing different robotic creations in simulated combat scenarios.
-- **In-App Robot Creation:** Unlock the ability to craft your own robots directly within the program. Customize parameters, design, and features to bring your robotic creations to life without leaving the simulation environment.
+
+
+- **Comabt** New features from traditional fighting games like dodging, melee and ranged combat, all with with physics forces and colliders!
+
+- **Arena editor and Robot editor** A new editor for saving/loading robots + saving/loading arenas for them to fight in
+
+- **Robot AI** path-planning + other AI features for robots to fight the player and eachother.
+
 
 *CircuitCider* is an evolving project, and your contributions and feedback are crucial in shaping its future. Join the community, participate in development, and anticipate the exciting additions that will enhance the simulation and customization experience with *CircuitCider*.
 
