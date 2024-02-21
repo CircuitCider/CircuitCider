@@ -42,7 +42,7 @@ is an open-source robot dueler focused on fast paced combat with
 ### Upcoming Features
 
 
-- **Comabt** New features from traditional fighting games like dodging, melee and ranged combat, all with with physics forces and colliders!
+- **Combat** New features from traditional fighting games like dodging, melee and ranged combat, all with with physics forces and colliders!
 
 - **Arena editor and Robot editor** A new editor for saving/loading robots + saving/loading arenas for them to fight in
 
