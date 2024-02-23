@@ -1,0 +1,6 @@
+[submodule "crates/bevy_serialization_extras"]
+	path = crates/bevy_serialization_extras
+	url = git@github.com:rydb/bevy_serialization_extras.git
+[submodule "crates/bevy_serialization_urdf"]
+	path = crates/bevy_serialization_urdf
+	url = git@github.com:rydb/bevy_serialization_urdf.git
