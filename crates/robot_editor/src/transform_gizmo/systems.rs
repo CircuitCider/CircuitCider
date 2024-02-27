@@ -1,15 +1,14 @@
 use std::{f32::consts::PI, ops::Mul};
 
-use bevy::{core_pipeline::clear_color::ClearColorConfig, prelude::*, render::view::RenderLayers, transform::commands, utils::HashMap};
+use bevy::{prelude::*, render::view::RenderLayers, transform::commands, utils::HashMap};
 use bevy_mod_raycast::{immediate::Raycast, CursorRay};
 use bevy_serialization_extras::prelude::link::JointFlag;
 
 use crate::{
-    shaders::neon_glow::NeonGlowMaterial,
-    ui::{get_first_hit_with, BuildToolMode},
+    components::GizmoFocused, shaders::neon_glow::NeonGlowMaterial, ui::{get_first_hit_with, BuildToolMode}
 };
 
-use super::components::{GizmoFocused, Ring, TransformWidget, TransformWidgetMarker, Tug, Widget};
+use super::components::{Ring, TransformWidget, TransformWidgetMarker, Tug, Widget};
 
 const TRANSFORM_GIZMO_ACTIVE: BuildToolMode = BuildToolMode::GizmoMode;
 const GIZMO_CAMERA_LAYER: u8 = 1;
@@ -18,7 +17,6 @@ const GIZMO_CAMERA_LAYER: u8 = 1;
 /// marks this camera as a gizmo cam which mirrors the camera atteched to the set mirrored_camera
 #[derive(Component, Deref)]
 pub struct CameraMirrors(Entity);
-
 pub fn spawn_gizmo_when_needed(
     //models_without_widget: Query<(Entity, &Transform, &GizmoFocused), (With<Handle<Mesh>>, Without<Widget>)>,
     models_marked_for_gizmo: Query<(Entity, &GizmoFocused)>,
@@ -39,16 +37,17 @@ pub fn spawn_gizmo_when_needed(
 
         let dist = 1.0;
 
-        let cube_mesh = meshes.add(shape::Cube { size: cube_size }.into());
+        let cube_mesh = meshes.add(Cuboid::new(cube_size, cube_size, cube_size));
 
         let disc_mesh = meshes.add(
-            shape::Torus {
-                radius: dist,
-                ring_radius: 0.1,
-                subdivisions_segments: 10,
-                subdivisions_sides: 10,
-            }
-            .into(),
+            Torus {
+                minor_radius: 0.1,
+                major_radius: dist,
+                // radius: dist,
+                // ring_radius: 0.1,
+                // subdivisions_segments: 10,
+                // subdivisions_sides: 10,
+            },
         );
 
         // spawn edit widget, x = red, y = green, z = blue
@@ -89,7 +88,7 @@ pub fn spawn_gizmo_when_needed(
             .spawn((
                 PbrBundle {
                     mesh: cube_mesh.clone(),
-                    material: materials.add(Color::RED.into()),
+                    material: materials.add(Color::RED),
                     transform: Transform::from_translation(Vec3::new(dist, 0.0, 0.0)),
                     ..default()
                 },
@@ -104,7 +103,7 @@ pub fn spawn_gizmo_when_needed(
             .spawn((
                 PbrBundle {
                     mesh: cube_mesh.clone(),
-                    material: materials.add(Color::RED.into()),
+                    material: materials.add(Color::RED),
                     transform: Transform::from_translation(Vec3::new(-dist, 0.0, 0.0)),
                     ..default()
                 },
@@ -119,7 +118,7 @@ pub fn spawn_gizmo_when_needed(
             .spawn((
                 PbrBundle {
                     mesh: cube_mesh.clone(),
-                    material: materials.add(Color::BLUE.into()),
+                    material: materials.add(Color::BLUE),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, dist)),
                     ..default()
                 },
@@ -134,7 +133,7 @@ pub fn spawn_gizmo_when_needed(
             .spawn((
                 PbrBundle {
                     mesh: cube_mesh.clone(),
-                    material: materials.add(Color::BLUE.into()),
+                    material: materials.add(Color::BLUE),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, -dist)),
                     ..default()
                 },
@@ -152,7 +151,7 @@ pub fn spawn_gizmo_when_needed(
             .spawn((
                 PbrBundle {
                     mesh: disc_mesh.clone(),
-                    material: materials.add(Color::BLUE.into()),
+                    material: materials.add(Color::BLUE),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
                     ..default()
                 },
@@ -169,7 +168,7 @@ pub fn spawn_gizmo_when_needed(
             .spawn((
                 PbrBundle {
                     mesh: disc_mesh.clone(),
-                    material: materials.add(Color::BLUE.into()),
+                    material: materials.add(Color::BLUE),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0))
                         .with_rotation(Quat::from_rotation_x(PI / 2.0)),
                     ..default()
@@ -235,8 +234,6 @@ pub fn average_gizmo_position(
 }
 
 
-
-
 pub fn spawn_gizmo_rendering_camera(
     unfocused_gizmos: Query<Entity, With<Widget>>,
     cameras: Query<Entity, (With<Camera3d>, Without<CameraMirrors>)>,
@@ -244,33 +241,33 @@ pub fn spawn_gizmo_rendering_camera(
     mut commands: Commands,
 ) {
 
-    //FIXME: this will break if there is more then one camera.
-    // reimplement this for multiple cameras.
-    let main_camera = cameras.single();
+    //FIXME: this will break if there are multiple cameras.
+    if let Some(main_camera) = cameras.iter().last() {
+        if unfocused_gizmos.iter().len() > 0 && mirror_cameras.iter().len() <= 0 {
+            commands.spawn(
+                (
+                    Camera3dBundle {
+                        transform: Transform::from_xyz(10.0, 10., -5.0).looking_at(Vec3::ZERO, Vec3::Y),
+                        camera_3d: Camera3d {
+                            //clear_color: ClearColorConfig::None,
+                            ..default()
+                        },
+                        camera: Camera {
+                            // renders after / on top of the main camera
+                            order: 1,
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    // set to render layer 1 to make camera see models on render layer 1
+                    RenderLayers::layer(GIZMO_CAMERA_LAYER),
+                    CameraMirrors(main_camera)
+                    )
+            )
+            ;
+            }
+    }
 
-    if unfocused_gizmos.iter().len() > 0 && mirror_cameras.iter().len() <= 0 {
-        commands.spawn(
-            (
-                Camera3dBundle {
-                    transform: Transform::from_xyz(10.0, 10., -5.0).looking_at(Vec3::ZERO, Vec3::Y),
-                    camera_3d: Camera3d {
-                        clear_color: ClearColorConfig::None,
-                        ..default()
-                    },
-                    camera: Camera {
-                        // renders after / on top of the main camera
-                        order: 1,
-                        ..default()
-                    },
-                    ..default()
-                },
-                // set to render layer 1 to make camera see models on render layer 1
-                RenderLayers::layer(GIZMO_CAMERA_LAYER),
-                CameraMirrors(main_camera)
-                )
-        )
-        ;
-        }
 }
 
 /// makes gizmo camera follow gizmo
@@ -319,7 +316,7 @@ pub fn gizmo_mark_on_click(
     mut tool_mode: ResMut<BuildToolMode>,
     gizmoable: Query<&JointFlag>,
     mut commands: Commands,
-    mouse: Res<Input<MouseButton>>,
+    mouse: Res<ButtonInput<MouseButton>>,
     things_with_gizmo: Query<&GizmoFocused>,
 ) {
     if *tool_mode == BuildToolMode::GizmoMode {

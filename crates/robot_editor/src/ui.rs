@@ -3,7 +3,7 @@ use std::{any::TypeId, collections::HashMap, io::ErrorKind};
 use async_trait::async_trait;
 use bevy::{
     asset::{AssetContainer, LoadedFolder},
-    ecs::query::WorldQuery,
+    ecs::query::{QueryData, WorldQuery},
     input::mouse::MouseButtonInput,
     prelude::*,
     reflect::erased_serde::Error,
@@ -33,10 +33,6 @@ impl Plugin for CachePrefabsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(BuildToolMode::PlacerMode)
             .insert_resource(ModelFolder::default())
-            // .insert_resource(
-            //     ToolModeRegistry::default()
-            //     .register(GizmoMode)
-            // )
             .add_systems(Startup, cache_initial_folders)
             .add_systems(Update, placer_mode_ui)
             .add_systems(Update, select_build_tool);
@@ -118,7 +114,7 @@ pub fn select_build_tool(
 }
 
 /// gets first hit with raycast from cursor which matches a given query.
-pub fn get_first_hit_with<T: WorldQuery>(
+pub fn get_first_hit_with<T: QueryData>(
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
     hit_match_criteria: &Query<T>,
@@ -199,7 +195,7 @@ pub fn attach_placer(
         &Transform,
         &Placer,
     )>,
-    mouse: Res<Input<MouseButton>>,
+    mouse: Res<ButtonInput<MouseButton>>,
     mut commands: Commands,
     mut tool_mode: ResMut<BuildToolMode>,
 ) {
@@ -207,7 +203,7 @@ pub fn attach_placer(
         for (e, handle, mesh, trans, ..) in placers.iter() {
             if let Some(mat) = neon_materials.get_mut(handle) {
                 if rapier_context
-                    .intersections_with(e)
+                    .intersection_pairs_with(e)
                     .collect::<Vec<_>>()
                     .len()
                     > 0

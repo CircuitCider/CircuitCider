@@ -6,3 +6,6 @@ pub enum Wheel {
     Left,
     Right,
 }
+
+#[derive(Component, Reflect, Default)]
+pub struct GizmoFocused;

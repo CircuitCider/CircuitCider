@@ -1,5 +1,7 @@
 use bevy::{asset::load_internal_asset, prelude::*};
 
+use crate::shaders::neon_glow::NeonGlowMaterial;
+
 use super::systems::*;
 //use bevy_component_extras::components::*;
 //use crate::editor::systems::SelectedForEdit;
@@ -13,6 +15,7 @@ impl Plugin for TransformWidgetPlugin {
     fn build(&self, app: &mut App) {
         app
 
+        //
 
         .register_type::<LastMouseInteraction>()
         .register_type::<Tug>()

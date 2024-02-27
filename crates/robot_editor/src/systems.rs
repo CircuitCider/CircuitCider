@@ -1,6 +1,6 @@
 pub use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use bevy_component_extras::components::Watched;
+use bevy_camera_extras::components::Watched;
 use bevy_egui::EguiContext;
 use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
@@ -8,7 +8,7 @@ use bevy_serialization_extras::prelude::{
     *,
 };
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
-use bevy_ui_extras::stylesheets::DEBUG_FRAME_STYLE;
+//use bevy_ui_extras::stylesheets::DEBUG_FRAME_STYLE;
 use strum_macros::Display;
 
 use crate::components::Wheel;
@@ -39,24 +39,24 @@ pub fn set_robot_to_follow(
 pub struct WasFrozen;
 
 pub fn control_robot(
-    mut rigid_body_flag: Query<(&mut RigidBodyFlag), (Without<JointFlag>, With<StructureFlag>)>,
-    keys: Res<Input<KeyCode>>,
+    mut rigid_body_flag: Query<&mut RigidBodyFlag, (Without<JointFlag>, With<StructureFlag>)>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     mut wheels: Query<(&mut JointFlag, &Wheel)>,
 ) {
     let target_speed = 20.0;
 
-    let leftward_key = KeyCode::Left;
-    let rightward_key = KeyCode::Right;
-    let forward_key = KeyCode::Up;
-    let backward_key = KeyCode::Down;
+    let leftward_key = KeyCode::ArrowLeft;
+    let rightward_key = KeyCode::ArrowRight;
+    let forward_key = KeyCode::ArrowUp;
+    let backward_key = KeyCode::ArrowDown;
 
-    let freeze_key = KeyCode::P;
-    let unfreeze_key = KeyCode::O;
+    let freeze_key = KeyCode::KeyP;
+    let unfreeze_key = KeyCode::KeyO;
 
     for mut context in primary_window.iter_mut() {
         egui::Window::new("robot controls")
-            .frame(DEBUG_FRAME_STYLE)
+            //.frame(DEBUG_FRAME_STYLE)
             .show(context.get_mut(), |ui| {
                 ui.label(format!("Freeze key: {:#?}", freeze_key));
                 ui.label(format!("unfreeze key {:#?}", unfreeze_key));

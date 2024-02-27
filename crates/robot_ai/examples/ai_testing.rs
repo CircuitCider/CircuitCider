@@ -7,9 +7,7 @@ use bevy_camera_extras::plugins::DefaultCameraPlugin;
 use bevy_component_extras::components::{Followed, Watched};
 use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_mod_picking::{
-    focus::PickingInteraction, picking_core::Pickable, DefaultPickingPlugins, PickableBundle,
-};
+
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
@@ -24,7 +22,6 @@ use bevy_serialization_urdf::{
     loaders::urdf_loader::Urdf,
     plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
 };
-use bevy_transform_gizmo::TransformGizmoPlugin;
 use bevy_ui_extras::systems::visualize_right_sidepanel_for;
 use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState};
 
@@ -32,16 +29,18 @@ pub fn main() {
     App::new()
         // app sources
         .add_plugins(AppSourcesPlugin)
-        .add_plugins(AssetSourcesUrdfPlugin)
+        .add_plugins(AssetSourcesUrdfPlugin {
+            assets_folder_local_path: "../../assets".into()
+        })
         .add_plugins(DefaultPlugins)
         .add_plugins(RobotEditorPlugin)
         // camera
         .add_plugins(DefaultCameraPlugin)
         // Picking/selecting
-        .add_plugins((
-            DefaultPickingPlugins,
-            TransformGizmoPlugin::new(Quat::from_rotation_y(-0.2)),
-        ))
+        // .add_plugins((
+        //     DefaultPickingPlugins,
+        //     //TransformGizmoPlugin::new(Quat::from_rotation_y(-0.2)),
+        // ))
         // serialization plugins
         .add_plugins(SerializationPlugin)
         .add_plugins(PhysicsSerializationPlugin)
@@ -76,8 +75,8 @@ fn setup(
     // plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(shape::Plane::from_size(50.0).into()),
-            material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+            mesh: meshes.add(Plane3d::new(Vec3::new(0.0, 1.0, 0.0)).mesh().size(50.0, 50.0)),
+            material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
             transform: Transform::from_xyz(0.0, -1.0, 0.0),
             ..default()
         },
@@ -104,6 +103,6 @@ fn setup(
             transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         },
-        bevy_transform_gizmo::GizmoPickSource::default(),
+        //bevy_transform_gizmo::GizmoPickSource::default(),
     ));
 }

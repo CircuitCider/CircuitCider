@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Component, Reflect, Default)]
-pub struct GizmoFocused;
+
 
 #[derive(Component, Reflect, Default)]
 pub struct Widget;

@@ -1,59 +1,43 @@
 use app_core::{plugins::AppSourcesPlugin, ROOT};
-use bevy::{
-    asset::io::{file::FileAssetReader, AssetSource},
-    prelude::*,
-};
-use bevy_camera_extras::plugins::DefaultCameraPlugin;
-use bevy_component_extras::components::{Followed, Watched};
-use bevy_egui::EguiPlugin;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_rapier3d::{
-    geometry::Collider,
-    plugin::{NoUserData, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
-};
-use bevy_serialization_extras::prelude::{
-    link::{JointFlag, LinkFlag, StructureFlag},
-    rigidbodies::RigidBodyFlag,
-    AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin,
-    SerializationPlugin,
-};
-use bevy_serialization_urdf::{
-    loaders::urdf_loader::Urdf,
-    plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
-};
-use bevy_transform_gizmo::TransformGizmoPlugin;
-use bevy_ui_extras::systems::visualize_right_sidepanel_for;
-use robot_editor::{
-    plugins::RobotEditorPlugin,
-    states::RobotEditorState,
-    transform_gizmo::{
-        components::{GizmoFocused, TransformWidgetMarker},
-        plugins::TransformWidgetPlugin,
-    },
-    ui::{
-        attach_placer, delete_attach_candidates, delete_placers, move_placer_to_cursor,
-        CachePrefabsPlugin,
-    },
-};
+use bevy::prelude::*;
+use bevy_obj::ObjPlugin;
+use bevy_rapier3d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
+use bevy_serialization_extras::prelude::{AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin, SerializationPlugin};
+use bevy_serialization_urdf::{loaders::urdf_loader::Urdf, plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin}};
+use robot_editor::{components::GizmoFocused, plugins::RobotEditorPlugin, states::RobotEditorState, ui::{attach_placer, delete_attach_candidates, delete_placers, move_placer_to_cursor, CachePrefabsPlugin}};
+use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 
 pub fn main() {
     App::new()
         // app sources
+        
         .add_plugins(AppSourcesPlugin)
-        .add_plugins(AssetSourcesUrdfPlugin)
-        //.add_plugins(CachePrefabsPlugin)
-        //.register_type::<Collider>()
+        .add_plugins(AssetSourcesUrdfPlugin {
+            assets_folder_local_path: "../../assets".to_owned()
+        })
+        
+
         .add_plugins(DefaultPlugins)
+        
+        
+        .add_plugins(CachePrefabsPlugin)
+
+        //.add_plugins(ObjPlugin)
+        
+        
         .add_plugins(RobotEditorPlugin)
-        // serialization plugins
+
+        // // serialization plugins
         .add_plugins(SerializationPlugin)
         .add_plugins(PhysicsSerializationPlugin)
         .add_plugins(UrdfSerializationPlugin)
-        // physics
+
+        // // physics
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
-        .add_systems(Update, visualize_right_sidepanel_for::<GizmoFocused>)
+        
+        // world setup
+        .add_systems(Update, visualize_window_for::<GizmoFocused>)
         .add_systems(Startup, setup)
         .add_systems(PostStartup, turn_on_editor)
         .add_systems(Update, move_placer_to_cursor)
@@ -85,8 +69,12 @@ fn setup(
     // plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(shape::Plane::from_size(50.0).into()),
-            material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+            mesh: meshes.add(
+                Plane3d::new(
+                    Vec3::new(0.0, 1.0, 0.0)
+                ).mesh().size(50.0, 50.0)
+            ),
+            material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
             transform: Transform::from_xyz(0.0, -1.0, 0.0),
             ..default()
         },
@@ -103,12 +91,9 @@ fn setup(
         transform: Transform::from_xyz(4.0, 8.0, 4.0),
         ..default()
     },));
-    // camera
+    //camera
     commands.spawn((
-        // Camera3dBundle {
-        // transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-        // ..default()
-        // },
+
         Camera3dBundle {
             transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
