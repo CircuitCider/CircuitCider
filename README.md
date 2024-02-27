@@ -77,11 +77,9 @@ An open-source robot dueler focused on fast paced combat with (mostly)realistic 
     mkdir <folder_name>
     cd <folder_name>
   ```
-2. Clone the required repositories
+2. Clone the repository
  ```sh
    git clone https://github.com/rydb/CircuitCider.git
-   git clone https://github.com/rydb/bevy_serialization_extras.git
-   git clone https://github.com/rydb/bevy_serialization_urdf.git
  ```
 
 ### Build and Run
@@ -93,6 +91,8 @@ An open-source robot dueler focused on fast paced combat with (mostly)realistic 
 2. Compile and run CurcuitCider
 ```
   cargo run
+  or
+  //Run example
 ```
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
