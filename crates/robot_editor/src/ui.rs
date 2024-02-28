@@ -113,6 +113,24 @@ pub fn select_build_tool(
     }
 }
 
+/// gets first hit with raycast from cursor which doesn't match given query.
+pub fn get_first_hit_without<T: QueryData>(
+    cursor_ray: Res<CursorRay>,
+    mut raycast: Raycast,
+    hit_match_criteria: &Query<T>,
+) -> Option<(Entity, IntersectionData)> {
+    let ray = (**cursor_ray)?;
+
+    let hit_list = raycast
+        .cast_ray(ray, &DONT_EXIT_EARLY)
+        .iter()
+        .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
+        .collect::<Vec<_>>();
+
+    let first_hit = (*hit_list.first()?).clone();
+    Some(first_hit)
+}
+
 /// gets first hit with raycast from cursor which matches a given query.
 pub fn get_first_hit_with<T: QueryData>(
     cursor_ray: Res<CursorRay>,
@@ -163,8 +181,11 @@ pub fn move_placer_to_cursor(
     tool_mode: ResMut<BuildToolMode>,
     mut placers: Query<(&mut Transform, &Placer)>,
 ) {
+    // if let Some(mouse_pos) = **cursor_ray {
+
+    // }
     if *tool_mode == BuildToolMode::PlacerMode {
-        if let Some((_, hit)) = get_first_hit_with(cursor_ray, raycast, &placers) {
+        if let Some((_, hit)) = get_first_hit_without(cursor_ray, raycast, &placers) {
             for (mut trans, ..) in placers.iter_mut() {
                 let hit_pos = hit.position();
                 //println!("moving placer to cursor {:#?}", hit_pos);
@@ -172,6 +193,29 @@ pub fn move_placer_to_cursor(
             }
         }
     }
+}
+
+pub fn debug_mouse_info(
+    cursor_ray: Res<CursorRay>,
+    mut raycast: Raycast,
+    mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
+    mut gizmos: Gizmos
+) {
+    for mut context in primary_window.iter_mut() {
+        egui::Window::new("mouse info")
+        .show(context.get_mut(), |ui| {
+            ui.label("Mouse ray info");
+            if let Some(ray) = **cursor_ray {
+                ui.label(format!("{:#?}", ray));
+                //gizmos.ray(ray.origin, *ray.direction, Color::RED);
+                let orientation = Quat::from_rotation_arc(Vec3::NEG_Z, *ray.direction);
+                gizmos.arrow(ray.origin, *ray.direction, Color::RED);
+                //gizmos.sphere(ray.origin + *ray.direction, orientation, 0.1, Color::BLUE);
+                //raycast.debug_cast_ray(ray, &RaycastSettings::default(), &mut gizmos);
+            } 
+        });
+    }
+
 }
 
 #[derive(Component, Default)]
@@ -184,8 +228,8 @@ pub struct AttachCandidate;
 
 /// checks for any intersection between the placer and other meshes
 pub fn attach_placer(
-    mut raycast: Raycast,
-    cursor_ray: Res<CursorRay>,
+    //mut raycast: Raycast,
+    //cursor_ray: Res<CursorRay>,
     rapier_context: Res<RapierContext>,
     mut neon_materials: ResMut<Assets<NeonGlowMaterial>>,
     placers: Query<(
@@ -228,39 +272,6 @@ pub fn attach_placer(
             }
         }
     }
-    // change part color to show if its intersecting something or not
-
-    // for (e, handle, mesh, trans, ..) in placers.iter() {
-    //     if let Some(mat) = neon_materials.get_mut(handle) {
-    //         if rapier_context.intersections_with(e)
-    //         .collect::<Vec<_>>()
-    //         .len() > 0 {
-    //             *mat = Color::RED.into();
-    //         } else {
-    //             *mat = Color::GREEN.into();
-    //         }
-    //             if let Some(_) =  get_first_hit_with(cursor_ray, raycast, &placers ){
-    //                 if mouse.just_pressed(MouseButton::Left) {
-    //                     println!("placing placer..");
-
-    //                     commands.spawn((
-    //                         MaterialMeshBundle {
-    //                             mesh: mesh.clone(),
-    //                             material: handle.clone(),
-    //                             transform: *trans,
-    //                             ..default()
-    //                         },
-    //                         Edited,
-    //                         AttachCandidate,
-    //                         )
-    //                     )
-    //                     ;
-    //                     *tool_mode = BuildToolMode::EditerMode;
-    //                 }
-    //             }
-    //     }
-
-    // }
 }
 
 // /// editor mode for editing attached
