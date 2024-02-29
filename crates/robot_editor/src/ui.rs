@@ -3,7 +3,7 @@ use std::{any::TypeId, collections::HashMap, io::ErrorKind};
 use async_trait::async_trait;
 use bevy::{
     asset::{AssetContainer, LoadedFolder},
-    ecs::query::{QueryData, WorldQuery},
+    ecs::query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery},
     input::mouse::MouseButtonInput,
     prelude::*,
     reflect::erased_serde::Error,
@@ -132,11 +132,13 @@ pub fn get_first_hit_without<T: QueryData>(
 }
 
 /// gets first hit with raycast from cursor which matches a given query.
-pub fn get_first_hit_with<T: QueryData>(
+pub fn get_first_hit_with<'a, T: ReadOnlyQueryData, F: QueryFilter>(
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
-    hit_match_criteria: &Query<T>,
-) -> Option<(Entity, IntersectionData)> {
+    hit_match_criteria: &'a Query<T, F>,
+) -> Option<(Entity, IntersectionData, T::Item<'a>)> 
+    where
+{
     let ray = (**cursor_ray)?;
 
     let hit_list = raycast
@@ -146,7 +148,54 @@ pub fn get_first_hit_with<T: QueryData>(
         .collect::<Vec<_>>();
 
     let first_hit = (*hit_list.first()?).clone();
-    Some(first_hit)
+    let query_data = hit_match_criteria.get(first_hit.0).ok()?;
+
+    Some((first_hit.0, first_hit.1, query_data))
+}
+
+// /// gets first hit if hit is first, otherwise, return none.
+// pub fn get_first_hit_if_first<'a, T: ReadOnlyQueryData, F: QueryFilter>(
+//     cursor_ray: Res<CursorRay>,
+//     mut raycast: Raycast,
+//     hit_match_no_filter: &'a Query<T>,
+//     hit_match_filtered: &'a Query<T, F>,
+
+// ) -> Option<(Entity, IntersectionData, T::Item<'a>)> 
+//     where
+// {
+//     let ray = (**cursor_ray)?;
+
+//     let hit_list = raycast
+//         .cast_ray(ray, &DONT_EXIT_EARLY)
+//         .iter()
+//         .filter(|(e, ..)| hit_match_no_filter.contains(e.clone()) == true)
+//         .collect::<Vec<_>>();
+
+//     let first_hit = (*hit_list.first()?).clone();
+    
+//     let query_data = hit_match_filtered.get(first_hit.0).ok()?;
+
+//     Some((first_hit.0, first_hit.1, query_data))
+// }
+
+/// get first hit entity that matches a query, and return the entity, mutable query data, and intersection data
+pub fn get_first_hit_with_mut<'a, T: QueryData, F: QueryFilter>(
+    cursor_ray: Res<CursorRay>,
+    mut raycast: Raycast,
+    hit_match_criteria: &'a mut Query<'_, '_, T, F>,
+) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
+    let ray = (**cursor_ray)?;
+
+    let hit_list = raycast
+        .cast_ray(ray, &DONT_EXIT_EARLY)
+        .iter()
+        .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
+        .collect::<Vec<_>>();
+
+    let first_hit = (*hit_list.first()?).clone();
+    let query_data = hit_match_criteria.get_mut(first_hit.0).ok()?;
+
+    Some((first_hit.0, first_hit.1, query_data))
 }
 
 /// gets rid of placers if current mode is not placermode

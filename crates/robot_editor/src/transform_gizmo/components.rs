@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 
 
@@ -23,17 +25,13 @@ pub struct LastMouseInteraction {
 }
 
 /// flag + direction of tug, when dragged, things with tug pull their widget in this components direction.
-#[derive(Component, Reflect, Default)]
+#[derive(Component, Deref, Reflect, Default)]
 #[reflect(Component)]
-pub struct Tug {
-    pub pull: Vec3,
-}
+pub struct Tug(Vec3);
 
 impl Tug {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
-        Self {
-            pull: Vec3::new(x, y, z),
-        }
+        Self(Vec3::new(x, y, z))
     }
 }
 

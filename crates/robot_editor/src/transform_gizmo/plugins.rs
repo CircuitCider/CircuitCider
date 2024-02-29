@@ -24,7 +24,12 @@ impl Plugin for TransformWidgetPlugin {
         .add_systems(Update, gizmo_mark_on_click)
         .add_systems(Update, spawn_gizmo_when_needed)
         .add_systems(Update, despawn_gizmo_when_no_targets)
-        .add_systems(Update, average_gizmo_position)
+        .add_systems(Update, (
+            average_gizmo_position,
+            drag_tugs_with_mouse.after(average_gizmo_position)
+        )
+        )
+            
         
         
         // gizmo camera management

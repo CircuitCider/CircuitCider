@@ -26,7 +26,7 @@ pub fn select_for_gizmo(
     if *tool_mode == BuildToolMode::SelectorMode {
         if mouse.just_pressed(MouseButton::Left) {
             if let Some((e, ..)) = get_first_hit_with(cursor_ray, raycast, &gizmoable) {
-                println!("selecting for gizmo");
+                //println!("selecting for gizmo");
                 if things_with_gizmo.contains(e) {
                     commands.entity(e)
                     .remove::<GizmoFocused>()

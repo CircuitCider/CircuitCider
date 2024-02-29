@@ -5,7 +5,7 @@ use bevy_mod_raycast::{immediate::Raycast, CursorRay};
 use bevy_serialization_extras::prelude::link::JointFlag;
 
 use crate::{
-    components::GizmoFocused, shaders::neon_glow::NeonGlowMaterial, ui::{get_first_hit_with, BuildToolMode}
+    components::GizmoFocused, shaders::neon_glow::NeonGlowMaterial, ui::{get_first_hit_with, get_first_hit_with_mut, BuildToolMode}
 };
 
 use super::components::{Ring, TransformWidget, TransformWidgetMarker, Tug, Widget};
@@ -37,7 +37,10 @@ pub fn spawn_gizmo_when_needed(
 
         let dist = 1.0;
 
-        let cube_mesh = meshes.add(Cuboid::new(cube_size, cube_size, cube_size));
+        //let cube_mesh = meshes.add(Cuboid::new(cube_size, cube_size, cube_size));
+        let cube_x_mesh = meshes.add(Cuboid::new(cube_size * 3.0, cube_size, cube_size));
+        let cube_y_mesh = meshes.add(Cuboid::new(cube_size, cube_size * 3.0, cube_size));
+        let cube_z_mesh = meshes.add(Cuboid::new(cube_size, cube_size, cube_size * 3.0));
 
         let disc_mesh = meshes.add(
             Torus {
@@ -49,7 +52,14 @@ pub fn spawn_gizmo_when_needed(
                 // subdivisions_sides: 10,
             },
         );
-
+        let transform_widget = commands
+            .spawn((
+                // spawn out of sight, and let different system correct position
+                SpatialBundle::from_transform(Transform::from_xyz(0.0, 0.0, 0.0)),
+                TransformWidget,
+                Name::new("Transform Widget"),
+                RenderLayers::layer(GIZMO_CAMERA_LAYER)
+            )).id();
         // spawn edit widget, x = red, y = green, z = blue
 
         // some these are probably wrong and will need tweaking...
@@ -57,13 +67,12 @@ pub fn spawn_gizmo_when_needed(
         let y_tug = commands
             .spawn((
                 MaterialMeshBundle {
-                    mesh: cube_mesh.clone(),
+                    mesh: cube_y_mesh.clone(),
                     material: gizmo_material.add(NeonGlowMaterial::from(Color::hsl(120.0, s, l))),
                     transform: Transform::from_translation(Vec3::new(0.0, dist, 0.0)),
                     ..default()
                 },
                 Name::new("y_tug"),
-                //MakeSelectableBundle::default(),
                 Widget,
                 Tug::new(0.0, 1.0, 0.0),
                 RenderLayers::layer(GIZMO_CAMERA_LAYER),
@@ -72,7 +81,7 @@ pub fn spawn_gizmo_when_needed(
         let y_tug_negative = commands
             .spawn((
                 MaterialMeshBundle {
-                    mesh: cube_mesh.clone(),
+                    mesh: cube_y_mesh.clone(),
                     material: gizmo_material.add(NeonGlowMaterial::from(Color::hsl(120.0, s, l))),
                     transform: Transform::from_translation(Vec3::new(0.0, -dist, 0.0)),
                     ..default()
@@ -87,7 +96,7 @@ pub fn spawn_gizmo_when_needed(
         let x_tug = commands
             .spawn((
                 PbrBundle {
-                    mesh: cube_mesh.clone(),
+                    mesh: cube_x_mesh.clone(),
                     material: materials.add(Color::RED),
                     transform: Transform::from_translation(Vec3::new(dist, 0.0, 0.0)),
                     ..default()
@@ -102,7 +111,7 @@ pub fn spawn_gizmo_when_needed(
         let x_tug_negative = commands
             .spawn((
                 PbrBundle {
-                    mesh: cube_mesh.clone(),
+                    mesh: cube_x_mesh.clone(),
                     material: materials.add(Color::RED),
                     transform: Transform::from_translation(Vec3::new(-dist, 0.0, 0.0)),
                     ..default()
@@ -117,7 +126,7 @@ pub fn spawn_gizmo_when_needed(
         let z_tug = commands
             .spawn((
                 PbrBundle {
-                    mesh: cube_mesh.clone(),
+                    mesh: cube_z_mesh.clone(),
                     material: materials.add(Color::BLUE),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, dist)),
                     ..default()
@@ -132,7 +141,7 @@ pub fn spawn_gizmo_when_needed(
         let z_tug_negative = commands
             .spawn((
                 PbrBundle {
-                    mesh: cube_mesh.clone(),
+                    mesh: cube_z_mesh.clone(),
                     material: materials.add(Color::BLUE),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, -dist)),
                     ..default()
@@ -182,15 +191,8 @@ pub fn spawn_gizmo_when_needed(
             ))
             .id();
 
-        let transform_widget = commands
-            .spawn((
-                // spawn out of sight, and let different system correct position
-                SpatialBundle::from_transform(Transform::from_xyz(0.0, 0.0, 0.0)),
-                TransformWidget,
-                Name::new("Transform Widget"),
-                RenderLayers::layer(GIZMO_CAMERA_LAYER)
-            ))
             // set widget root transform to equal model the widget is spawning around
+            commands.entity(transform_widget)
             .add_child(y_tug)
             .add_child(y_tug_negative)
             .add_child(x_tug)
@@ -199,19 +201,51 @@ pub fn spawn_gizmo_when_needed(
             .add_child(z_tug_negative)
             .add_child(y_axis_ring)
             .add_child(z_axis_ring)
-            .id();
+            ;
     }
 }
 
 
-// pub fn drag_tugs_with_mouse(
-//     cursor_ray: Res<CursorRay>,
-//     raycast: Raycast,
-// ) {
-//     if let Some(ray) = **cursor_ray {
-//         raycast.cast_ray(ray, set)
-//     }
-// }
+pub fn drag_tugs_with_mouse(
+    cursor_ray: Res<CursorRay>, 
+    raycast: Raycast,
+    tugs: Query<(&Transform, &Parent, &Tug)>,
+    mut gizmo_focused: Query<&mut Transform, (With<GizmoFocused>, Without<Parent>, Without<Tug>)>,
+    mouse: Res<ButtonInput<MouseButton>>,
+
+) {
+    if mouse.pressed(MouseButton::Left) {
+        if let Some((_, data, (tug_trans, parent, tug))) = get_first_hit_with(cursor_ray, raycast, &tugs) {
+            for mut trans in gizmo_focused.iter_mut() {
+                if tug.x > 0.0 {
+                    trans.translation.x = data.position().x - tug_trans.translation.x
+                }
+                if tug.y > 0.0 {
+                    trans.translation.y = data.position().y - tug_trans.translation.y
+        
+                }
+                if tug.z > 0.0 {
+                    trans.translation.z = data.position().z - tug_trans.translation.z
+        
+                }
+            }
+            // if let Ok(mut parent_trans) = trans.get_mut(**parent) {
+            //     if tug.x > 0.0 {
+            //         parent_trans.translation.x = data.position().x - tug_trans.translation.x
+            //     }
+            //     if tug.y > 0.0 {
+            //         parent_trans.translation.y = data.position().y - tug_trans.translation.y
+        
+            //     }
+            //     if tug.z > 0.0 {
+            //         parent_trans.translation.z = data.position().z - tug_trans.translation.z
+        
+            //     }
+            // }
+
+        }
+    } 
+}
 
 pub fn collect_tug_forces() {}
 
@@ -314,7 +348,8 @@ pub fn gizmo_mark_on_click(
     cursor_ray: Res<CursorRay>,
     raycast: Raycast,
     mut tool_mode: ResMut<BuildToolMode>,
-    gizmoable: Query<&JointFlag>,
+    gizmoable: Query<&Transform>,
+    gizmo_filter: Query<Entity, With<Widget>>,
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
     things_with_gizmo: Query<&GizmoFocused>,
@@ -322,14 +357,17 @@ pub fn gizmo_mark_on_click(
     if *tool_mode == BuildToolMode::GizmoMode {
         if mouse.just_pressed(MouseButton::Left) {
             if let Some((e, ..)) = get_first_hit_with(cursor_ray, raycast, &gizmoable) {
-                println!("selecting for gizmo");
-                if things_with_gizmo.contains(e) {
-                    commands.entity(e).remove::<GizmoFocused>();
-                    //*tool_mode = BuildToolMode::SelectorMode
-                } else {
-                    commands.entity(e).insert(GizmoFocused);
-                    //*tool_mode = BuildToolMode::GizmoMode
+                if gizmo_filter.contains(e) == false {
+                    //println!("selecting for gizmo");
+                    if things_with_gizmo.contains(e) {
+                        commands.entity(e).remove::<GizmoFocused>();
+                        //*tool_mode = BuildToolMode::SelectorMode
+                    } else {
+                        commands.entity(e).insert(GizmoFocused);
+                        //*tool_mode = BuildToolMode::GizmoMode
+                    }
                 }
+
             }
         }
     }
