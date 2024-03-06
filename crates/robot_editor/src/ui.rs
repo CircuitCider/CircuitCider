@@ -1,4 +1,4 @@
-use std::{any::TypeId, collections::HashMap, io::ErrorKind};
+use std::{any::TypeId, collections::{HashMap, HashSet}, io::ErrorKind};
 
 use async_trait::async_trait;
 use bevy::{
@@ -9,6 +9,7 @@ use bevy::{
     reflect::erased_serde::Error,
     window::PrimaryWindow,
 };
+use std::hash::Hash;
 use bevy_egui::EguiContext;
 use bevy_mod_raycast::{
     immediate::{Raycast, RaycastSettings, RaycastVisibility},
@@ -113,78 +114,160 @@ pub fn select_build_tool(
     }
 }
 
-/// gets first hit with raycast from cursor which doesn't match given query.
-pub fn get_first_hit_without<T: QueryData>(
-    cursor_ray: Res<CursorRay>,
-    mut raycast: Raycast,
-    hit_match_criteria: &Query<T>,
-) -> Option<(Entity, IntersectionData)> {
-    let ray = (**cursor_ray)?;
+pub fn get_first_hit_without<'a, T: ReadOnlyQueryData, F: QueryFilter>(
+    hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
+    hit_match_criteria: &'a Query<T>,
+) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
 
+    let first_hit = hit_list?
+    .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
+    .nth(0)?;
+    
+    let query_data = hit_match_criteria.get(first_hit.0).ok()?;
+
+    Some((first_hit.0, first_hit.1.clone(), query_data))
+}
+
+pub fn get_first_hit_without_mut<'a, T: QueryData, F: QueryFilter>(
+    hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
+    hit_match_criteria: &'a mut Query<T, F>,
+) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
+
+    let first_hit = hit_list?
+    .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
+    .nth(0)?;
+    
+    let query_data = hit_match_criteria.get_mut(first_hit.0).ok()?;
+
+    Some((first_hit.0, first_hit.1.clone(), query_data))
+}
+
+pub fn cursor_ray_hititer<'a>(
+    cursor_ray: Res<CursorRay>,
+    raycast: &'a mut Raycast,
+    mouse_over_window: Res<MouseOverWindow>
+
+) -> Option<std::slice::Iter<'a, (Entity, IntersectionData)>>
+{
+    if **mouse_over_window {
+        return None
+    }
+    let ray = (**cursor_ray)?;
     let hit_list = raycast
         .cast_ray(ray, &DONT_EXIT_EARLY)
         .iter()
-        .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
-        .collect::<Vec<_>>();
-
-    let first_hit = (*hit_list.first()?).clone();
-    Some(first_hit)
+        //.collect::<Vec<_>>()
+        ;
+    Some(hit_list)
 }
-
 /// gets first hit with raycast from cursor which matches a given query.
 pub fn get_first_hit_with<'a, T: ReadOnlyQueryData, F: QueryFilter>(
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
     hit_match_criteria: &'a Query<T, F>,
+    mouse_over_window: Res<MouseOverWindow>
 ) -> Option<(Entity, IntersectionData, T::Item<'a>)> 
     where
 {
-    let ray = (**cursor_ray)?;
-
-    let hit_list = raycast
-        .cast_ray(ray, &DONT_EXIT_EARLY)
-        .iter()
-        .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
-        .collect::<Vec<_>>();
-
-    let first_hit = (*hit_list.first()?).clone();
+    let first_hit = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window)?
+    .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
+    .nth(0)?;
+    
     let query_data = hit_match_criteria.get(first_hit.0).ok()?;
 
-    Some((first_hit.0, first_hit.1, query_data))
+    Some((first_hit.0, first_hit.1.clone(), query_data))
 }
 
-// /// gets first hit if hit is first, otherwise, return none.
-// pub fn get_first_hit_if_first<'a, T: ReadOnlyQueryData, F: QueryFilter>(
-//     cursor_ray: Res<CursorRay>,
-//     mut raycast: Raycast,
-//     hit_match_no_filter: &'a Query<T>,
-//     hit_match_filtered: &'a Query<T, F>,
 
-// ) -> Option<(Entity, IntersectionData, T::Item<'a>)> 
-//     where
-// {
-//     let ray = (**cursor_ray)?;
+struct QueryFirst<I>
+where
+    I: Iterator,
+{
+    seen: HashSet<I::Item>,
+    underlying: I,
+}
 
-//     let hit_list = raycast
-//         .cast_ray(ray, &DONT_EXIT_EARLY)
-//         .iter()
-//         .filter(|(e, ..)| hit_match_no_filter.contains(e.clone()) == true)
-//         .collect::<Vec<_>>();
+impl<I> Iterator for QueryFirst<I>
+where
+    I: Iterator,
+    I::Item: Hash + Eq + Clone,
+{
+    type Item = I::Item;
 
-//     let first_hit = (*hit_list.first()?).clone();
-    
-//     let query_data = hit_match_filtered.get(first_hit.0).ok()?;
+    fn next(&mut self) -> Option<Self::Item> {
+        while let Some(x) = self.underlying.next() {
+            if !self.seen.contains(&x) {
+                self.seen.insert(x.clone());
+                return Some(x);
+            }
+        }
+        None
+    }
+}
 
-//     Some((first_hit.0, first_hit.1, query_data))
-// }
+trait QueryFirstExt: Iterator {
+    fn unique(self) -> QueryFirst<Self>
+    where
+        Self::Item: Hash + Eq + Clone,
+        Self: Sized,
+    {
+        QueryFirst {
+            seen: HashSet::new(),
+            underlying: self,
+        }
+    }
+    fn first_in_query(self) -> QueryFirst<Self>
+    where
+        Self::Item: Hash + Eq + Clone,
+        Self: Sized,
+    {
+        QueryFirst {
+            seen: HashSet::new(),
+            underlying: self,
+        }
+    }
+}
+
+impl<I: Iterator> QueryFirstExt for I {}
+
+/// weather mouse is over window or not. 
+#[derive(Resource, Reflect, Deref, DerefMut, Default)]
+pub struct MouseOverWindow(bool);
+
+/// Sets mouse over window resource to true/false depending on mouse state. 
+pub fn check_if_mouse_over_ui(
+    mut windows: Query<&mut EguiContext>,
+    mut mouse_over_window: ResMut<MouseOverWindow>,
+) {
+    for mut window in windows.iter_mut() {
+        if window.get_mut().is_pointer_over_area() {
+            println!("mouse is over window");
+            **mouse_over_window = true
+        } else {
+            **mouse_over_window = false
+        }
+    }
+    //**mouse_over_window = false
+}
+
 
 /// get first hit entity that matches a query, and return the entity, mutable query data, and intersection data
 pub fn get_first_hit_with_mut<'a, T: QueryData, F: QueryFilter>(
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
     hit_match_criteria: &'a mut Query<'_, '_, T, F>,
+    mouse_over_window: Res<MouseOverWindow>
 ) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
     let ray = (**cursor_ray)?;
+    // let mut a = Vec::new();
+    // a.push(5);
+
+    // let b = Some(a.iter().(0));
+    // let c = b.unwrap_or_default().unique();
+
+    if **mouse_over_window {
+        return None
+    }
 
     let hit_list = raycast
         .cast_ray(ray, &DONT_EXIT_EARLY)
@@ -225,22 +308,26 @@ pub fn delete_attach_candidates(
 }
 
 pub fn move_placer_to_cursor(
-    raycast: Raycast,
+    mut raycast: Raycast,
     cursor_ray: Res<CursorRay>,
     tool_mode: ResMut<BuildToolMode>,
     mut placers: Query<(&mut Transform, &Placer)>,
+    mut mouse_over_window: Res<MouseOverWindow>,
 ) {
     // if let Some(mouse_pos) = **cursor_ray {
 
     // }
     if *tool_mode == BuildToolMode::PlacerMode {
-        if let Some((_, hit)) = get_first_hit_without(cursor_ray, raycast, &placers) {
+        //let x = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window).unwrap_or_default();
+        if let Some((_, hit, _)) = 
+        get_first_hit_without_mut(cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window), &mut placers) {
             for (mut trans, ..) in placers.iter_mut() {
                 let hit_pos = hit.position();
                 //println!("moving placer to cursor {:#?}", hit_pos);
                 trans.translation = hit_pos;
             }
         }
+       
     }
 }
 

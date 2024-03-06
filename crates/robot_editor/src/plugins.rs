@@ -11,6 +11,8 @@ use crate::shaders::*;
 use crate::states::*;
 use crate::systems::*;
 use crate::transform_gizmo::plugins::TransformWidgetPlugin;
+use crate::ui::check_if_mouse_over_ui;
+use crate::ui::MouseOverWindow;
 
 pub struct RobotEditorPlugin;
 
@@ -25,7 +27,6 @@ impl Plugin for RobotEditorPlugin {
         );
         app
         .add_plugins(MaterialPlugin::<NeonGlowMaterial>::default())
-
         ;
         
         app
@@ -36,6 +37,9 @@ impl Plugin for RobotEditorPlugin {
 
         // selection behaviour
         //.add_plugins(DefaultPickingPlugins)
+
+        .init_resource::<MouseOverWindow>()
+        .add_systems(PreUpdate, check_if_mouse_over_ui)
 
         .add_plugins(TransformWidgetPlugin)
         //FIXME: commented out until bevy_inspector_egui is un-broken

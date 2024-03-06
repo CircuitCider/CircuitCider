@@ -26,7 +26,8 @@ impl Plugin for TransformWidgetPlugin {
         .add_systems(Update, despawn_gizmo_when_no_targets)
         .add_systems(Update, (
             average_gizmo_position,
-            drag_tugs_with_mouse.after(average_gizmo_position)
+            drag_tugs_with_mouse.after(average_gizmo_position),
+            drag_rings_with_mouse.after(average_gizmo_position)
         )
         )
             

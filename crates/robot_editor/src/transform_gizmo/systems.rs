@@ -5,7 +5,7 @@ use bevy_mod_raycast::{immediate::Raycast, CursorRay};
 use bevy_serialization_extras::prelude::link::JointFlag;
 
 use crate::{
-    components::GizmoFocused, shaders::neon_glow::NeonGlowMaterial, ui::{get_first_hit_with, get_first_hit_with_mut, BuildToolMode}
+    components::GizmoFocused, shaders::neon_glow::NeonGlowMaterial, ui::{get_first_hit_with, get_first_hit_with_mut, BuildToolMode, MouseOverWindow}
 };
 
 use super::components::{Ring, TransformWidget, TransformWidgetMarker, Tug, Widget};
@@ -209,13 +209,13 @@ pub fn spawn_gizmo_when_needed(
 pub fn drag_tugs_with_mouse(
     cursor_ray: Res<CursorRay>, 
     raycast: Raycast,
-    tugs: Query<(&Transform, &Parent, &Tug)>,
-    mut gizmo_focused: Query<&mut Transform, (With<GizmoFocused>, Without<Parent>, Without<Tug>)>,
+    tugs: Query<(&Transform, &Tug), With<Parent>>,
+    mut gizmo_focused: Query<&mut Transform, (With<GizmoFocused>, Without<Tug>)>,
     mouse: Res<ButtonInput<MouseButton>>,
-
+    mouse_over_window: Res<MouseOverWindow>,
 ) {
     if mouse.pressed(MouseButton::Left) {
-        if let Some((_, data, (tug_trans, parent, tug))) = get_first_hit_with(cursor_ray, raycast, &tugs) {
+        if let Some((_, data, (tug_trans, tug))) = get_first_hit_with(cursor_ray, raycast, &tugs, mouse_over_window) {
             for mut trans in gizmo_focused.iter_mut() {
                 if tug.x > 0.0 {
                     trans.translation.x = data.position().x - tug_trans.translation.x
@@ -229,20 +229,24 @@ pub fn drag_tugs_with_mouse(
         
                 }
             }
-            // if let Ok(mut parent_trans) = trans.get_mut(**parent) {
-            //     if tug.x > 0.0 {
-            //         parent_trans.translation.x = data.position().x - tug_trans.translation.x
-            //     }
-            //     if tug.y > 0.0 {
-            //         parent_trans.translation.y = data.position().y - tug_trans.translation.y
-        
-            //     }
-            //     if tug.z > 0.0 {
-            //         parent_trans.translation.z = data.position().z - tug_trans.translation.z
-        
-            //     }
-            // }
 
+        }
+    } 
+}
+
+pub fn drag_rings_with_mouse (
+    cursor_ray: Res<CursorRay>, 
+    raycast: Raycast,
+    rings: Query<(&Transform, &Ring), With<Parent>>,
+    mut gizmo_focused: Query<&mut Transform, (With<GizmoFocused>, Without<Parent>, Without<Tug>)>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    mouse_over_window: Res<MouseOverWindow>
+) {
+    if mouse.pressed(MouseButton::Left) {
+        if let Some((_, data, (tug_trans, ring))) = get_first_hit_with(cursor_ray, raycast, &rings, mouse_over_window) {
+            for mut trans in gizmo_focused.iter_mut() {
+                trans.look_at(data.position(), Vec3::new(0.0, 1.0, 0.0))
+            }
         }
     } 
 }
@@ -353,10 +357,11 @@ pub fn gizmo_mark_on_click(
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
     things_with_gizmo: Query<&GizmoFocused>,
+    mouse_over_window: Res<MouseOverWindow>
 ) {
     if *tool_mode == BuildToolMode::GizmoMode {
         if mouse.just_pressed(MouseButton::Left) {
-            if let Some((e, ..)) = get_first_hit_with(cursor_ray, raycast, &gizmoable) {
+            if let Some((e, ..)) = get_first_hit_with(cursor_ray, raycast, &gizmoable, mouse_over_window) {
                 if gizmo_filter.contains(e) == false {
                     //println!("selecting for gizmo");
                     if things_with_gizmo.contains(e) {
