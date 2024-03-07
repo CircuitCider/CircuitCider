@@ -6,13 +6,13 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_raycast::DefaultRaycastingPlugin;
 
 
+use crate::raycast_utils::resources::MouseOverWindow;
 use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::shaders::*;
 use crate::states::*;
 use crate::systems::*;
 use crate::transform_gizmo::plugins::TransformWidgetPlugin;
 use crate::ui::check_if_mouse_over_ui;
-use crate::ui::MouseOverWindow;
 
 pub struct RobotEditorPlugin;
 
@@ -33,7 +33,6 @@ impl Plugin for RobotEditorPlugin {
         
         // asset_loader
         .init_state::<RobotEditorState>()
-
 
         // selection behaviour
         //.add_plugins(DefaultPickingPlugins)

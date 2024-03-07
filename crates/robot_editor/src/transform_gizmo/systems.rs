@@ -4,11 +4,16 @@ use bevy::{prelude::*, render::view::RenderLayers, transform::commands, utils::H
 use bevy_mod_raycast::{immediate::Raycast, CursorRay};
 use bevy_serialization_extras::prelude::link::JointFlag;
 
-use crate::{
-    components::GizmoFocused, shaders::neon_glow::NeonGlowMaterial, ui::{get_first_hit_with, get_first_hit_with_mut, BuildToolMode, MouseOverWindow}
-};
+
+use crate::raycast_utils::resources::*;
+use crate::raycast_utils::systems::*;
+use crate::resources::BuildToolMode;
+
+use self::neon_glow::NeonGlowMaterial;
 
 use super::components::{Ring, TransformWidget, TransformWidgetMarker, Tug, Widget};
+use crate::components::*;
+use crate::shaders::*;
 
 const TRANSFORM_GIZMO_ACTIVE: BuildToolMode = BuildToolMode::GizmoMode;
 const GIZMO_CAMERA_LAYER: u8 = 1;

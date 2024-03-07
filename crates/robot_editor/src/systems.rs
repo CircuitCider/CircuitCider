@@ -2,16 +2,65 @@ pub use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_camera_extras::components::Watched;
 use bevy_egui::EguiContext;
+use bevy_mod_raycast::{immediate::Raycast, CursorRay};
 use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
     rigidbodies::RigidBodyFlag,
-    *,
 };
-use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
-//use bevy_ui_extras::stylesheets::DEBUG_FRAME_STYLE;
-use strum_macros::Display;
 
-use crate::components::Wheel;
+
+/// gets rid of placers if current mode is not placermode
+pub fn delete_attach_candidates(
+    tool_mode: ResMut<BuildToolMode>,
+    placers: Query<Entity, With<AttachCandidate>>,
+    mut commands: Commands,
+) {
+    if *tool_mode != BuildToolMode::EditerMode {
+        for e in placers.iter() {
+            commands.entity(e).despawn()
+        }
+    }
+}
+
+pub fn move_placer_to_cursor(
+    mut raycast: Raycast,
+    cursor_ray: Res<CursorRay>,
+    tool_mode: ResMut<BuildToolMode>,
+    mut placers: Query<(&mut Transform, &Placer)>,
+    mut mouse_over_window: Res<MouseOverWindow>,
+) {
+    // if let Some(mouse_pos) = **cursor_ray {
+
+    // }
+    if *tool_mode == BuildToolMode::PlacerMode {
+        //let x = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window).unwrap_or_default();
+        if let Some((_, hit, _)) = 
+        get_first_hit_without_mut(cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window), &mut placers) {
+            for (mut trans, ..) in placers.iter_mut() {
+                let hit_pos = hit.position();
+                //println!("moving placer to cursor {:#?}", hit_pos);
+                trans.translation = hit_pos;
+            }
+        }
+       
+    }
+}
+
+/// gets rid of placers if current mode is not placermode
+pub fn delete_placers(
+    tool_mode: ResMut<BuildToolMode>,
+    placers: Query<Entity, With<Placer>>,
+    mut commands: Commands,
+) {
+    if *tool_mode != BuildToolMode::PlacerMode {
+        for e in placers.iter() {
+            commands.entity(e).despawn()
+        }
+    }
+}
+
+
+use crate::{components::Wheel, raycast_utils::{resources::MouseOverWindow, systems::{cursor_ray_hititer, get_first_hit_without_mut}}, resources::BuildToolMode, ui::{AttachCandidate, Placer}};
 
 pub fn set_robot_to_follow(
     joints: Query<Entity, (With<JointFlag>, Without<Watched>)>,

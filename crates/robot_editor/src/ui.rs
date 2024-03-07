@@ -24,7 +24,7 @@ use bevy_rapier3d::{
 use bevy_serialization_extras::prelude::{colliders::ColliderFlag, link::StructureFlag};
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
-
+use crate::{raycast_utils::{resources::MouseOverWindow, systems::*}, resources::BuildToolMode};
 use crate::shaders::neon_glow::NeonGlowMaterial;
 
 use std::fmt::Debug;
@@ -56,46 +56,19 @@ pub struct Placer;
 
 // }
 
-const DONT_EXIT_EARLY: RaycastSettings = RaycastSettings {
-    visibility: RaycastVisibility::MustBeVisibleAndInView,
-    filter: &|_| true,
-    early_exit_test: &|_| false,
-};
 
-#[derive(Debug)]
-pub struct GizmoMode {}
 
-impl Tool for GizmoMode {}
+// #[derive(Debug)]
+// pub struct GizmoMode {}
 
-pub trait Tool: Send + Sync + Debug {}
+// impl Tool for GizmoMode {}
 
-#[derive(Resource, Debug)]
-pub struct ToolMode {
-    pub tool: Box<dyn Tool>,
-}
+// pub trait Tool: Send + Sync + Debug {}
 
-/// list of tools that have been registered to select from
-// #[derive(Resource, Default)]
-// pub struct ToolModeRegistry {
-//     pub registered_tools: HashMap<String, Box<dyn Tool>>
+// #[derive(Resource, Debug)]
+// pub struct ToolMode {
+//     pub tool: Box<dyn Tool>,
 // }
-
-// impl ToolModeRegistry {
-//     /// registers tool so tool selector widgets know it can be picked.
-//     pub fn register<T: Tool + Debug>(&mut self) -> &Self {
-//         self.registered_tools.insert(format!("{:#?}", std::any::type_name::<Option<String>>()), &dyn T);
-//         self
-//     }
-// }
-
-#[derive(Resource, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display)]
-pub enum BuildToolMode {
-    GizmoMode,
-    PlacerMode,
-    SelectorMode,
-    //AttachMode,
-    EditerMode,
-}
 
 pub fn select_build_tool(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
@@ -114,126 +87,6 @@ pub fn select_build_tool(
     }
 }
 
-pub fn get_first_hit_without<'a, T: ReadOnlyQueryData, F: QueryFilter>(
-    hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
-    hit_match_criteria: &'a Query<T>,
-) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
-
-    let first_hit = hit_list?
-    .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
-    .nth(0)?;
-    
-    let query_data = hit_match_criteria.get(first_hit.0).ok()?;
-
-    Some((first_hit.0, first_hit.1.clone(), query_data))
-}
-
-pub fn get_first_hit_without_mut<'a, T: QueryData, F: QueryFilter>(
-    hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
-    hit_match_criteria: &'a mut Query<T, F>,
-) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
-
-    let first_hit = hit_list?
-    .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
-    .nth(0)?;
-    
-    let query_data = hit_match_criteria.get_mut(first_hit.0).ok()?;
-
-    Some((first_hit.0, first_hit.1.clone(), query_data))
-}
-
-pub fn cursor_ray_hititer<'a>(
-    cursor_ray: Res<CursorRay>,
-    raycast: &'a mut Raycast,
-    mouse_over_window: Res<MouseOverWindow>
-
-) -> Option<std::slice::Iter<'a, (Entity, IntersectionData)>>
-{
-    if **mouse_over_window {
-        return None
-    }
-    let ray = (**cursor_ray)?;
-    let hit_list = raycast
-        .cast_ray(ray, &DONT_EXIT_EARLY)
-        .iter()
-        //.collect::<Vec<_>>()
-        ;
-    Some(hit_list)
-}
-/// gets first hit with raycast from cursor which matches a given query.
-pub fn get_first_hit_with<'a, T: ReadOnlyQueryData, F: QueryFilter>(
-    cursor_ray: Res<CursorRay>,
-    mut raycast: Raycast,
-    hit_match_criteria: &'a Query<T, F>,
-    mouse_over_window: Res<MouseOverWindow>
-) -> Option<(Entity, IntersectionData, T::Item<'a>)> 
-    where
-{
-    let first_hit = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window)?
-    .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
-    .nth(0)?;
-    
-    let query_data = hit_match_criteria.get(first_hit.0).ok()?;
-
-    Some((first_hit.0, first_hit.1.clone(), query_data))
-}
-
-
-struct QueryFirst<I>
-where
-    I: Iterator,
-{
-    seen: HashSet<I::Item>,
-    underlying: I,
-}
-
-impl<I> Iterator for QueryFirst<I>
-where
-    I: Iterator,
-    I::Item: Hash + Eq + Clone,
-{
-    type Item = I::Item;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        while let Some(x) = self.underlying.next() {
-            if !self.seen.contains(&x) {
-                self.seen.insert(x.clone());
-                return Some(x);
-            }
-        }
-        None
-    }
-}
-
-trait QueryFirstExt: Iterator {
-    fn unique(self) -> QueryFirst<Self>
-    where
-        Self::Item: Hash + Eq + Clone,
-        Self: Sized,
-    {
-        QueryFirst {
-            seen: HashSet::new(),
-            underlying: self,
-        }
-    }
-    fn first_in_query(self) -> QueryFirst<Self>
-    where
-        Self::Item: Hash + Eq + Clone,
-        Self: Sized,
-    {
-        QueryFirst {
-            seen: HashSet::new(),
-            underlying: self,
-        }
-    }
-}
-
-impl<I: Iterator> QueryFirstExt for I {}
-
-/// weather mouse is over window or not. 
-#[derive(Resource, Reflect, Deref, DerefMut, Default)]
-pub struct MouseOverWindow(bool);
-
 /// Sets mouse over window resource to true/false depending on mouse state. 
 pub fn check_if_mouse_over_ui(
     mut windows: Query<&mut EguiContext>,
@@ -248,87 +101,6 @@ pub fn check_if_mouse_over_ui(
         }
     }
     //**mouse_over_window = false
-}
-
-
-/// get first hit entity that matches a query, and return the entity, mutable query data, and intersection data
-pub fn get_first_hit_with_mut<'a, T: QueryData, F: QueryFilter>(
-    cursor_ray: Res<CursorRay>,
-    mut raycast: Raycast,
-    hit_match_criteria: &'a mut Query<'_, '_, T, F>,
-    mouse_over_window: Res<MouseOverWindow>
-) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
-    let ray = (**cursor_ray)?;
-    // let mut a = Vec::new();
-    // a.push(5);
-
-    // let b = Some(a.iter().(0));
-    // let c = b.unwrap_or_default().unique();
-
-    if **mouse_over_window {
-        return None
-    }
-
-    let hit_list = raycast
-        .cast_ray(ray, &DONT_EXIT_EARLY)
-        .iter()
-        .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
-        .collect::<Vec<_>>();
-
-    let first_hit = (*hit_list.first()?).clone();
-    let query_data = hit_match_criteria.get_mut(first_hit.0).ok()?;
-
-    Some((first_hit.0, first_hit.1, query_data))
-}
-
-/// gets rid of placers if current mode is not placermode
-pub fn delete_placers(
-    tool_mode: ResMut<BuildToolMode>,
-    placers: Query<Entity, With<Placer>>,
-    mut commands: Commands,
-) {
-    if *tool_mode != BuildToolMode::PlacerMode {
-        for e in placers.iter() {
-            commands.entity(e).despawn()
-        }
-    }
-}
-
-/// gets rid of placers if current mode is not placermode
-pub fn delete_attach_candidates(
-    tool_mode: ResMut<BuildToolMode>,
-    placers: Query<Entity, With<AttachCandidate>>,
-    mut commands: Commands,
-) {
-    if *tool_mode != BuildToolMode::EditerMode {
-        for e in placers.iter() {
-            commands.entity(e).despawn()
-        }
-    }
-}
-
-pub fn move_placer_to_cursor(
-    mut raycast: Raycast,
-    cursor_ray: Res<CursorRay>,
-    tool_mode: ResMut<BuildToolMode>,
-    mut placers: Query<(&mut Transform, &Placer)>,
-    mut mouse_over_window: Res<MouseOverWindow>,
-) {
-    // if let Some(mouse_pos) = **cursor_ray {
-
-    // }
-    if *tool_mode == BuildToolMode::PlacerMode {
-        //let x = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window).unwrap_or_default();
-        if let Some((_, hit, _)) = 
-        get_first_hit_without_mut(cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window), &mut placers) {
-            for (mut trans, ..) in placers.iter_mut() {
-                let hit_pos = hit.position();
-                //println!("moving placer to cursor {:#?}", hit_pos);
-                trans.translation = hit_pos;
-            }
-        }
-       
-    }
 }
 
 pub fn debug_mouse_info(
@@ -428,7 +200,7 @@ pub fn placer_mode_ui(
     //if tool_mode.into_inner() == &BuildToolMode::PlacerMode {
 
     let typeid = TypeId::of::<Mesh>();
-
+    
     for mut context in primary_window.iter_mut() {
         egui::SidePanel::right("prefab meshes").show(context.get_mut(), |ui| {
             if let Some(folder) = folders.get(&model_folder.0) {

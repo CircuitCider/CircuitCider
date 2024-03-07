@@ -4,7 +4,7 @@ use bevy_obj::ObjPlugin;
 use bevy_rapier3d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
 use bevy_serialization_extras::prelude::{AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin, SerializationPlugin};
 use bevy_serialization_urdf::{loaders::urdf_loader::Urdf, plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin}};
-use robot_editor::{components::GizmoFocused, plugins::RobotEditorPlugin, states::RobotEditorState, ui::{attach_placer, debug_mouse_info, delete_attach_candidates, delete_placers, move_placer_to_cursor, CachePrefabsPlugin}};
+use robot_editor::{components::GizmoFocused, plugins::RobotEditorPlugin, states::RobotEditorState, systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor}, ui::{attach_placer, debug_mouse_info, CachePrefabsPlugin}};
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 
 pub fn main() {
@@ -58,6 +58,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
 ) {
+    
     // robot
     urdf_load_requests.requests.push_front(AssetSpawnRequest {
         source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)
