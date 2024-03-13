@@ -9,6 +9,7 @@ edition = "2021"
 app_core = {path = "../app_core", version = "0.1"}
 robot_editor = {path = "../robot_editor", version = "*"}
 
+bevy_obj = "0.13"
 bevy = {version = "0.13", features = ["dynamic_linking"]}
 bevy-inspector-egui = "0.23"
 bevy_egui = "0.25"

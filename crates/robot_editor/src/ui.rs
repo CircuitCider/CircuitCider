@@ -28,17 +28,7 @@ use crate::{raycast_utils::{resources::MouseOverWindow, systems::*}, resources::
 use crate::shaders::neon_glow::NeonGlowMaterial;
 
 use std::fmt::Debug;
-pub struct CachePrefabsPlugin;
 
-impl Plugin for CachePrefabsPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(BuildToolMode::PlacerMode)
-            .insert_resource(ModelFolder::default())
-            .add_systems(Startup, cache_initial_folders)
-            .add_systems(Update, placer_mode_ui)
-            .add_systems(Update, select_build_tool);
-    }
-}
 
 #[derive(Resource, Default, Deref)]
 pub struct ModelFolder(pub Handle<LoadedFolder>);
@@ -94,7 +84,7 @@ pub fn check_if_mouse_over_ui(
 ) {
     for mut window in windows.iter_mut() {
         if window.get_mut().is_pointer_over_area() {
-            println!("mouse is over window");
+            //println!("mouse is over window");
             **mouse_over_window = true
         } else {
             **mouse_over_window = false

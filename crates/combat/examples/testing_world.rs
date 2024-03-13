@@ -4,7 +4,7 @@ use bevy_obj::ObjPlugin;
 use bevy_rapier3d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
 use bevy_serialization_extras::prelude::{AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin, SerializationPlugin};
 use bevy_serialization_urdf::{loaders::urdf_loader::Urdf, plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin}};
-use robot_editor::{components::GizmoFocused, plugins::RobotEditorPlugin, states::RobotEditorState, systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor}, ui::{attach_placer, debug_mouse_info}};
+use robot_editor::{components::GizmoFocused, plugins::{CachePrefabsPlugin, RobotEditorPlugin}, states::RobotEditorState, systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor}, ui::{attach_placer, debug_mouse_info}};
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 
 pub fn main() {
@@ -16,10 +16,10 @@ pub fn main() {
             assets_folder_local_path: "../../assets".to_owned()
         })
         
-
-        .add_plugins(DefaultPlugins)
+        // default stuff bevy needs to run.
+        .add_plugins(DefaultPlugins)        
         
-        // robot editor        
+        // plugins for robot editor
         .add_plugins(RobotEditorPlugin)
 
         // // serialization plugins
@@ -27,7 +27,7 @@ pub fn main() {
         .add_plugins(PhysicsSerializationPlugin)
         .add_plugins(UrdfSerializationPlugin)
 
-        // // physics
+        // physics
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
         
@@ -35,6 +35,7 @@ pub fn main() {
         .add_systems(Update, visualize_window_for::<GizmoFocused>)
         .add_systems(Startup, setup)
         .add_systems(PostStartup, turn_on_editor)
+
         .add_systems(Update, debug_mouse_info)
         .run();
 }
@@ -91,5 +92,6 @@ fn setup(
             transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         },
+        //bevy_transform_gizmo::GizmoPickSource::default(),
     ));
 }
