@@ -1,10 +1,8 @@
-
 use bevy::asset::load_internal_asset;
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 //use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_raycast::DefaultRaycastingPlugin;
-
 
 use crate::raycast_utils::resources::MouseOverWindow;
 use crate::resources::BuildToolMode;
@@ -13,8 +11,8 @@ use crate::shaders::*;
 use crate::states::*;
 use crate::systems::*;
 use crate::transform_gizmo::plugins::TransformWidgetPlugin;
-use crate::ui::*;
 use crate::ui::ModelFolder;
+use crate::ui::*;
 
 pub struct CachePrefabsPlugin;
 
@@ -28,19 +26,16 @@ impl Plugin for CachePrefabsPlugin {
     }
 }
 
-
 /// stuff required to run individual tools of robot editor
 pub struct EditorToolingPlugin;
 
 impl Plugin for EditorToolingPlugin {
     fn build(&self, app: &mut App) {
         // placers
-        app
-        .add_systems(Update, move_placer_to_cursor)
-        .add_systems(Update, attach_placer)
-        .add_systems(Update, delete_placers)
-        .add_systems(Update, delete_attach_candidates)
-        ;
+        app.add_systems(Update, move_placer_to_cursor)
+            .add_systems(Update, attach_placer)
+            .add_systems(Update, delete_placers)
+            .add_systems(Update, delete_attach_candidates);
     }
 }
 
@@ -55,10 +50,8 @@ impl Plugin for RobotEditorPlugin {
             "shaders/neon_glow.wgsl",
             Shader::from_wgsl
         );
-        app
-        .add_plugins(MaterialPlugin::<NeonGlowMaterial>::default())
-        ;
-        
+        app.add_plugins(MaterialPlugin::<NeonGlowMaterial>::default());
+
         app
         
         // asset_loader

@@ -30,7 +30,7 @@ pub fn main() {
         // app sources
         .add_plugins(AppSourcesPlugin)
         .add_plugins(AssetSourcesUrdfPlugin {
-            assets_folder_local_path: "../../assets".into()
+            assets_folder_local_path: "../../assets".into(),
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(RobotEditorPlugin)
@@ -75,7 +75,11 @@ fn setup(
     // plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Plane3d::new(Vec3::new(0.0, 1.0, 0.0)).mesh().size(50.0, 50.0)),
+            mesh: meshes.add(
+                Plane3d::new(Vec3::new(0.0, 1.0, 0.0))
+                    .mesh()
+                    .size(50.0, 50.0),
+            ),
             material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
             transform: Transform::from_xyz(0.0, -1.0, 0.0),
             ..default()

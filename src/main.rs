@@ -1,26 +1,18 @@
-use bevy::{input::common_conditions::input_toggle_active, prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 use bevy_camera_extras::plugins::DefaultCameraPlugin;
 use bevy_camera_extras::prelude::*;
-use bevy_component_extras::components::*;
-use bevy_egui::{EguiContext, EguiPlugin};
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+
+use bevy_egui::EguiPlugin;
+
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use bevy_serialization_extras::prelude::{
-    link::{JointFlag, StructureFlag},
-    rigidbodies::RigidBodyFlag,
-    AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin,
-    SerializationPlugin,
-};
-use bevy_serialization_urdf::{
-    loaders::urdf_loader::Urdf, plugin::UrdfSerializationPlugin, ui::DEBUG_FRAME_STYLE,
-};
-use bevy_ui_extras::systems::*;
+use bevy_serialization_extras::prelude::{PhysicsSerializationPlugin, SerializationPlugin};
+use bevy_serialization_urdf::plugin::UrdfSerializationPlugin;
 
 use robot_editor::plugins::RobotEditorPlugin;
-use strum_macros::Display;
+
 use ui_core::plugins::StartMenuPlugin;
 //use bevy_flycam::{FlyCam, PlayerPlugin, MovementSettings, NoCameraPlayerPlugin, KeyBindings};
 

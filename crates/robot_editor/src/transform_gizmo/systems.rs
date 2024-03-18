@@ -4,7 +4,6 @@ use bevy::{prelude::*, render::view::RenderLayers, transform::commands, utils::H
 use bevy_mod_raycast::{immediate::Raycast, CursorRay};
 use bevy_serialization_extras::prelude::link::JointFlag;
 
-
 use crate::raycast_utils::resources::*;
 use crate::raycast_utils::systems::*;
 use crate::resources::BuildToolMode;
@@ -17,7 +16,6 @@ use crate::shaders::*;
 
 const TRANSFORM_GIZMO_ACTIVE: BuildToolMode = BuildToolMode::GizmoMode;
 const GIZMO_CAMERA_LAYER: u8 = 1;
-
 
 /// marks this camera as a gizmo cam which mirrors the camera atteched to the set mirrored_camera
 #[derive(Component, Deref)]
@@ -47,24 +45,23 @@ pub fn spawn_gizmo_when_needed(
         let cube_y_mesh = meshes.add(Cuboid::new(cube_size, cube_size * 3.0, cube_size));
         let cube_z_mesh = meshes.add(Cuboid::new(cube_size, cube_size, cube_size * 3.0));
 
-        let disc_mesh = meshes.add(
-            Torus {
-                minor_radius: 0.1,
-                major_radius: dist,
-                // radius: dist,
-                // ring_radius: 0.1,
-                // subdivisions_segments: 10,
-                // subdivisions_sides: 10,
-            },
-        );
+        let disc_mesh = meshes.add(Torus {
+            minor_radius: 0.1,
+            major_radius: dist,
+            // radius: dist,
+            // ring_radius: 0.1,
+            // subdivisions_segments: 10,
+            // subdivisions_sides: 10,
+        });
         let transform_widget = commands
             .spawn((
                 // spawn out of sight, and let different system correct position
                 SpatialBundle::from_transform(Transform::from_xyz(0.0, 0.0, 0.0)),
                 TransformWidget,
                 Name::new("Transform Widget"),
-                RenderLayers::layer(GIZMO_CAMERA_LAYER)
-            )).id();
+                RenderLayers::layer(GIZMO_CAMERA_LAYER),
+            ))
+            .id();
         // spawn edit widget, x = red, y = green, z = blue
 
         // some these are probably wrong and will need tweaking...
@@ -192,12 +189,13 @@ pub fn spawn_gizmo_when_needed(
                 Widget,
                 //z_ring_flag,
                 Ring::new(0.0, 0.0, 1.0),
-                RenderLayers::layer(GIZMO_CAMERA_LAYER)
+                RenderLayers::layer(GIZMO_CAMERA_LAYER),
             ))
             .id();
 
-            // set widget root transform to equal model the widget is spawning around
-            commands.entity(transform_widget)
+        // set widget root transform to equal model the widget is spawning around
+        commands
+            .entity(transform_widget)
             .add_child(y_tug)
             .add_child(y_tug_negative)
             .add_child(x_tug)
@@ -205,14 +203,12 @@ pub fn spawn_gizmo_when_needed(
             .add_child(z_tug)
             .add_child(z_tug_negative)
             .add_child(y_axis_ring)
-            .add_child(z_axis_ring)
-            ;
+            .add_child(z_axis_ring);
     }
 }
 
-
 pub fn drag_tugs_with_mouse(
-    cursor_ray: Res<CursorRay>, 
+    cursor_ray: Res<CursorRay>,
     raycast: Raycast,
     tugs: Query<(&Transform, &Tug), With<Parent>>,
     mut gizmo_focused: Query<&mut Transform, (With<GizmoFocused>, Without<Tug>)>,
@@ -220,40 +216,41 @@ pub fn drag_tugs_with_mouse(
     mouse_over_window: Res<MouseOverWindow>,
 ) {
     if mouse.pressed(MouseButton::Left) {
-        if let Some((_, data, (tug_trans, tug))) = get_first_hit_with(cursor_ray, raycast, &tugs, mouse_over_window) {
+        if let Some((_, data, (tug_trans, tug))) =
+            get_first_hit_with(cursor_ray, raycast, &tugs, mouse_over_window)
+        {
             for mut trans in gizmo_focused.iter_mut() {
                 if tug.x > 0.0 {
                     trans.translation.x = data.position().x - tug_trans.translation.x
                 }
                 if tug.y > 0.0 {
                     trans.translation.y = data.position().y - tug_trans.translation.y
-        
                 }
                 if tug.z > 0.0 {
                     trans.translation.z = data.position().z - tug_trans.translation.z
-        
                 }
             }
-
         }
-    } 
+    }
 }
 
-pub fn drag_rings_with_mouse (
-    cursor_ray: Res<CursorRay>, 
+pub fn drag_rings_with_mouse(
+    cursor_ray: Res<CursorRay>,
     raycast: Raycast,
     rings: Query<(&Transform, &Ring), With<Parent>>,
     mut gizmo_focused: Query<&mut Transform, (With<GizmoFocused>, Without<Parent>, Without<Tug>)>,
     mouse: Res<ButtonInput<MouseButton>>,
-    mouse_over_window: Res<MouseOverWindow>
+    mouse_over_window: Res<MouseOverWindow>,
 ) {
     if mouse.pressed(MouseButton::Left) {
-        if let Some((_, data, (tug_trans, ring))) = get_first_hit_with(cursor_ray, raycast, &rings, mouse_over_window) {
+        if let Some((_, data, (tug_trans, ring))) =
+            get_first_hit_with(cursor_ray, raycast, &rings, mouse_over_window)
+        {
             for mut trans in gizmo_focused.iter_mut() {
                 trans.look_at(data.position(), Vec3::new(0.0, 1.0, 0.0))
             }
         }
-    } 
+    }
 }
 
 pub fn collect_tug_forces() {}
@@ -276,48 +273,41 @@ pub fn average_gizmo_position(
     }
 }
 
-
 pub fn spawn_gizmo_rendering_camera(
     unfocused_gizmos: Query<Entity, With<Widget>>,
     cameras: Query<Entity, (With<Camera3d>, Without<CameraMirrors>)>,
     mirror_cameras: Query<Entity, With<CameraMirrors>>,
     mut commands: Commands,
 ) {
-
     //FIXME: this will break if there are multiple cameras.
     if let Some(main_camera) = cameras.iter().last() {
         if unfocused_gizmos.iter().len() > 0 && mirror_cameras.iter().len() <= 0 {
-            commands.spawn(
-                (
-                    Camera3dBundle {
-                        transform: Transform::from_xyz(10.0, 10., -5.0).looking_at(Vec3::ZERO, Vec3::Y),
-                        camera_3d: Camera3d {
-                            //clear_color: ClearColorConfig::None,
-                            ..default()
-                        },
-                        camera: Camera {
-                            // renders after / on top of the main camera
-                            order: 1,
-                            ..default()
-                        },
+            commands.spawn((
+                Camera3dBundle {
+                    transform: Transform::from_xyz(10.0, 10., -5.0).looking_at(Vec3::ZERO, Vec3::Y),
+                    camera_3d: Camera3d {
+                        //clear_color: ClearColorConfig::None,
                         ..default()
                     },
-                    // set to render layer 1 to make camera see models on render layer 1
-                    RenderLayers::layer(GIZMO_CAMERA_LAYER),
-                    CameraMirrors(main_camera)
-                    )
-            )
-            ;
-            }
+                    camera: Camera {
+                        // renders after / on top of the main camera
+                        order: 1,
+                        ..default()
+                    },
+                    ..default()
+                },
+                // set to render layer 1 to make camera see models on render layer 1
+                RenderLayers::layer(GIZMO_CAMERA_LAYER),
+                CameraMirrors(main_camera),
+            ));
+        }
     }
-
 }
 
 /// makes gizmo camera follow gizmo
 pub fn align_gizmo_camera_to_marker(
     mut mirror_cameras: Query<(&mut Transform, &CameraMirrors)>,
     non_mirror_cameras: Query<&Transform, (With<Camera3d>, Without<CameraMirrors>)>,
-
 ) {
     for (mut trans, mirrored_e) in mirror_cameras.iter_mut() {
         if let Ok(mirrored_trans) = non_mirror_cameras.get(**mirrored_e) {
@@ -333,8 +323,7 @@ pub fn despawn_gizmo_rendering_camera(
 ) {
     if transform_gizmos.iter().len() <= 0 {
         for e in mirror_cameras.iter() {
-            commands.entity(e)
-            .despawn()
+            commands.entity(e).despawn()
         }
     }
 }
@@ -362,11 +351,13 @@ pub fn gizmo_mark_on_click(
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
     things_with_gizmo: Query<&GizmoFocused>,
-    mouse_over_window: Res<MouseOverWindow>
+    mouse_over_window: Res<MouseOverWindow>,
 ) {
     if *tool_mode == BuildToolMode::GizmoMode {
         if mouse.just_pressed(MouseButton::Left) {
-            if let Some((e, ..)) = get_first_hit_with(cursor_ray, raycast, &gizmoable, mouse_over_window) {
+            if let Some((e, ..)) =
+                get_first_hit_with(cursor_ray, raycast, &gizmoable, mouse_over_window)
+            {
                 if gizmo_filter.contains(e) == false {
                     //println!("selecting for gizmo");
                     if things_with_gizmo.contains(e) {
@@ -377,7 +368,6 @@ pub fn gizmo_mark_on_click(
                         //*tool_mode = BuildToolMode::GizmoMode
                     }
                 }
-
             }
         }
     }

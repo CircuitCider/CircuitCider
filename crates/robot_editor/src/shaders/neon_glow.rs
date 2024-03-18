@@ -9,7 +9,6 @@ use bevy::{
         },
     },
 };
-use bevy_serialization_extras::prelude::material::MaterialFlag;
 
 pub const NEON_GLOW_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(13953800272683943019);
 
