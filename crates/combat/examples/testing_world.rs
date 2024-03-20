@@ -15,11 +15,7 @@ use bevy_serialization_urdf::{
 };
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 use robot_editor::{
-    components::GizmoFocused,
-    plugins::{CachePrefabsPlugin, RobotEditorPlugin},
-    states::RobotEditorState,
-    systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor},
-    ui::{attach_placer, debug_mouse_info},
+    components::GizmoFocused, plugins::{CachePrefabsPlugin, RobotEditorPlugin}, raycast_utils::debug::debug_mouse_info, states::RobotEditorState, systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor}, ui::attach_placer
 };
 
 pub fn main() {

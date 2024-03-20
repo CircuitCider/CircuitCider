@@ -7,6 +7,8 @@ use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
     rigidbodies::RigidBodyFlag,
 };
+use crate::components::*;
+
 
 /// gets rid of placers if current mode is not placermode
 pub fn delete_attach_candidates(

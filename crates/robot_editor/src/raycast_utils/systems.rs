@@ -10,7 +10,7 @@ use bevy_mod_raycast::{
 
 use super::resources::MouseOverWindow;
 
-const DONT_EXIT_EARLY: RaycastSettings = RaycastSettings {
+pub const DONT_EXIT_EARLY: RaycastSettings = RaycastSettings {
     visibility: RaycastVisibility::MustBeVisibleAndInView,
     filter: &|_| true,
     early_exit_test: &|_| false,
@@ -54,6 +54,7 @@ pub fn cursor_ray_hititer<'a>(
     let hit_list = raycast.cast_ray(ray, &DONT_EXIT_EARLY).iter();
     Some(hit_list)
 }
+
 /// gets first hit with raycast from cursor which matches a given query.
 pub fn get_first_hit_with<'a, T: ReadOnlyQueryData, F: QueryFilter>(
     cursor_ray: Res<CursorRay>,

@@ -6,6 +6,7 @@ use bevy_mod_raycast::DefaultRaycastingPlugin;
 
 use crate::raycast_utils::resources::MouseOverWindow;
 use crate::resources::BuildToolMode;
+use crate::selection_behaviour::plugins::SelectionBehaviourPlugin;
 use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::shaders::*;
 use crate::states::*;
@@ -62,6 +63,9 @@ impl Plugin for RobotEditorPlugin {
         .add_plugins(CachePrefabsPlugin)
 
 
+        // selection behaviour(what things do when clicked on)
+        .add_plugins(SelectionBehaviourPlugin)
+        
         .add_plugins(EditorToolingPlugin)
 
         .init_resource::<MouseOverWindow>()

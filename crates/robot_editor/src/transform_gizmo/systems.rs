@@ -7,6 +7,7 @@ use bevy_serialization_extras::prelude::link::JointFlag;
 use crate::raycast_utils::resources::*;
 use crate::raycast_utils::systems::*;
 use crate::resources::BuildToolMode;
+use crate::selection_behaviour::components::Grabbed;
 
 use self::neon_glow::NeonGlowMaterial;
 
@@ -210,12 +211,12 @@ pub fn spawn_gizmo_when_needed(
 pub fn drag_tugs_with_mouse(
     cursor_ray: Res<CursorRay>,
     raycast: Raycast,
-    tugs: Query<(&Transform, &Tug), With<Parent>>,
+    tugs: Query<(&Transform, &Tug), (With<Parent>, With<Grabbed>)>,
     mut gizmo_focused: Query<&mut Transform, (With<GizmoFocused>, Without<Tug>)>,
     mouse: Res<ButtonInput<MouseButton>>,
     mouse_over_window: Res<MouseOverWindow>,
 ) {
-    if mouse.pressed(MouseButton::Left) {
+    //if mouse.pressed(MouseButton::Left) {
         if let Some((_, data, (tug_trans, tug))) =
             get_first_hit_with(cursor_ray, raycast, &tugs, mouse_over_window)
         {
@@ -231,7 +232,7 @@ pub fn drag_tugs_with_mouse(
                 }
             }
         }
-    }
+    //}
 }
 
 pub fn drag_rings_with_mouse(

@@ -96,26 +96,7 @@ pub fn check_if_mouse_over_ui(
     //**mouse_over_window = false
 }
 
-pub fn debug_mouse_info(
-    cursor_ray: Res<CursorRay>,
-    mut raycast: Raycast,
-    mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut gizmos: Gizmos,
-) {
-    for mut context in primary_window.iter_mut() {
-        egui::Window::new("mouse info").show(context.get_mut(), |ui| {
-            ui.label("Mouse ray info");
-            if let Some(ray) = **cursor_ray {
-                ui.label(format!("{:#?}", ray));
-                //gizmos.ray(ray.origin, *ray.direction, Color::RED);
-                let orientation = Quat::from_rotation_arc(Vec3::NEG_Z, *ray.direction);
-                gizmos.arrow(ray.origin, *ray.direction, Color::RED);
-                //gizmos.sphere(ray.origin + *ray.direction, orientation, 0.1, Color::BLUE);
-                //raycast.debug_cast_ray(ray, &RaycastSettings::default(), &mut gizmos);
-            }
-        });
-    }
-}
+
 
 #[derive(Component, Default)]
 pub struct Edited;
