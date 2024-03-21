@@ -15,7 +15,7 @@ use bevy_serialization_urdf::{
 };
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 use robot_editor::{
-    components::GizmoFocused, plugins::RobotEditorPlugin, prelude::raycast_utils::debug::debug_mouse_info, states::RobotEditorState, systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor}, ui::attach_placer
+    components::GizmoFocused, plugins::RobotEditorPlugin, prelude::{raycast_utils::debug::debug_mouse_info, selection_behaviour::components::Grabbed}, raycast_utils::debug::shoot_ray_down_to_target, states::RobotEditorState, systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor}, ui::attach_placer
 };
 
 
@@ -39,10 +39,13 @@ pub fn main() {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
         // world setup
-        .add_systems(Update, visualize_window_for::<GizmoFocused>)
+        //.add_systems(Update, visualize_window_for::<GizmoFocused>)
+        .add_systems(Update, visualize_window_for::<Grabbed>)
+        .add_systems(Update, visualize_window_for::<Camera>)
         .add_systems(Startup, setup)
         .add_systems(PostStartup, turn_on_editor)
         .add_systems(Update, debug_mouse_info)
+        .add_systems(Update, shoot_ray_down_to_target)
         .run();
 }
 
