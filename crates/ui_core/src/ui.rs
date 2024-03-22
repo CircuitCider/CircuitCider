@@ -60,7 +60,7 @@ pub fn start_arena(
                 //*color = PRESSED_BUTTON.into();
                 border_color.0 = Color::RED;
 
-                println!("starting editor")
+                //println!("starting editor")
             }
             Interaction::Hovered => {
                 //text.sections[0].value = "Hover".to_string();

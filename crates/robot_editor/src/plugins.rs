@@ -1,8 +1,13 @@
+use app_core::ROOT;
 use bevy::asset::load_internal_asset;
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 //use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_raycast::DefaultRaycastingPlugin;
+use bevy_serialization_extras::prelude::AssetSpawnRequest;
+use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
+use bevy_serialization_extras::prelude::PhysicsBundle;
+use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
 
 use crate::raycast_utils::resources::MouseOverWindow;
 use crate::resources::BuildToolMode;
@@ -84,10 +89,65 @@ impl Plugin for RobotEditorPlugin {
         .add_systems(Update, freeze_spawned_robots)
         .add_systems(Update, bind_left_and_right_wheel)
 
-
+        //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
+        //.add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
 
         //.add_systems(Update, make_robots_editable)
         
         ;
     }
+}
+
+pub fn setup_editor_area(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
+    cameras: Query<&Camera>,
+) {
+    println!("setting up editor...");
+    
+    // don't spawn a camera if there already is one.
+    if cameras.iter().len() <= 0 {
+        commands.spawn((Camera3dBundle {
+            transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..Default::default()
+        },));
+    }
+    // robot
+    urdf_load_requests.requests.push_front(AssetSpawnRequest {
+        source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)
+            .to_owned()
+            .into(),
+        position: Transform::from_xyz(0.0, 15.0, 0.0),
+        ..Default::default()
+    });
+
+    // plane
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(
+                Plane3d::new(Vec3::new(0.0, 1.0, 0.0))
+                    .mesh()
+                    .size(50.0, 50.0),
+            ),
+            material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
+            transform: Transform::from_xyz(0.0, -1.0, 0.0),
+            ..default()
+        },
+        PhysicsBundle::default(),
+    ));
+
+    // light
+    commands.spawn((PointLightBundle {
+        point_light: PointLight {
+            intensity: 1500.0,
+            shadows_enabled: true,
+            ..default()
+        },
+        transform: Transform::from_xyz(4.0, 8.0, 4.0),
+        ..default()
+    },));
+
+
 }

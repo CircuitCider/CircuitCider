@@ -1,4 +1,4 @@
-use app_core::{plugins::AppSourcesPlugin, ROOT};
+use app_core::{plugins::AppSourcesPlugin, ExecLocation, ROOT};
 use bevy::{
     asset::io::{file::FileAssetReader, AssetSource},
     prelude::*,
@@ -31,7 +31,9 @@ use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState};
 pub fn main() {
     App::new()
         // app sources
-        .add_plugins(AppSourcesPlugin)
+        .add_plugins(AppSourcesPlugin {
+            exec_location: ExecLocation::CRATE
+        })
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "../../assets".into(),
         })

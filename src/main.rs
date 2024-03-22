@@ -9,15 +9,21 @@ use bevy_rapier3d::{
     render::RapierDebugRenderPlugin,
 };
 use bevy_serialization_extras::prelude::{PhysicsSerializationPlugin, SerializationPlugin};
-use bevy_serialization_urdf::plugin::UrdfSerializationPlugin;
-
-use robot_editor::plugins::RobotEditorPlugin;
+use bevy_serialization_urdf::plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin};
+use app_core::{plugins::AppSourcesPlugin, ExecLocation};
+use robot_editor::{plugins::{setup_editor_area, RobotEditorPlugin}, states::RobotEditorState};
 
 use ui_core::plugins::StartMenuPlugin;
 //use bevy_flycam::{FlyCam, PlayerPlugin, MovementSettings, NoCameraPlayerPlugin, KeyBindings};
 
 fn main() {
     App::new()
+        .add_plugins(AppSourcesPlugin {
+            exec_location: ExecLocation::MAIN
+        })
+        .add_plugins(AssetSourcesUrdfPlugin {
+            assets_folder_local_path: "assets".to_owned(),
+        })
         .insert_resource(KeyBindings {
             toggle_grab_cursor: KeyCode::ControlLeft,
             ..default()
@@ -36,9 +42,14 @@ fn main() {
         .add_plugins(RapierDebugRenderPlugin::default())
         // setup systems
         .add_systems(Startup, setup_camera)
+        .add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
         //.add_systems(Update, visualize_right_sidepanel_for::<Name>.run_if(in_state(AppState::Editor)))
         .run();
 }
+
+// fn turn_on_editor(mut commands: Commands) {
+//     commands.insert_resource(NextState(Some(RobotEditorState::Active)));
+// }
 
 /// set up a simple 3D scene
 fn setup_camera(mut commands: Commands) {

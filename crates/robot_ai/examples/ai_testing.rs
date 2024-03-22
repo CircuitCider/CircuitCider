@@ -1,4 +1,4 @@
-use app_core::{plugins::AppSourcesPlugin, ROOT};
+use app_core::{plugins::AppSourcesPlugin, ExecLocation, ROOT};
 use bevy::{
     asset::io::{file::FileAssetReader, AssetSource},
     prelude::*,
@@ -28,7 +28,9 @@ use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState};
 pub fn main() {
     App::new()
         // app sources
-        .add_plugins(AppSourcesPlugin)
+        .add_plugins(AppSourcesPlugin {
+            exec_location: ExecLocation::CRATE
+        })
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "../../assets".into(),
         })
@@ -36,11 +38,6 @@ pub fn main() {
         .add_plugins(RobotEditorPlugin)
         // camera
         .add_plugins(DefaultCameraPlugin)
-        // Picking/selecting
-        // .add_plugins((
-        //     DefaultPickingPlugins,
-        //     //TransformGizmoPlugin::new(Quat::from_rotation_y(-0.2)),
-        // ))
         // serialization plugins
         .add_plugins(SerializationPlugin)
         .add_plugins(PhysicsSerializationPlugin)
