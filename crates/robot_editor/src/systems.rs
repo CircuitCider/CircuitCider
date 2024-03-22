@@ -7,7 +7,7 @@ use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
     rigidbodies::RigidBodyFlag,
 };
-use crate::components::*;
+use crate::{components::*, raycast_utils::systems::{get_first_hit_with_mut, get_first_hit_without, get_first_hit_without_mut}};
 
 
 /// gets rid of placers if current mode is not placermode
@@ -27,7 +27,7 @@ pub fn move_placer_to_cursor(
     mut raycast: Raycast,
     cursor_ray: Res<CursorRay>,
     tool_mode: ResMut<BuildToolMode>,
-    mut placers: Query<(&mut Transform, &Placer)>,
+    mut placers: Query<&mut Transform, With<Placer>>,
     mouse_over_window: Res<MouseOverWindow>,
 ) {
     // if let Some(mouse_pos) = **cursor_ray {
@@ -35,11 +35,23 @@ pub fn move_placer_to_cursor(
     // }
     if *tool_mode == BuildToolMode::PlacerMode {
         //let x = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window).unwrap_or_default();
-        if let Some((_, hit, _)) = get_first_hit_without_mut(
-            cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window),
+        //println!("attempting to move placer to cursor");
+        
+        let filtered_hits = get_first_hit_without_mut(
+            cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window),
+            &mut placers,
+        );
+        println!("hit list: {:#?}", filtered_hits);
+
+        // let hits = cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window);
+
+        // println!("hits: {:#?}", hits);
+        if let Some((e, hit)) = get_first_hit_without_mut(
+            cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window),
             &mut placers,
         ) {
-            for (mut trans, ..) in placers.iter_mut() {
+            for mut trans in placers.iter_mut() {
+                //println!("moving placer to cursor");
                 let hit_pos = hit.position();
                 //println!("moving placer to cursor {:#?}", hit_pos);
                 trans.translation = hit_pos;
@@ -65,7 +77,7 @@ use crate::{
     components::Wheel,
     raycast_utils::{
         resources::MouseOverWindow,
-        systems::{cursor_ray_hititer, get_first_hit_without_mut},
+        systems::{cursor_ray_hititer},
     },
     resources::BuildToolMode,
     ui::{AttachCandidate, Placer},

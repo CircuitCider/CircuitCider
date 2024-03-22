@@ -16,55 +16,41 @@ pub const DONT_EXIT_EARLY: RaycastSettings = RaycastSettings {
     early_exit_test: &|_| false,
 };
 
+/// Get hit data for first hit entity not in hit criteria
 pub fn get_first_hit_without<'a, T: ReadOnlyQueryData, F: QueryFilter>(
     hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
-    hit_match_criteria: &'a Query<T>,
-) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
+    hit_match_criteria: &'a Query<T, F>,
+) -> Option<(Entity, IntersectionData)> {
     let first_hit = hit_list?
         .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
         .nth(0)?;
 
-    let query_data = hit_match_criteria.get(first_hit.0).ok()?;
+    //let query_data = hit_match_criteria.get(first_hit.0).ok()?;
 
-    Some((first_hit.0, first_hit.1.clone(), query_data))
+    Some((first_hit.0, first_hit.1.clone()))
 }
-
-pub fn get_first_hit_without_mut<'a, T: QueryData, F: QueryFilter>(
-    hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
-    hit_match_criteria: &'a mut Query<T, F>,
-) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
-    let first_hit = hit_list?
-        .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
-        .nth(0)?;
-
-    let query_data = hit_match_criteria.get_mut(first_hit.0).ok()?;
-
-    Some((first_hit.0, first_hit.1.clone(), query_data))
-}
-
+/// Gets all hit data of entities clicked on by mouse.  
 pub fn cursor_ray_hititer<'a>(
-    cursor_ray: Res<CursorRay>,
+    cursor_ray: &'a Res<CursorRay>,
     raycast: &'a mut Raycast,
-    mouse_over_window: Res<MouseOverWindow>,
+    mouse_over_window: &'a Res<MouseOverWindow>,
 ) -> Option<std::slice::Iter<'a, (Entity, IntersectionData)>> {
-    if **mouse_over_window {
+    if ***mouse_over_window {
         return None;
     }
-    let ray = (**cursor_ray)?;
+    let ray = (***cursor_ray)?;
     let hit_list = raycast.cast_ray(ray, &DONT_EXIT_EARLY).iter();
     Some(hit_list)
 }
 
-/// gets first hit with raycast from cursor which matches a given query.
+/// Get hit data for first hit entity in hit criteria + query data(immutable)
 pub fn get_first_hit_with<'a, T: ReadOnlyQueryData, F: QueryFilter>(
-    cursor_ray: Res<CursorRay>,
-    mut raycast: Raycast,
+    hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
     hit_match_criteria: &'a Query<T, F>,
-    mouse_over_window: Res<MouseOverWindow>,
 ) -> Option<(Entity, IntersectionData, T::Item<'a>)>
 where
 {
-    let first_hit = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window)?
+    let first_hit = hit_list?
         .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
         .nth(0)?;
 
@@ -73,24 +59,31 @@ where
     Some((first_hit.0, first_hit.1.clone(), query_data))
 }
 
-/// get first hit entity that matches a query, and return the entity, mutable query data, and intersection data
+/// Get hit data for first hit entity in hit criteria + query data(mutable)
 pub fn get_first_hit_with_mut<'a, T: QueryData, F: QueryFilter>(
-    cursor_ray: Res<CursorRay>,
-    mut raycast: Raycast,
-    hit_match_criteria: &'a mut Query<'_, '_, T, F>,
-    mouse_over_window: Res<MouseOverWindow>,
+    hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
+    hit_match_criteria: &'a mut Query<T, F>,
 ) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
-    let ray = (**cursor_ray)?;
-
-    if **mouse_over_window {
-        return None;
-    }
-
-    let first_hit = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window)?
+    let first_hit = hit_list?
         .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
         .nth(0)?;
 
     let query_data = hit_match_criteria.get_mut(first_hit.0).ok()?;
 
     Some((first_hit.0, first_hit.1.clone(), query_data))
+}
+
+/// Get hit data for first hit entity in hit criteria(with mutable query input)
+pub fn get_first_hit_without_mut<'a, T: QueryData, F: QueryFilter>(
+    hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
+    hit_match_criteria: &'a mut Query<T, F>,
+) -> Option<(Entity, IntersectionData)> {
+    let first_hit = hit_list?
+        .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
+        .nth(0)?;
+
+    //println!("first hit is {:#?}", first_hit);
+    //let query_data = hit_match_criteria.get_mut(first_hit.0).ok()?;
+
+    Some((first_hit.0, first_hit.1.clone()))
 }

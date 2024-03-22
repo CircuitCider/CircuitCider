@@ -210,7 +210,7 @@ pub fn spawn_gizmo_when_needed(
 
 pub fn drag_tugs_with_mouse(
     cursor_ray: Res<CursorRay>,
-    raycast: Raycast,
+    mut raycast: Raycast,
     tugs: Query<(&Transform, &Tug), (With<Parent>, With<Grabbed>)>,
     mut gizmo_focused: Query<&mut Transform, (With<GizmoFocused>, Without<Tug>)>,
     mouse: Res<ButtonInput<MouseButton>>,
@@ -218,7 +218,7 @@ pub fn drag_tugs_with_mouse(
 ) {
     //if mouse.pressed(MouseButton::Left) {
         if let Some((_, data, (tug_trans, tug))) =
-            get_first_hit_with(cursor_ray, raycast, &tugs, mouse_over_window)
+            get_first_hit_with(cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window), &tugs, )
         {
             for mut trans in gizmo_focused.iter_mut() {
                 if tug.x > 0.0 {
@@ -237,7 +237,7 @@ pub fn drag_tugs_with_mouse(
 
 pub fn drag_rings_with_mouse(
     cursor_ray: Res<CursorRay>,
-    raycast: Raycast,
+    mut raycast: Raycast,
     rings: Query<(&Transform, &Ring), With<Parent>>,
     mut gizmo_focused: Query<&mut Transform, (With<GizmoFocused>, Without<Parent>, Without<Tug>)>,
     mouse: Res<ButtonInput<MouseButton>>,
@@ -245,7 +245,7 @@ pub fn drag_rings_with_mouse(
 ) {
     if mouse.pressed(MouseButton::Left) {
         if let Some((_, data, (tug_trans, ring))) =
-            get_first_hit_with(cursor_ray, raycast, &rings, mouse_over_window)
+            get_first_hit_with(cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window), &rings)
         {
             for mut trans in gizmo_focused.iter_mut() {
                 trans.look_at(data.position(), Vec3::new(0.0, 1.0, 0.0))
@@ -345,8 +345,8 @@ pub fn despawn_gizmo_when_no_targets(
 /// mark/unmark model for transform gizmo on click
 pub fn gizmo_mark_on_click(
     cursor_ray: Res<CursorRay>,
-    raycast: Raycast,
-    mut tool_mode: ResMut<BuildToolMode>,
+    mut raycast: Raycast,
+    tool_mode: ResMut<BuildToolMode>,
     gizmoable: Query<&Transform>,
     gizmo_filter: Query<Entity, With<Widget>>,
     mut commands: Commands,
@@ -357,7 +357,7 @@ pub fn gizmo_mark_on_click(
     if *tool_mode == BuildToolMode::GizmoMode {
         if mouse.just_pressed(MouseButton::Left) {
             if let Some((e, ..)) =
-                get_first_hit_with(cursor_ray, raycast, &gizmoable, mouse_over_window)
+                get_first_hit_with(cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window), &gizmoable)
             {
                 if gizmo_filter.contains(e) == false {
                     //println!("selecting for gizmo");

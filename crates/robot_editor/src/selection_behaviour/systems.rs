@@ -25,7 +25,7 @@ pub fn grab_clicked(
     mouse: Res<ButtonInput<MouseButton>>,
 ) {
     if mouse.just_pressed(MouseButton::Left) {
-        if let Some(mut hits) = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window) {
+        if let Some(mut hits) = cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window) {
             if let Some((e, ..)) = hits.next() {
                 commands.entity(*e).insert(Grabbed);    
             }

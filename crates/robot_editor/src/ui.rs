@@ -122,8 +122,9 @@ pub fn attach_placer(
     mouse: Res<ButtonInput<MouseButton>>,
     mut commands: Commands,
     mut tool_mode: ResMut<BuildToolMode>,
+    mouse_over_window: Res<MouseOverWindow>
 ) {
-    if mouse.just_pressed(MouseButton::Left) {
+    if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
         for (e, handle, mesh, trans, ..) in placers.iter() {
             if let Some(mat) = neon_materials.get_mut(handle) {
                 if rapier_context
