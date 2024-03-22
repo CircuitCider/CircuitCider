@@ -1,6 +1,14 @@
-use std::{any::TypeId, collections::{HashMap, HashSet}, io::ErrorKind};
+use std::{
+    any::TypeId,
+    collections::{HashMap, HashSet},
+    io::ErrorKind,
+};
 
-use async_trait::async_trait;
+use crate::shaders::neon_glow::NeonGlowMaterial;
+use crate::{
+    raycast_utils::{resources::MouseOverWindow, systems::*},
+    resources::BuildToolMode,
+};
 use bevy::{
     asset::{AssetContainer, LoadedFolder},
     ecs::query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery},
@@ -9,7 +17,6 @@ use bevy::{
     reflect::erased_serde::Error,
     window::PrimaryWindow,
 };
-use std::hash::Hash;
 use bevy_egui::EguiContext;
 use bevy_mod_raycast::{
     immediate::{Raycast, RaycastSettings, RaycastVisibility},
@@ -22,23 +29,11 @@ use bevy_rapier3d::{
     rapier::geometry::CollisionEventFlags,
 };
 use bevy_serialization_extras::prelude::{colliders::ColliderFlag, link::StructureFlag};
+use std::hash::Hash;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
-use crate::{raycast_utils::{resources::MouseOverWindow, systems::*}, resources::BuildToolMode};
-use crate::shaders::neon_glow::NeonGlowMaterial;
 
 use std::fmt::Debug;
-pub struct CachePrefabsPlugin;
-
-impl Plugin for CachePrefabsPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(BuildToolMode::PlacerMode)
-            .insert_resource(ModelFolder::default())
-            .add_systems(Startup, cache_initial_folders)
-            .add_systems(Update, placer_mode_ui)
-            .add_systems(Update, select_build_tool);
-    }
-}
 
 #[derive(Resource, Default, Deref)]
 pub struct ModelFolder(pub Handle<LoadedFolder>);
@@ -55,8 +50,6 @@ pub struct Placer;
 // pub fn first_hit_with::<T: Component> {
 
 // }
-
-
 
 // #[derive(Debug)]
 // pub struct GizmoMode {}
@@ -87,14 +80,14 @@ pub fn select_build_tool(
     }
 }
 
-/// Sets mouse over window resource to true/false depending on mouse state. 
+/// Sets mouse over window resource to true/false depending on mouse state.
 pub fn check_if_mouse_over_ui(
     mut windows: Query<&mut EguiContext>,
     mut mouse_over_window: ResMut<MouseOverWindow>,
 ) {
     for mut window in windows.iter_mut() {
         if window.get_mut().is_pointer_over_area() {
-            println!("mouse is over window");
+            //println!("mouse is over window");
             **mouse_over_window = true
         } else {
             **mouse_over_window = false
@@ -103,28 +96,7 @@ pub fn check_if_mouse_over_ui(
     //**mouse_over_window = false
 }
 
-pub fn debug_mouse_info(
-    cursor_ray: Res<CursorRay>,
-    mut raycast: Raycast,
-    mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut gizmos: Gizmos
-) {
-    for mut context in primary_window.iter_mut() {
-        egui::Window::new("mouse info")
-        .show(context.get_mut(), |ui| {
-            ui.label("Mouse ray info");
-            if let Some(ray) = **cursor_ray {
-                ui.label(format!("{:#?}", ray));
-                //gizmos.ray(ray.origin, *ray.direction, Color::RED);
-                let orientation = Quat::from_rotation_arc(Vec3::NEG_Z, *ray.direction);
-                gizmos.arrow(ray.origin, *ray.direction, Color::RED);
-                //gizmos.sphere(ray.origin + *ray.direction, orientation, 0.1, Color::BLUE);
-                //raycast.debug_cast_ray(ray, &RaycastSettings::default(), &mut gizmos);
-            } 
-        });
-    }
 
-}
 
 #[derive(Component, Default)]
 pub struct Edited;
@@ -150,8 +122,9 @@ pub fn attach_placer(
     mouse: Res<ButtonInput<MouseButton>>,
     mut commands: Commands,
     mut tool_mode: ResMut<BuildToolMode>,
+    mouse_over_window: Res<MouseOverWindow>
 ) {
-    if mouse.just_pressed(MouseButton::Left) {
+    if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
         for (e, handle, mesh, trans, ..) in placers.iter() {
             if let Some(mat) = neon_materials.get_mut(handle) {
                 if rapier_context
@@ -200,7 +173,7 @@ pub fn placer_mode_ui(
     //if tool_mode.into_inner() == &BuildToolMode::PlacerMode {
 
     let typeid = TypeId::of::<Mesh>();
-    
+
     for mut context in primary_window.iter_mut() {
         egui::SidePanel::right("prefab meshes").show(context.get_mut(), |ui| {
             if let Some(folder) = folders.get(&model_folder.0) {

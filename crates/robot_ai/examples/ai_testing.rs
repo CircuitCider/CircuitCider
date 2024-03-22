@@ -1,4 +1,4 @@
-use app_core::{plugins::AppSourcesPlugin, ROOT};
+use app_core::{plugins::AppSourcesPlugin, ExecLocation, ROOT};
 use bevy::{
     asset::io::{file::FileAssetReader, AssetSource},
     prelude::*,
@@ -28,19 +28,16 @@ use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState};
 pub fn main() {
     App::new()
         // app sources
-        .add_plugins(AppSourcesPlugin)
+        .add_plugins(AppSourcesPlugin {
+            exec_location: ExecLocation::CRATE
+        })
         .add_plugins(AssetSourcesUrdfPlugin {
-            assets_folder_local_path: "../../assets".into()
+            assets_folder_local_path: "../../assets".into(),
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(RobotEditorPlugin)
         // camera
         .add_plugins(DefaultCameraPlugin)
-        // Picking/selecting
-        // .add_plugins((
-        //     DefaultPickingPlugins,
-        //     //TransformGizmoPlugin::new(Quat::from_rotation_y(-0.2)),
-        // ))
         // serialization plugins
         .add_plugins(SerializationPlugin)
         .add_plugins(PhysicsSerializationPlugin)
@@ -75,7 +72,11 @@ fn setup(
     // plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Plane3d::new(Vec3::new(0.0, 1.0, 0.0)).mesh().size(50.0, 50.0)),
+            mesh: meshes.add(
+                Plane3d::new(Vec3::new(0.0, 1.0, 0.0))
+                    .mesh()
+                    .size(50.0, 50.0),
+            ),
             material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
             transform: Transform::from_xyz(0.0, -1.0, 0.0),
             ..default()
