@@ -8,15 +8,14 @@ use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
 use bevy_serialization_extras::prelude::PhysicsBundle;
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
+use bevy_camera_extras::components::FlyCam;
 
 use crate::raycast_utils::resources::MouseOverWindow;
 use crate::resources::BuildToolMode;
-use crate::selection_behaviour::plugins::SelectionBehaviourPlugin;
 use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::shaders::*;
 use crate::states::*;
 use crate::systems::*;
-use crate::transform_gizmo::plugins::TransformWidgetPlugin;
 use crate::ui::ModelFolder;
 use crate::ui::*;
 
@@ -69,14 +68,14 @@ impl Plugin for RobotEditorPlugin {
 
 
         // selection behaviour(what things do when clicked on)
-        .add_plugins(SelectionBehaviourPlugin)
+        //.add_plugins(SelectionBehaviourPlugin)
         
         .add_plugins(EditorToolingPlugin)
 
         .init_resource::<MouseOverWindow>()
         .add_systems(PreUpdate, check_if_mouse_over_ui)
 
-        .add_plugins(TransformWidgetPlugin)
+        //.add_plugins(TransformWidgetPlugin)
         //FIXME: commented out until bevy_inspector_egui is un-broken
         .add_plugins(
             WorldInspectorPlugin::default().run_if(in_state(RobotEditorState::Active)),
@@ -103,17 +102,23 @@ pub fn setup_editor_area(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
-    cameras: Query<&Camera>,
+    cameras: Query<(Entity, &Camera)>,
 ) {
     println!("setting up editor...");
-    
-    // don't spawn a camera if there already is one.
-    if cameras.iter().len() <= 0 {
-        commands.spawn((Camera3dBundle {
-            transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..Default::default()
-        },));
+    for (e, ..) in cameras.iter() {
+        commands.entity(e).despawn_recursive();
     }
+    // don't spawn a camera if there already is one.
+    commands.spawn(
+        (
+            Camera3dBundle {
+                transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+                ..Default::default()
+            },
+            FlyCam,
+            bevy_transform_gizmo::GizmoPickSource::default(),
+        )
+    );
     // robot
     urdf_load_requests.requests.push_front(AssetSpawnRequest {
         source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)
@@ -136,6 +141,7 @@ pub fn setup_editor_area(
             ..default()
         },
         PhysicsBundle::default(),
+        
     ));
 
     // light
