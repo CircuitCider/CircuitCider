@@ -7,14 +7,14 @@ edition = "2021"
 
 [dependencies]
 app_core = {path = "../app_core", version = "0.1"}
-bevy = {version = "0.13", features = ["dynamic_linking"]}
+bevy = {version = "0.13.1", features = ["dynamic_linking"]}
 bevy-inspector-egui = "0.23"
-bevy_egui = "0.25"
+bevy_egui = "0.26"
 egui = "0.26"
 bevy_serialization_extras = "0.4.3"
 bevy_serialization_urdf = "0.2"
 bevy_transform_gizmo = {git = "https://github.com/rydb/bevy_transform_gizmo", rev="dada826"}
-bevy_mod_picking = "0.18"
+bevy_mod_picking = {version = "0.18", features = ["backend_egui"]}
 bevy_camera_extras = "0.3"
 bevy_mod_raycast = "0.17"
 bevy_obj = "0.13"

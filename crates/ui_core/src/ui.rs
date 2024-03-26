@@ -151,7 +151,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                 ..default()
             },
             background_color: Color::rgb(0.15, 0.15, 0.15).into(),
-
+            z_index: ZIndex::Global(-1),
             ..default()
         },
         Name::new("Main Menu Background"),

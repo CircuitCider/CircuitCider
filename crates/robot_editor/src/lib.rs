@@ -6,7 +6,7 @@ pub mod shaders;
 pub mod states;
 pub mod systems;
 // mod transform_gizmo;
-// pub mod selection_behaviour;
+pub mod selection_behaviour;
 pub mod ui;
 
 pub mod prelude {
