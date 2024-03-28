@@ -1,13 +1,15 @@
-use bevy::prelude::*;
-use super::systems::*;
+pub use bevy::prelude::*;
 
-pub struct SelectionBehaviourPlugin;
+use super::systems::deselect_clicked;
 
-impl Plugin for SelectionBehaviourPlugin {
+/// extra stuff to tailor bevy_mod_picking to this project
+pub struct PickingPluginExtras;
+
+impl Plugin for PickingPluginExtras {
     fn build(&self, app: &mut App) {
         app
-        .add_systems(Update, check_grabs)
-        .add_systems(Update, grab_clicked)
+        //.add_plugins(MultiSelect)
+        //.add_systems(Update, deselect_clicked)
         ;
     }
 }

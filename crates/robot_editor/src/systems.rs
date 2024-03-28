@@ -37,16 +37,16 @@ pub fn move_placer_to_cursor(
         //let x = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window).unwrap_or_default();
         //println!("attempting to move placer to cursor");
         
-        let filtered_hits = get_first_hit_without_mut(
-            cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window),
-            &mut placers,
-        );
-        println!("hit list: {:#?}", filtered_hits);
+        // let filtered_hits = get_first_hit_without_mut(
+        //     cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window),
+        //     &mut placers,
+        // );
+        //println!("hit list: {:#?}", filtered_hits);
 
         // let hits = cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window);
 
         // println!("hits: {:#?}", hits);
-        if let Some((e, hit)) = get_first_hit_without_mut(
+        if let Some((.., hit)) = get_first_hit_without_mut(
             cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window),
             &mut placers,
         ) {

@@ -1,22 +1,33 @@
 use app_core::ROOT;
 use bevy::asset::load_internal_asset;
 use bevy::prelude::*;
+use bevy_camera_extras::plugins::DefaultCameraPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_mod_picking::debug::DebugPickingMode;
+use bevy_mod_picking::debug::DebugPickingPlugin;
+use bevy_mod_picking::focus::PickingInteraction;
+use bevy_mod_picking::highlight::PickHighlight;
+use bevy_mod_picking::picking_core::Pickable;
+use bevy_mod_picking::selection::PickSelection;
+use bevy_mod_picking::DefaultPickingPlugins;
+use bevy_mod_picking::PickableBundle;
 //use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
 use bevy_serialization_extras::prelude::PhysicsBundle;
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
+use bevy_camera_extras::components::FlyCam;
+use bevy_transform_gizmo::GizmoTransformable;
+use bevy_transform_gizmo::TransformGizmoPlugin;
 
 use crate::raycast_utils::resources::MouseOverWindow;
 use crate::resources::BuildToolMode;
-use crate::selection_behaviour::plugins::SelectionBehaviourPlugin;
+use crate::selection_behaviour::plugins::PickingPluginExtras;
 use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::shaders::*;
 use crate::states::*;
 use crate::systems::*;
-use crate::transform_gizmo::plugins::TransformWidgetPlugin;
 use crate::ui::ModelFolder;
 use crate::ui::*;
 
@@ -67,16 +78,29 @@ impl Plugin for RobotEditorPlugin {
         // asset folders
         .add_plugins(CachePrefabsPlugin)
 
-
+        // Picking
+        .add_plugins(DefaultCameraPlugin)
+        .register_type::<PickingInteraction>()
+        .add_plugins(
+            (
+                DefaultPickingPlugins.build().disable::<DebugPickingPlugin>(),
+                TransformGizmoPlugin::new(
+                    Quat::from_rotation_y(-0.2), // Align the gizmo to a different coordinate system.
+                                                 // Use TransformGizmoPlugin::default() to align to the
+                                                 // scene's coordinate system.
+                ),
+                //PickingPluginExtras
+            )
+        )
+        .insert_resource(DebugPickingMode::Normal)
         // selection behaviour(what things do when clicked on)
-        .add_plugins(SelectionBehaviourPlugin)
         
         .add_plugins(EditorToolingPlugin)
 
         .init_resource::<MouseOverWindow>()
         .add_systems(PreUpdate, check_if_mouse_over_ui)
 
-        .add_plugins(TransformWidgetPlugin)
+        //.add_plugins(TransformWidgetPlugin)
         //FIXME: commented out until bevy_inspector_egui is un-broken
         .add_plugins(
             WorldInspectorPlugin::default().run_if(in_state(RobotEditorState::Active)),
@@ -91,6 +115,7 @@ impl Plugin for RobotEditorPlugin {
 
         //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
         //.add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
+        .add_systems(Update, make_models_pickable)
 
         //.add_systems(Update, make_robots_editable)
         
@@ -103,17 +128,23 @@ pub fn setup_editor_area(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
-    cameras: Query<&Camera>,
+    cameras: Query<(Entity, &Camera)>,
 ) {
     println!("setting up editor...");
-    
-    // don't spawn a camera if there already is one.
-    if cameras.iter().len() <= 0 {
-        commands.spawn((Camera3dBundle {
-            transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..Default::default()
-        },));
+    for (e, ..) in cameras.iter() {
+        commands.entity(e).despawn_recursive();
     }
+    // don't spawn a camera if there already is one.
+    commands.spawn(
+        (
+            Camera3dBundle {
+                transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+                ..Default::default()
+            },
+            FlyCam,
+            bevy_transform_gizmo::GizmoPickSource::default(),
+        )
+    );
     // robot
     urdf_load_requests.requests.push_front(AssetSpawnRequest {
         source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)
@@ -136,6 +167,7 @@ pub fn setup_editor_area(
             ..default()
         },
         PhysicsBundle::default(),
+        
     ));
 
     // light
@@ -150,4 +182,23 @@ pub fn setup_editor_area(
     },));
 
 
+}
+
+pub fn make_models_pickable(
+    mut commands: Commands,
+    models_query: Query<Entity, (With<Handle<Mesh>>, Without<Pickable>)>,
+) {
+    for e in models_query.iter() {
+        commands.entity(e).insert(
+            (
+                PickableBundle {
+                    pickable: Pickable::default(),
+                    interaction: PickingInteraction::default(),
+                    selection: PickSelection::default(),
+                    highlight: PickHighlight::default(),
+                },
+                GizmoTransformable,
+            )
+        );
+    }
 }
