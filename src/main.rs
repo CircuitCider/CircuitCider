@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, render::render_resource::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages}};
 use bevy_camera_extras::plugins::DefaultCameraPlugin;
 use bevy_camera_extras::prelude::*;
 
@@ -20,9 +20,7 @@ use ui_core::plugins::StartMenuPlugin;
 
 fn main() {
     App::new()
-        .add_plugins(AppSourcesPlugin {
-            exec_location: ExecLocation::MAIN
-        })
+        .add_plugins(AppSourcesPlugin::MAIN)
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "assets".to_owned(),
         })
@@ -54,7 +52,10 @@ fn main() {
 // }
 
 /// set up a simple 3D scene
-fn setup_camera(mut commands: Commands) {
+fn setup_camera(
+    mut commands: Commands,
+) {
+
     // camera
     commands.spawn(
         (

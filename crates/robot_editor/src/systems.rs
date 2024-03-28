@@ -3,11 +3,12 @@ use bevy::window::PrimaryWindow;
 use bevy_camera_extras::components::Watched;
 use bevy_egui::EguiContext;
 use bevy_mod_raycast::{immediate::Raycast, CursorRay};
+use bevy_rapier3d::plugin::RapierContext;
 use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
     rigidbodies::RigidBodyFlag,
 };
-use crate::{components::*, raycast_utils::systems::{get_first_hit_with_mut, get_first_hit_without, get_first_hit_without_mut}};
+use crate::{components::*, raycast_utils::systems::{get_first_hit_with_mut, get_first_hit_without, get_first_hit_without_mut}, shaders::neon_glow::NeonGlowMaterial, ui::Edited};
 
 
 /// gets rid of placers if current mode is not placermode
@@ -34,18 +35,6 @@ pub fn move_placer_to_cursor(
 
     // }
     if *tool_mode == BuildToolMode::PlacerMode {
-        //let x = cursor_ray_hititer(cursor_ray, &mut raycast, mouse_over_window).unwrap_or_default();
-        //println!("attempting to move placer to cursor");
-        
-        // let filtered_hits = get_first_hit_without_mut(
-        //     cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window),
-        //     &mut placers,
-        // );
-        //println!("hit list: {:#?}", filtered_hits);
-
-        // let hits = cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window);
-
-        // println!("hits: {:#?}", hits);
         if let Some((.., hit)) = get_first_hit_without_mut(
             cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window),
             &mut placers,
@@ -83,27 +72,54 @@ use crate::{
     ui::{AttachCandidate, Placer},
 };
 
-pub fn set_robot_to_follow(
-    joints: Query<Entity, (With<JointFlag>, Without<Watched>)>,
+/// checks for any intersection between the placer and other meshes
+pub fn attach_placer(
+    //mut raycast: Raycast,
+    //cursor_ray: Res<CursorRay>,
+    rapier_context: Res<RapierContext>,
+    mut neon_materials: ResMut<Assets<NeonGlowMaterial>>,
+    placers: Query<(
+        Entity,
+        &Handle<NeonGlowMaterial>,
+        &Handle<Mesh>,
+        &Transform,
+        &Placer,
+    )>,
+    mouse: Res<ButtonInput<MouseButton>>,
     mut commands: Commands,
+    mut tool_mode: ResMut<BuildToolMode>,
+    mouse_over_window: Res<MouseOverWindow>
 ) {
-    for e in joints.iter() {
-        commands.entity(e).insert(Watched);
+    if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
+        for (e, handle, mesh, trans, ..) in placers.iter() {
+            if let Some(mat) = neon_materials.get_mut(handle) {
+                if rapier_context
+                    .intersection_pairs_with(e)
+                    .collect::<Vec<_>>()
+                    .len()
+                    > 0
+                {
+                    *mat = Color::RED.into();
+                } else {
+                    *mat = Color::GREEN.into();
+                }
+                println!("placing placer..");
+
+                commands.spawn((
+                    MaterialMeshBundle {
+                        mesh: mesh.clone(),
+                        material: handle.clone(),
+                        transform: *trans,
+                        ..default()
+                    },
+                    Edited,
+                    AttachCandidate,
+                ));
+                *tool_mode = BuildToolMode::EditerMode;
+            }
+        }
     }
 }
-
-// pub fn make_robots_editable(
-//     unmodified_bots: Query<(Entity, &StructureFlag), Without<Pickable>>,
-//     mut commands: Commands,
-// ) {
-//     for (e, ..) in unmodified_bots.iter() {
-//         commands.entity(e)
-//         .insert(        bevy_transform_gizmo::GizmoTransformable)
-//         .insert(PickableBundle::default())
-
-//         ;
-//     }
-// }
 
 #[derive(Component)]
 pub struct WasFrozen;

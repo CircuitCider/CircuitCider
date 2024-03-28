@@ -15,16 +15,21 @@ use crate::{ExecLocation, ROOT};
 /// if your [`{SOURCE}://{asset}.png`] isn't loading, you're probably missing this plugin,
 ///
 /// or, you need to add your asset source to this plugin.
-pub struct AppSourcesPlugin{
-    pub exec_location: ExecLocation,
+// pub struct AppSourcesPlugin{
+//     pub exec_location: ExecLocation,
+// }
+pub enum AppSourcesPlugin {
+    CRATE,
+    MAIN,
 }
 
 impl Plugin for AppSourcesPlugin {
     fn build(&self, app: &mut App) {
-        let asset_folder_location = match self.exec_location {
-            ExecLocation::CRATE => "../../assets",
-            ExecLocation::MAIN => "assets",
+        let asset_folder_location = match *self {
+            Self::CRATE => "../../assets",
+            Self::MAIN => "assets"
         };
+    
         //let root = self.root_dir.clone();
 
         app

@@ -1,6 +1,7 @@
 use app_core::{plugins::AppSourcesPlugin, ExecLocation, ROOT};
-use bevy::prelude::*;
+use bevy::{prelude::*, render::{render_resource::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages}, view::RenderLayers}, transform::commands};
 use bevy_camera_extras::{plugins::DefaultCameraPlugin, FlyCameraSystems};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_picking::{backends::raycast::RaycastBackend, debug::{DebugPickingMode, DebugPickingPlugin}, focus::PickingInteraction, highlight::PickHighlight, picking_core::Pickable, selection::PickSelection, DefaultPickingPlugins, PickableBundle};
 use bevy_obj::ObjPlugin;
 use bevy_rapier3d::{
@@ -17,7 +18,7 @@ use bevy_serialization_urdf::{
 };
 use bevy_transform_gizmo::{GizmoTransformable, TransformGizmoPlugin};
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
-use robot_editor::{plugins::*, selection_behaviour::plugins::PickingPluginExtras};
+use robot_editor::{components::DisplayModelCamera, plugins::*, selection_behaviour::plugins::PickingPluginExtras, systems::shape::Cube, ui::{DisplayModel, DisplayModelImage}};
 use robot_editor::states::*;
 
 
@@ -27,19 +28,12 @@ pub fn main() {
     App::new()
         .insert_state(RobotEditorState::Active)
         // app sources
-        .add_plugins(AppSourcesPlugin {
-            exec_location: ExecLocation::CRATE
-        })
+        .add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "../../assets".to_owned(),
         })
         .add_plugins(DefaultPlugins)
-
-
-        // .insert_resource(RapierBackendSettings {
-        //     require_markers: true, // Optional: only needed when you want fine-grained control over which cameras and entities should be used with the rapier picking backend. This is disabled by default, and no marker components are required on cameras or colliders. This resource is inserted by default, you only need to add it if you want to override the default settings.
-        // })
-
+        //.add_plugins(WorldInspectorPlugin::default())
         // robot editor
         .add_plugins(RobotEditorPlugin)
         // // serialization plugins
@@ -50,19 +44,73 @@ pub fn main() {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
         // world setup
-        //.add_systems(Update, visualize_window_for::<GizmoFocused>)
-        //.add_systems(Update, visualize_window_for::<Grabbed>)
-        //.add_systems(Update, visualize_window_for::<Camera>)
-        //.add_systems(First, turn_on_editor)
-        //.add_systems(Update, debug_mouse_info)
-        //.add_systems(Update, shoot_ray_down_to_target)
+        .add_systems(Update, visualize_window_for::<DisplayModel>)
         .add_systems(Startup, setup_editor_area)
+        .add_systems(Startup, second_camera_test)
         .run();
 }
 
+pub fn second_camera_test(
+    mut commands: Commands,
+    mut images: ResMut<Assets<Image>>,
+) {
+
+    let size = Extent3d {
+        width: 512,
+        height: 512,
+        ..default()
+    };
 
 
-// fn turn_on_editor(mut commands: Commands) {
-//     commands.insert_resource(NextState(Some(RobotEditorState::Active)));
-// }
+    let mut image = Image {
+        texture_descriptor: TextureDescriptor {
+            label: None,
+            size,
+            dimension: TextureDimension::D2,
+            format: TextureFormat::Bgra8UnormSrgb,
+            mip_level_count: 1,
+            sample_count: 1,
+            usage: TextureUsages::TEXTURE_BINDING
+                | TextureUsages::COPY_DST
+                | TextureUsages::RENDER_ATTACHMENT,
+            view_formats: &[],
+        },
+        ..default()
+    };
 
+    // fill image.data with zeroes
+    image.resize(size);
+
+
+    let image_handle = images.add(image);
+    commands.insert_resource(DisplayModelImage(image_handle.clone()));
+
+    //camera
+    commands.spawn(
+        (
+            Camera3dBundle {
+                camera: Camera {
+                    order: 1,
+                    target: image_handle.clone().into(),
+                    ..default()
+                },
+                transform: Transform::from_xyz(0.0, 2.5, 4.7).with_rotation(Quat::from_rotation_x(-0.5)),
+                ..default()
+            },
+            RenderLayers::layer(1),
+            
+        )
+    );
+    // // Cube
+    // commands.spawn(
+    //     (
+    //         PbrBundle {
+    //             mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+    //             ..default()
+    //         },
+    //         RenderLayers::layer(1),
+    //         Name::new("showcase_cube"),
+    //         DisplayModelCamera
+    //     )
+    // );
+}

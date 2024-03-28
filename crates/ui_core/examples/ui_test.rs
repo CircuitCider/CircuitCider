@@ -10,9 +10,7 @@ use ui_core::plugins::StartMenuPlugin;
 pub fn main() {
     App::new()
         //asset sources
-        .add_plugins(AppSourcesPlugin {
-            exec_location: ExecLocation::CRATE
-        })
+        .add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(DefaultPlugins)
         .add_plugins(WorldInspectorPlugin::default())
         .add_plugins(StartMenuPlugin)

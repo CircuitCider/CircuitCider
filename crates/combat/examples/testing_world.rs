@@ -15,15 +15,13 @@ use bevy_serialization_urdf::{
 };
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 use robot_editor::{
-    components::GizmoFocused, plugins::{CachePrefabsPlugin, RobotEditorPlugin}, raycast_utils::debug::debug_mouse_info, states::RobotEditorState, systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor}, ui::attach_placer
+    components::GizmoFocused, plugins::{CachePrefabsPlugin, RobotEditorPlugin}, raycast_utils::debug::debug_mouse_info, states::RobotEditorState, systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor},
 };
 
 pub fn main() {
     App::new()
         // app sources
-        .add_plugins(AppSourcesPlugin {
-            exec_location: ExecLocation::CRATE
-        })
+        .add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "../../assets".to_owned(),
         })

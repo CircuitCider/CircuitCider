@@ -1,21 +1,16 @@
 use std::{
     any::TypeId,
     collections::{HashMap, HashSet},
-    io::ErrorKind,
+    io::ErrorKind, thread::spawn,
 };
 
-use crate::shaders::neon_glow::NeonGlowMaterial;
+use crate::{components::DisplayModelCamera, shaders::neon_glow::NeonGlowMaterial};
 use crate::{
     raycast_utils::{resources::MouseOverWindow, systems::*},
     resources::BuildToolMode,
 };
 use bevy::{
-    asset::{AssetContainer, LoadedFolder},
-    ecs::query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery},
-    input::mouse::MouseButtonInput,
-    prelude::*,
-    reflect::erased_serde::Error,
-    window::PrimaryWindow,
+    asset::{AssetContainer, LoadedFolder}, ecs::query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery}, input::mouse::MouseButtonInput, log::tracing_subscriber::field::display, prelude::*, reflect::erased_serde::Error, render::{render_asset::RenderAssets, view::RenderLayers}, window::PrimaryWindow
 };
 use bevy_egui::EguiContext;
 use bevy_mod_raycast::{
@@ -29,6 +24,7 @@ use bevy_rapier3d::{
     rapier::geometry::CollisionEventFlags,
 };
 use bevy_serialization_extras::prelude::{colliders::ColliderFlag, link::StructureFlag};
+use egui::Align2;
 use std::hash::Hash;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
@@ -106,57 +102,66 @@ pub struct Edited;
 #[derive(Component, Default)]
 pub struct AttachCandidate;
 
-/// checks for any intersection between the placer and other meshes
-pub fn attach_placer(
-    //mut raycast: Raycast,
-    //cursor_ray: Res<CursorRay>,
-    rapier_context: Res<RapierContext>,
-    mut neon_materials: ResMut<Assets<NeonGlowMaterial>>,
-    placers: Query<(
-        Entity,
-        &Handle<NeonGlowMaterial>,
-        &Handle<Mesh>,
-        &Transform,
-        &Placer,
-    )>,
-    mouse: Res<ButtonInput<MouseButton>>,
-    mut commands: Commands,
-    mut tool_mode: ResMut<BuildToolMode>,
-    mouse_over_window: Res<MouseOverWindow>
-) {
-    if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
-        for (e, handle, mesh, trans, ..) in placers.iter() {
-            if let Some(mat) = neon_materials.get_mut(handle) {
-                if rapier_context
-                    .intersection_pairs_with(e)
-                    .collect::<Vec<_>>()
-                    .len()
-                    > 0
-                {
-                    *mat = Color::RED.into();
-                } else {
-                    *mat = Color::GREEN.into();
-                }
-                println!("placing placer..");
 
-                commands.spawn((
-                    MaterialMeshBundle {
-                        mesh: mesh.clone(),
-                        material: handle.clone(),
-                        transform: *trans,
-                        ..default()
-                    },
-                    Edited,
-                    AttachCandidate,
-                ));
-                *tool_mode = BuildToolMode::EditerMode;
-            }
-        }
-    }
-}
 
 // /// editor mode for editing attached
 // pub fn editor_mode_ui
+
+pub fn save_load_model_ui(
+    mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
+    //mut commands: Commands,
+
+) {
+    for mut context in primary_window.iter_mut() {
+        let ui_name = "Save Load Model";
+        egui::Window::new(ui_name)
+        .anchor(Align2::RIGHT_TOP, [0.0, 0.0])
+        .collapsible(false)
+        .resizable(false)
+        .show(context.get_mut(), |ui| {    
+            ui.label("save conditions");
+
+            ui.horizontal(|ui| {
+                ui.button("save");
+                //ui.button("load");
+            });
+
+        });
+        
+    }
+}
+
+/// model only rendered for display
+#[derive(Component)]
+pub struct DisplayModel;
+
+#[derive(Resource, Deref, Default)]
+pub struct DisplayModelImage(pub Handle<Image>);
+
+/// save the display model image to file so egui can load it
+pub fn display_model_image_to_file(
+    display_model_image: Res<DisplayModelImage>,
+    images: ResMut<Assets<Image>>,
+    model_folder: Res<ModelFolder>,
+    folders: Res<Assets<LoadedFolder>>,
+
+) {
+    let image_handle = &**display_model_image;
+    let Some(image) = images.get(image_handle) else {return};
+    let Ok(dyn_image) = image.clone().try_into_dynamic() else { return};
+
+    // let typeid = TypeId::of::<Mesh>();
+
+    // let Some(folder) = folders.get(&**model_folder) else {return};
+    // let Some(first_item) = folder
+    // .handles
+    // .clone()
+    // .into_iter()
+    // .next()
+    // else {return};
+
+    // let Some(first_item_path) = first_item.path() else {return};
+}
 
 /// list all placeable models
 pub fn placer_mode_ui(
@@ -166,16 +171,23 @@ pub fn placer_mode_ui(
     model_folder: Res<ModelFolder>,
     mut tool_mode: ResMut<BuildToolMode>,
     //meshes: Res<Assets<Mesh>>,
-    mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     mut placer_materials: ResMut<Assets<NeonGlowMaterial>>,
+    mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
+    display_models: Query<(Entity, &Handle<Mesh>), With<DisplayModel>>,
+
+
     mut commands: Commands,
 ) {
     //if tool_mode.into_inner() == &BuildToolMode::PlacerMode {
 
     let typeid = TypeId::of::<Mesh>();
-
+    //println!("PREPARING TO ADD STUFF TO PLACE MODE UI");
+    //info!("PRIMARY WINDOW COUNT: {:#?}", primary_window.iter().len());
     for mut context in primary_window.iter_mut() {
-        egui::SidePanel::right("prefab meshes").show(context.get_mut(), |ui| {
+        //println!("POPULATiNG PLACER MODE UI");
+        let ui_name = "prefab meshes";
+        egui::SidePanel::left(ui_name).show(context.get_mut(), |ui| {
+            ui.heading(ui_name);
             if let Some(folder) = folders.get(&model_folder.0) {
                 let handles: Vec<Handle<Mesh>> = folder
                     .handles
@@ -189,11 +201,13 @@ pub fn placer_mode_ui(
                     //let mesh = meshes.get(mesh_handle.clone()).expect("not loaded");
                     if let Some(path) = mesh_handle.path() {
                         let str_path = path.path().to_str().unwrap();
-                        if ui.button(str_path).clicked() {
+                        let spawn_button = ui.button(str_path);
+                        
+                        if spawn_button.clicked() {
                             //TODO! put raycasting code here
                             commands.spawn((
                                 MaterialMeshBundle {
-                                    mesh: mesh_handle,
+                                    mesh: mesh_handle.clone(),
                                     material: placer_materials.add(NeonGlowMaterial {
                                         color: Color::RED.into(),
                                     }),
@@ -205,6 +219,34 @@ pub fn placer_mode_ui(
                             ));
                             *tool_mode = BuildToolMode::PlacerMode
                         }
+                        //spawn display model for hovered over spawnables
+                        if spawn_button.hovered() {
+                            ui.label("show display model here!");
+                            for (e, display_handle) in display_models.iter() {
+                                if mesh_handle.path() != display_handle.path() {
+                                    commands.entity(e).despawn()
+                                }
+                            }
+                            if display_models.iter().len() < 1 {
+                                commands.spawn((
+                                    MaterialMeshBundle {
+                                        mesh: mesh_handle.clone(),
+                                        material: placer_materials.add(NeonGlowMaterial {
+                                            color: Color::BLUE.into(),
+                                        }),
+                                        ..default()
+                                    },
+                                    DisplayModel,
+                                    RenderLayers::layer(1)
+                                ));
+                            }
+                            //ui.image(source)
+                        } else {
+                            for (e, ..) in display_models.iter() {
+                                    commands.entity(e).despawn()
+                            }
+                        }
+                        
                     }
                 }
             } else {

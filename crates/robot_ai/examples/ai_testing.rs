@@ -28,9 +28,7 @@ use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState};
 pub fn main() {
     App::new()
         // app sources
-        .add_plugins(AppSourcesPlugin {
-            exec_location: ExecLocation::CRATE
-        })
+        .add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "../../assets".into(),
         })

@@ -1,6 +1,8 @@
 use app_core::ROOT;
 use bevy::asset::load_internal_asset;
 use bevy::prelude::*;
+use bevy::render::view::RenderLayers;
+use bevy_camera_extras::components::Watched;
 use bevy_camera_extras::plugins::DefaultCameraPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_picking::debug::DebugPickingMode;
@@ -13,6 +15,7 @@ use bevy_mod_picking::DefaultPickingPlugins;
 use bevy_mod_picking::PickableBundle;
 //use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_raycast::DefaultRaycastingPlugin;
+use bevy_serialization_extras::prelude::link::JointFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
 use bevy_serialization_extras::prelude::PhysicsBundle;
@@ -35,11 +38,13 @@ pub struct CachePrefabsPlugin;
 
 impl Plugin for CachePrefabsPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(BuildToolMode::PlacerMode)
-            .insert_resource(ModelFolder::default())
-            .add_systems(Startup, cache_initial_folders)
-            .add_systems(Update, placer_mode_ui)
-            .add_systems(Update, select_build_tool);
+        app
+        .insert_resource(BuildToolMode::PlacerMode)
+        .init_resource::<DisplayModelImage>()
+        .insert_resource(ModelFolder::default())
+        .add_systems(Startup, cache_initial_folders)
+        .add_systems(Update, placer_mode_ui)
+        .add_systems(Update, select_build_tool);
     }
 }
 
@@ -53,6 +58,17 @@ impl Plugin for EditorToolingPlugin {
             .add_systems(Update, attach_placer)
             .add_systems(Update, delete_placers)
             .add_systems(Update, delete_attach_candidates);
+    }
+}
+
+/// ui for robot editor
+pub struct RobotEditorUiPlugin;
+
+impl Plugin for RobotEditorUiPlugin {
+    fn build(&self, app: &mut App) {
+        app
+        .add_systems(Update, save_load_model_ui)
+        ;
     }
 }
 
@@ -81,27 +97,27 @@ impl Plugin for RobotEditorPlugin {
         // Picking
         .add_plugins(DefaultCameraPlugin)
         .register_type::<PickingInteraction>()
-        .add_plugins(
-            (
-                DefaultPickingPlugins.build().disable::<DebugPickingPlugin>(),
-                TransformGizmoPlugin::new(
-                    Quat::from_rotation_y(-0.2), // Align the gizmo to a different coordinate system.
-                                                 // Use TransformGizmoPlugin::default() to align to the
-                                                 // scene's coordinate system.
-                ),
-                //PickingPluginExtras
-            )
-        )
+        // .add_plugins(
+        //     (
+        //         DefaultPickingPlugins.build().disable::<DebugPickingPlugin>(),
+        //         TransformGizmoPlugin::new(
+        //             Quat::from_rotation_y(-0.2), // Align the gizmo to a different coordinate system.
+        //                                          // Use TransformGizmoPlugin::default() to align to the
+        //                                          // scene's coordinate system.
+        //         ),
+        //         //PickingPluginExtras
+        //     )
+        // )
         .insert_resource(DebugPickingMode::Normal)
         // selection behaviour(what things do when clicked on)
         
         .add_plugins(EditorToolingPlugin)
 
         .init_resource::<MouseOverWindow>()
-        .add_systems(PreUpdate, check_if_mouse_over_ui)
 
-        //.add_plugins(TransformWidgetPlugin)
-        //FIXME: commented out until bevy_inspector_egui is un-broken
+        // ui
+        .add_plugins(RobotEditorUiPlugin)
+        .add_systems(PreUpdate, check_if_mouse_over_ui)
         .add_plugins(
             WorldInspectorPlugin::default().run_if(in_state(RobotEditorState::Active)),
         )
@@ -134,7 +150,6 @@ pub fn setup_editor_area(
     for (e, ..) in cameras.iter() {
         commands.entity(e).despawn_recursive();
     }
-    // don't spawn a camera if there already is one.
     commands.spawn(
         (
             Camera3dBundle {
@@ -143,6 +158,8 @@ pub fn setup_editor_area(
             },
             FlyCam,
             bevy_transform_gizmo::GizmoPickSource::default(),
+            RenderLayers::layer(0)
+
         )
     );
     // robot
@@ -200,5 +217,14 @@ pub fn make_models_pickable(
                 GizmoTransformable,
             )
         );
+    }
+}
+
+pub fn set_robot_to_follow(
+    joints: Query<Entity, (With<JointFlag>, Without<Watched>)>,
+    mut commands: Commands,
+) {
+    for e in joints.iter() {
+        commands.entity(e).insert(Watched);
     }
 }
