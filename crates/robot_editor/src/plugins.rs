@@ -114,7 +114,7 @@ impl Plugin for RobotEditorPlugin {
         .add_systems(Update, bind_left_and_right_wheel)
 
         //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
-        .add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
+        //.add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
         .add_systems(Update, make_models_pickable)
 
         //.add_systems(Update, make_robots_editable)
@@ -131,20 +131,20 @@ pub fn setup_editor_area(
     cameras: Query<(Entity, &Camera)>,
 ) {
     println!("setting up editor...");
-    // for (e, ..) in cameras.iter() {
-    //     commands.entity(e).despawn_recursive();
-    // }
-    // // don't spawn a camera if there already is one.
-    // commands.spawn(
-    //     (
-    //         Camera3dBundle {
-    //             transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-    //             ..Default::default()
-    //         },
-    //         FlyCam,
-    //         bevy_transform_gizmo::GizmoPickSource::default(),
-    //     )
-    // );
+    for (e, ..) in cameras.iter() {
+        commands.entity(e).despawn_recursive();
+    }
+    // don't spawn a camera if there already is one.
+    commands.spawn(
+        (
+            Camera3dBundle {
+                transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+                ..Default::default()
+            },
+            FlyCam,
+            bevy_transform_gizmo::GizmoPickSource::default(),
+        )
+    );
     // robot
     urdf_load_requests.requests.push_front(AssetSpawnRequest {
         source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)

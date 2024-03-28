@@ -46,6 +46,7 @@ fn main() {
         // setup systems
         .add_systems(Startup, setup_camera)
         //.add_systems(Update, visualize_right_sidepanel_for::<Name>.run_if(in_state(AppState::Editor)))
+        .add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
         .run();
 }
 
