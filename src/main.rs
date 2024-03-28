@@ -32,7 +32,6 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(EguiPlugin)
-        //.add_plugins(DefaultCameraPlugin)
         .add_plugins(StartMenuPlugin)
         .add_plugins(RobotEditorPlugin)
         //.add_plugins(WorldInspectorPlugin::default())
