@@ -10,7 +10,7 @@ use crate::{
     resources::BuildToolMode,
 };
 use bevy::{
-    asset::{AssetContainer, LoadedFolder}, ecs::query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery}, input::mouse::MouseButtonInput, log::tracing_subscriber::field::display, prelude::*, reflect::erased_serde::Error, render::{render_asset::RenderAssets, view::RenderLayers}, window::PrimaryWindow
+    asset::{AssetContainer, LoadedFolder}, ecs::query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery}, input::mouse::MouseButtonInput, log::tracing_subscriber::field::display, prelude::*, reflect::erased_serde::Error, render::{render_asset::RenderAssets, render_resource::TextureFormat, view::RenderLayers}, window::PrimaryWindow
 };
 use bevy_egui::EguiContext;
 use bevy_mod_raycast::{
@@ -148,19 +148,15 @@ pub fn display_model_image_to_file(
 ) {
     let image_handle = &**display_model_image;
     let Some(image) = images.get(image_handle) else {return};
+    
+    println!("image format info: {:#?}", image.texture_view_descriptor);
     let Ok(dyn_image) = image.clone().try_into_dynamic() else { return};
-
-    // let typeid = TypeId::of::<Mesh>();
-
-    // let Some(folder) = folders.get(&**model_folder) else {return};
-    // let Some(first_item) = folder
-    // .handles
-    // .clone()
-    // .into_iter()
-    // .next()
-    // else {return};
-
-    // let Some(first_item_path) = first_item.path() else {return};
+    let save_info = dyn_image.save("image_test_path.jpg");
+    
+    match save_info {
+            Ok(_) => println!("successfully saved image"),
+            Err(reason) => println!("failed to save image: Reason: {:#}", reason),
+    }
 }
 
 /// list all placeable models
