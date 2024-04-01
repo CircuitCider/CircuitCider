@@ -18,7 +18,7 @@ use bevy_serialization_urdf::{
 };
 use bevy_transform_gizmo::{GizmoTransformable, TransformGizmoPlugin};
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
-use robot_editor::{components::DisplayModelCamera, plugins::*, selection_behaviour::plugins::PickingPluginExtras, systems::shape::Cube, ui::{display_model_image_to_file, DisplayModel, DisplayModelImage}};
+use robot_editor::{components::DisplayModelCamera, plugins::*, selection_behaviour::plugins::PickingPluginExtras, systems::shape::Cube, ui::{DisplayModel, DisplayModelImage}};
 use robot_editor::states::*;
 
 
@@ -46,8 +46,8 @@ pub fn main() {
         // world setup
         .add_systems(Update, visualize_window_for::<DisplayModel>)
         .add_systems(Startup, setup_editor_area)
-        .add_systems(Startup, second_camera_test)
-        .add_systems(Update, display_model_image_to_file)
+        .add_systems(PreStartup, second_camera_test)
+        //.add_systems(Update, display_model_image_to_file)
         .run();
 }
 
@@ -100,6 +100,7 @@ pub fn second_camera_test(
                 ..default()
             },
             RenderLayers::layer(1),
+            Name::new("Display Camera"),
             
         )
     );

@@ -139,28 +139,30 @@ pub struct DisplayModel;
 pub struct DisplayModelImage(pub Handle<Image>);
 
 /// save the display model image to file so egui can load it
-pub fn display_model_image_to_file(
-    display_model_image: Res<DisplayModelImage>,
-    images: ResMut<Assets<Image>>,
-    model_folder: Res<ModelFolder>,
-    folders: Res<Assets<LoadedFolder>>,
+// pub fn display_model_image_to_file(
+//     display_model_image: Res<DisplayModelImage>,
+//     images: ResMut<Assets<Image>>,
+//     model_folder: Res<ModelFolder>,
+//     folders: Res<Assets<LoadedFolder>>,
 
-) {
-    let image_handle = &**display_model_image;
-    let Some(image) = images.get(image_handle) else {return};
+// ) {
+//     let image_handle = &**display_model_image;
+//     let Some(image) = images.get(image_handle) else {return};
     
-    println!("image format info: {:#?}", image.texture_view_descriptor);
-    let Ok(dyn_image) = image.clone().try_into_dynamic() else { return};
-    let save_info = dyn_image.save("image_test_path.jpg");
+//     println!("image format info: {:#?}", image.texture_view_descriptor);
+//     let Ok(dyn_image) = image.clone().try_into_dynamic() else { return};
+//     // let save_info = dyn_image.save("image_test_path.png");
     
-    match save_info {
-            Ok(_) => println!("successfully saved image"),
-            Err(reason) => println!("failed to save image: Reason: {:#}", reason),
-    }
-}
+//     // match save_info {
+//     //         Ok(_) => println!("successfully saved image"),
+//     //         Err(reason) => println!("failed to save image: Reason: {:#}", reason),
+//     // }
+// }
 
 /// list all placeable models
 pub fn placer_mode_ui(
+    display_model_image: Res<DisplayModelImage>,
+    images: ResMut<Assets<Image>>,
     //mut raycast: Raycast,
     //cursor_ray: Res<CursorRay>,
     folders: Res<Assets<LoadedFolder>>,
@@ -174,12 +176,19 @@ pub fn placer_mode_ui(
 
     mut commands: Commands,
 ) {
+
+
+
     //if tool_mode.into_inner() == &BuildToolMode::PlacerMode {
 
     let typeid = TypeId::of::<Mesh>();
     //println!("PREPARING TO ADD STUFF TO PLACE MODE UI");
     //info!("PRIMARY WINDOW COUNT: {:#?}", primary_window.iter().len());
     for mut context in primary_window.iter_mut() {
+        
+        // install image loader for egui:
+        egui_extras::install_image_loaders(context.get_mut());
+        //context.get_mut().add_bytes_loader(loader)
         //println!("POPULATiNG PLACER MODE UI");
         let ui_name = "prefab meshes";
         egui::SidePanel::left(ui_name).show(context.get_mut(), |ui| {
@@ -218,6 +227,10 @@ pub fn placer_mode_ui(
                         //spawn display model for hovered over spawnables
                         if spawn_button.hovered() {
                             ui.label("show display model here!");
+                            if let Some(image) = images.get(display_model_image.0.clone()) {
+                                let egui_image = egui::Image::from_bytes("bytes://model.png", image.data.clone());
+                                ui.image(egui_image.source().clone());
+                            }
                             for (e, display_handle) in display_models.iter() {
                                 if mesh_handle.path() != display_handle.path() {
                                     commands.entity(e).despawn()

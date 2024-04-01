@@ -11,6 +11,9 @@ bevy = {version = "0.13.1", features = ["dynamic_linking"]}
 bevy-inspector-egui = "0.23"
 bevy_egui = "0.25"
 egui = "0.26"
+egui_extras = { version = "0.26", features = ["all_loaders", "image", "file"] }
+image = { version = "0.24", features = ["jpeg", "png"] } # Add the types you want support for
+
 bevy_serialization_extras = "0.4.3"
 bevy_serialization_urdf = "0.2"
 bevy_transform_gizmo = {git = "https://github.com/rydb/bevy_transform_gizmo", rev="dada826"}

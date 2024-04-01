@@ -147,9 +147,9 @@ pub fn setup_editor_area(
     cameras: Query<(Entity, &Camera)>,
 ) {
     println!("setting up editor...");
-    for (e, ..) in cameras.iter() {
-        commands.entity(e).despawn_recursive();
-    }
+    // for (e, ..) in cameras.iter() {
+    //     commands.entity(e).despawn_recursive();
+    // }
     commands.spawn(
         (
             Camera3dBundle {
