@@ -14,13 +14,13 @@ use bevy_mod_picking::selection::PickSelection;
 use bevy_mod_picking::DefaultPickingPlugins;
 use bevy_mod_picking::PickableBundle;
 //use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_camera_extras::components::FlyCam;
 use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
 use bevy_serialization_extras::prelude::PhysicsBundle;
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
-use bevy_camera_extras::components::FlyCam;
 use bevy_transform_gizmo::GizmoTransformable;
 use bevy_transform_gizmo::TransformGizmoPlugin;
 
@@ -38,13 +38,12 @@ pub struct CachePrefabsPlugin;
 
 impl Plugin for CachePrefabsPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .insert_resource(BuildToolMode::PlacerMode)
-        .init_resource::<DisplayModelImage>()
-        .insert_resource(ModelFolder::default())
-        .add_systems(Startup, cache_initial_folders)
-        .add_systems(Update, placer_mode_ui)
-        .add_systems(Update, select_build_tool);
+        app.insert_resource(BuildToolMode::PlacerMode)
+            .init_resource::<DisplayModelImage>()
+            .insert_resource(ModelFolder::default())
+            .add_systems(Startup, cache_initial_folders)
+            .add_systems(Update, placer_mode_ui)
+            .add_systems(Update, select_build_tool);
     }
 }
 
@@ -66,9 +65,7 @@ pub struct RobotEditorUiPlugin;
 
 impl Plugin for RobotEditorUiPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_systems(Update, save_load_model_ui)
-        ;
+        app.add_systems(Update, save_load_model_ui);
     }
 }
 
@@ -150,18 +147,15 @@ pub fn setup_editor_area(
     // for (e, ..) in cameras.iter() {
     //     commands.entity(e).despawn_recursive();
     // }
-    commands.spawn(
-        (
-            Camera3dBundle {
-                transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-                ..Default::default()
-            },
-            FlyCam,
-            bevy_transform_gizmo::GizmoPickSource::default(),
-            RenderLayers::layer(0)
-
-        )
-    );
+    commands.spawn((
+        Camera3dBundle {
+            transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..Default::default()
+        },
+        FlyCam,
+        bevy_transform_gizmo::GizmoPickSource::default(),
+        RenderLayers::layer(0),
+    ));
     // robot
     urdf_load_requests.requests.push_front(AssetSpawnRequest {
         source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)
@@ -184,7 +178,6 @@ pub fn setup_editor_area(
             ..default()
         },
         PhysicsBundle::default(),
-        
     ));
 
     // light
@@ -197,8 +190,6 @@ pub fn setup_editor_area(
         transform: Transform::from_xyz(4.0, 8.0, 4.0),
         ..default()
     },));
-
-
 }
 
 pub fn make_models_pickable(
@@ -206,17 +197,15 @@ pub fn make_models_pickable(
     models_query: Query<Entity, (With<Handle<Mesh>>, Without<Pickable>)>,
 ) {
     for e in models_query.iter() {
-        commands.entity(e).insert(
-            (
-                PickableBundle {
-                    pickable: Pickable::default(),
-                    interaction: PickingInteraction::default(),
-                    selection: PickSelection::default(),
-                    highlight: PickHighlight::default(),
-                },
-                GizmoTransformable,
-            )
-        );
+        commands.entity(e).insert((
+            PickableBundle {
+                pickable: Pickable::default(),
+                interaction: PickingInteraction::default(),
+                selection: PickSelection::default(),
+                highlight: PickHighlight::default(),
+            },
+            GizmoTransformable,
+        ));
     }
 }
 

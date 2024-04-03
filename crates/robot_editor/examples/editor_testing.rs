@@ -1,8 +1,25 @@
 use app_core::{plugins::AppSourcesPlugin, ExecLocation, ROOT};
-use bevy::{prelude::*, render::{render_resource::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages}, view::RenderLayers}, transform::commands};
+use bevy::{
+    prelude::*,
+    render::{
+        render_resource::{
+            Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+        },
+        view::RenderLayers,
+    },
+    transform::commands,
+};
 use bevy_camera_extras::{plugins::DefaultCameraPlugin, FlyCameraSystems};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_mod_picking::{backends::raycast::RaycastBackend, debug::{DebugPickingMode, DebugPickingPlugin}, focus::PickingInteraction, highlight::PickHighlight, picking_core::Pickable, selection::PickSelection, DefaultPickingPlugins, PickableBundle};
+use bevy_mod_picking::{
+    backends::raycast::RaycastBackend,
+    debug::{DebugPickingMode, DebugPickingPlugin},
+    focus::PickingInteraction,
+    highlight::PickHighlight,
+    picking_core::Pickable,
+    selection::PickSelection,
+    DefaultPickingPlugins, PickableBundle,
+};
 use bevy_obj::ObjPlugin;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
@@ -18,11 +35,14 @@ use bevy_serialization_urdf::{
 };
 use bevy_transform_gizmo::{GizmoTransformable, TransformGizmoPlugin};
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
-use robot_editor::{components::DisplayModelCamera, plugins::*, selection_behaviour::plugins::PickingPluginExtras, systems::shape::Cube, ui::{DisplayModel, DisplayModelImage}};
 use robot_editor::states::*;
-
-
-
+use robot_editor::{
+    components::DisplayModelCamera,
+    plugins::*,
+    selection_behaviour::plugins::PickingPluginExtras,
+    systems::shape::Cube,
+    ui::{DisplayModel, DisplayModelImage},
+};
 
 pub fn main() {
     App::new()
@@ -56,13 +76,11 @@ pub fn second_camera_test(
     mut images: ResMut<Assets<Image>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-
     let size = Extent3d {
         width: 512,
         height: 512,
         ..default()
     };
-
 
     let mut image = Image {
         texture_descriptor: TextureDescriptor {
@@ -83,37 +101,32 @@ pub fn second_camera_test(
     // fill image.data with zeroes
     image.resize(size);
 
-
     let image_handle = images.add(image);
     commands.insert_resource(DisplayModelImage(image_handle.clone()));
 
     //camera
-    commands.spawn(
-        (
-            Camera3dBundle {
-                camera: Camera {
-                    order: 1,
-                    target: image_handle.clone().into(),
-                    ..default()
-                },
-                transform: Transform::from_xyz(0.0, 2.5, 4.7).with_rotation(Quat::from_rotation_x(-0.5)),
+    commands.spawn((
+        Camera3dBundle {
+            camera: Camera {
+                order: 1,
+                target: image_handle.clone().into(),
                 ..default()
             },
-            RenderLayers::layer(1),
-            Name::new("Display Camera"),
-            
-        )
-    );
+            transform: Transform::from_xyz(0.0, 2.5, 4.7)
+                .with_rotation(Quat::from_rotation_x(-0.5)),
+            ..default()
+        },
+        RenderLayers::layer(1),
+        Name::new("Display Camera"),
+    ));
     // // Cube
-    commands.spawn(
-        (
-            PbrBundle {
-                mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-                ..default()
-            },
-            RenderLayers::layer(1),
-            Name::new("showcase_cube"),
-            DisplayModelCamera
-        )
-    );
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+            ..default()
+        },
+        RenderLayers::layer(1),
+        Name::new("showcase_cube"),
+        DisplayModelCamera,
+    ));
 }

@@ -1,3 +1,11 @@
+use crate::{
+    components::*,
+    raycast_utils::systems::{
+        get_first_hit_with_mut, get_first_hit_without, get_first_hit_without_mut,
+    },
+    shaders::neon_glow::NeonGlowMaterial,
+    ui::Edited,
+};
 pub use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_camera_extras::components::Watched;
@@ -8,8 +16,6 @@ use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
     rigidbodies::RigidBodyFlag,
 };
-use crate::{components::*, raycast_utils::systems::{get_first_hit_with_mut, get_first_hit_without, get_first_hit_without_mut}, shaders::neon_glow::NeonGlowMaterial, ui::Edited};
-
 
 /// gets rid of placers if current mode is not placermode
 pub fn delete_attach_candidates(
@@ -64,10 +70,7 @@ pub fn delete_placers(
 
 use crate::{
     components::Wheel,
-    raycast_utils::{
-        resources::MouseOverWindow,
-        systems::{cursor_ray_hititer},
-    },
+    raycast_utils::{resources::MouseOverWindow, systems::cursor_ray_hititer},
     resources::BuildToolMode,
     ui::{AttachCandidate, Placer},
 };
@@ -88,7 +91,7 @@ pub fn attach_placer(
     mouse: Res<ButtonInput<MouseButton>>,
     mut commands: Commands,
     mut tool_mode: ResMut<BuildToolMode>,
-    mouse_over_window: Res<MouseOverWindow>
+    mouse_over_window: Res<MouseOverWindow>,
 ) {
     if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
         for (e, handle, mesh, trans, ..) in placers.iter() {

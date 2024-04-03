@@ -13,7 +13,6 @@ use super::systems::DONT_EXIT_EARLY;
 
 /// shoot a ray from cursor to target transform
 
-
 /// gives useful info from raycast.
 pub fn debug_mouse_info(
     cursor_ray: Res<CursorRay>,
@@ -29,7 +28,6 @@ pub fn debug_mouse_info(
     for mut context in primary_window.iter_mut() {
         egui::Window::new("Mouse Ray info").show(context.get_mut(), |ui| {
             if let Some(ray) = **cursor_ray {
-
                 ui.horizontal(|ui| {
                     ui.label(RichText::new("origin: ").color(origin_rgba));
                     ui.label(format!("{:#}", ray.origin));
@@ -37,16 +35,20 @@ pub fn debug_mouse_info(
                 ui.horizontal(|ui| {
                     ui.label(RichText::new("direction: ").color(direction_rgba));
                     ui.label(format!("{:#}", *ray.direction));
-
                 });
 
-                gizmos.line(ray.origin, *ray.direction, Color::rgba_from_array(direction_rgba.to_array().map(|x| x as f32)));
+                gizmos.line(
+                    ray.origin,
+                    *ray.direction,
+                    Color::rgba_from_array(direction_rgba.to_array().map(|x| x as f32)),
+                );
 
                 let hits = raycast.cast_ray(ray, &DONT_EXIT_EARLY);
                 ui.label(RichText::new("Mouse ray intersection").color(ray_intersection_rgba));
                 //gizmos.primitive_3d(primitive, position, angle, color);
                 if let Some((.., hit)) = hits.iter().next() {
-                    let color = Color::rgba_from_array(ray_intersection_rgba.to_array().map(|x| x as f32));
+                    let color =
+                        Color::rgba_from_array(ray_intersection_rgba.to_array().map(|x| x as f32));
                     gizmos.ray(hit.position(), hit.normal(), color);
                     gizmos.circle(
                         hit.position(),

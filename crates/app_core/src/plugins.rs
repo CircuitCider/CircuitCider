@@ -27,18 +27,18 @@ impl Plugin for AppSourcesPlugin {
     fn build(&self, app: &mut App) {
         let asset_folder_location = match *self {
             Self::CRATE => "../../assets",
-            Self::MAIN => "assets"
+            Self::MAIN => "assets",
         };
-    
+
         //let root = self.root_dir.clone();
 
         app
             //.add_plugins(AssetPlugin::default())        // .obj file support
             //.add_plugins(ObjPlugin)
-
             .register_asset_source(
                 ROOT,
-                AssetSource::build().with_reader(move || Box::new(FileAssetReader::new(asset_folder_location))),
+                AssetSource::build()
+                    .with_reader(move || Box::new(FileAssetReader::new(asset_folder_location))),
             );
     }
 }

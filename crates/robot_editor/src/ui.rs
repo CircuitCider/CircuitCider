@@ -1,7 +1,8 @@
 use std::{
     any::TypeId,
     collections::{HashMap, HashSet},
-    io::ErrorKind, thread::spawn,
+    io::ErrorKind,
+    thread::spawn,
 };
 
 use crate::{components::DisplayModelCamera, shaders::neon_glow::NeonGlowMaterial};
@@ -10,7 +11,14 @@ use crate::{
     resources::BuildToolMode,
 };
 use bevy::{
-    asset::{AssetContainer, LoadedFolder}, ecs::query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery}, input::mouse::MouseButtonInput, log::tracing_subscriber::field::display, prelude::*, reflect::erased_serde::Error, render::{render_asset::RenderAssets, render_resource::TextureFormat, view::RenderLayers}, window::PrimaryWindow
+    asset::{AssetContainer, LoadedFolder},
+    ecs::query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery},
+    input::mouse::MouseButtonInput,
+    log::tracing_subscriber::field::display,
+    prelude::*,
+    reflect::erased_serde::Error,
+    render::{render_asset::RenderAssets, render_resource::TextureFormat, view::RenderLayers},
+    window::PrimaryWindow,
 };
 use bevy_egui::EguiContext;
 use bevy_mod_raycast::{
@@ -92,8 +100,6 @@ pub fn check_if_mouse_over_ui(
     //**mouse_over_window = false
 }
 
-
-
 #[derive(Component, Default)]
 pub struct Edited;
 
@@ -102,32 +108,27 @@ pub struct Edited;
 #[derive(Component, Default)]
 pub struct AttachCandidate;
 
-
-
 // /// editor mode for editing attached
 // pub fn editor_mode_ui
 
 pub fn save_load_model_ui(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     //mut commands: Commands,
-
 ) {
     for mut context in primary_window.iter_mut() {
         let ui_name = "Save Load Model";
         egui::Window::new(ui_name)
-        .anchor(Align2::RIGHT_TOP, [0.0, 0.0])
-        .collapsible(false)
-        .resizable(false)
-        .show(context.get_mut(), |ui| {    
-            ui.label("save conditions");
+            .anchor(Align2::RIGHT_TOP, [0.0, 0.0])
+            .collapsible(false)
+            .resizable(false)
+            .show(context.get_mut(), |ui| {
+                ui.label("save conditions");
 
-            ui.horizontal(|ui| {
-                ui.button("save");
-                //ui.button("load");
+                ui.horizontal(|ui| {
+                    ui.button("save");
+                    //ui.button("load");
+                });
             });
-
-        });
-        
     }
 }
 
@@ -148,11 +149,11 @@ pub struct DisplayModelImage(pub Handle<Image>);
 // ) {
 //     let image_handle = &**display_model_image;
 //     let Some(image) = images.get(image_handle) else {return};
-    
+
 //     println!("image format info: {:#?}", image.texture_view_descriptor);
 //     let Ok(dyn_image) = image.clone().try_into_dynamic() else { return};
 //     // let save_info = dyn_image.save("image_test_path.png");
-    
+
 //     // match save_info {
 //     //         Ok(_) => println!("successfully saved image"),
 //     //         Err(reason) => println!("failed to save image: Reason: {:#}", reason),
@@ -173,19 +174,14 @@ pub fn placer_mode_ui(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     display_models: Query<(Entity, &Handle<Mesh>), With<DisplayModel>>,
 
-
     mut commands: Commands,
 ) {
-
-
-
     //if tool_mode.into_inner() == &BuildToolMode::PlacerMode {
 
     let typeid = TypeId::of::<Mesh>();
     //println!("PREPARING TO ADD STUFF TO PLACE MODE UI");
     //info!("PRIMARY WINDOW COUNT: {:#?}", primary_window.iter().len());
     for mut context in primary_window.iter_mut() {
-        
         // install image loader for egui:
         egui_extras::install_image_loaders(context.get_mut());
         //context.get_mut().add_bytes_loader(loader)
@@ -207,7 +203,7 @@ pub fn placer_mode_ui(
                     if let Some(path) = mesh_handle.path() {
                         let str_path = path.path().to_str().unwrap();
                         let spawn_button = ui.button(str_path);
-                        
+
                         if spawn_button.clicked() {
                             //TODO! put raycasting code here
                             commands.spawn((
@@ -228,7 +224,10 @@ pub fn placer_mode_ui(
                         if spawn_button.hovered() {
                             ui.label("show display model here!");
                             if let Some(image) = images.get(display_model_image.0.clone()) {
-                                let egui_image = egui::Image::from_bytes("bytes://model.png", image.data.clone());
+                                let egui_image = egui::Image::from_bytes(
+                                    "bytes://model.png",
+                                    image.data.clone(),
+                                );
                                 ui.image(egui_image.source().clone());
                             }
                             for (e, display_handle) in display_models.iter() {
@@ -246,16 +245,15 @@ pub fn placer_mode_ui(
                                         ..default()
                                     },
                                     DisplayModel,
-                                    RenderLayers::layer(1)
+                                    RenderLayers::layer(1),
                                 ));
                             }
                             //ui.image(source)
                         } else {
                             for (e, ..) in display_models.iter() {
-                                    commands.entity(e).despawn()
+                                commands.entity(e).despawn()
                             }
                         }
-                        
                     }
                 }
             } else {
