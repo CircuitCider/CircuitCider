@@ -5,7 +5,7 @@ use std::{
     thread::spawn,
 };
 
-use crate::{components::DisplayModelCamera, shaders::neon_glow::NeonGlowMaterial};
+use crate::{model_display::{components::DisplayModel, systems::display_model}, shaders::neon_glow::NeonGlowMaterial};
 use crate::{
     raycast_utils::{resources::MouseOverWindow, systems::*},
     resources::BuildToolMode,
@@ -132,9 +132,7 @@ pub fn save_load_model_ui(
     }
 }
 
-/// model only rendered for display
-#[derive(Component)]
-pub struct DisplayModel;
+
 
 #[derive(Resource, Deref, Default)]
 pub struct DisplayModelImage(pub Handle<Image>);
@@ -183,7 +181,7 @@ pub fn placer_mode_ui(
     //info!("PRIMARY WINDOW COUNT: {:#?}", primary_window.iter().len());
     for mut context in primary_window.iter_mut() {
         // install image loader for egui:
-        egui_extras::install_image_loaders(context.get_mut());
+        //egui_extras::install_image_loaders(context.get_mut());
         //context.get_mut().add_bytes_loader(loader)
         //println!("POPULATiNG PLACER MODE UI");
         let ui_name = "prefab meshes";
@@ -223,30 +221,31 @@ pub fn placer_mode_ui(
                         //spawn display model for hovered over spawnables
                         if spawn_button.hovered() {
                             ui.label("show display model here!");
-                            if let Some(image) = images.get(display_model_image.0.clone()) {
-                                let egui_image = egui::Image::from_bytes(
-                                    "bytes://model.png",
-                                    image.data.clone(),
-                                );
-                                ui.image(egui_image.source().clone());
-                            }
+                            // if let Some(image) = images.get(display_model_image.0.clone()) {
+                            //     // let egui_image = egui::Image::from_bytes(
+                            //     //     "bytes://model.png",
+                            //     //     image.data.clone(),
+                            //     // );
+                            //     // ui.image(egui_image.source().clone());
+                            // }
                             for (e, display_handle) in display_models.iter() {
                                 if mesh_handle.path() != display_handle.path() {
                                     commands.entity(e).despawn()
                                 }
                             }
                             if display_models.iter().len() < 1 {
-                                commands.spawn((
-                                    MaterialMeshBundle {
-                                        mesh: mesh_handle.clone(),
-                                        material: placer_materials.add(NeonGlowMaterial {
-                                            color: Color::BLUE.into(),
-                                        }),
-                                        ..default()
-                                    },
-                                    DisplayModel,
-                                    RenderLayers::layer(1),
-                                ));
+                                display_model(&mut commands, &mut placer_materials, mesh_handle)
+                            //     commands.spawn((
+                            //         MaterialMeshBundle {
+                            //             mesh: mesh_handle.clone(),
+                            //             material: placer_materials.add(NeonGlowMaterial {
+                            //                 color: Color::BLUE.into(),
+                            //             }),
+                            //             ..default()
+                            //         },
+                            //         DisplayModel,
+                            //         RenderLayers::layer(1),
+                            //     ));
                             }
                             //ui.image(source)
                         } else {

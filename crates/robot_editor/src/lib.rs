@@ -5,6 +5,7 @@ pub mod resources;
 pub mod shaders;
 pub mod states;
 pub mod systems;
+pub mod model_display;
 // mod transform_gizmo;
 pub mod selection_behaviour;
 pub mod ui;

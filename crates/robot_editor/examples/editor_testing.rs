@@ -35,13 +35,8 @@ use bevy_serialization_urdf::{
 };
 use bevy_transform_gizmo::{GizmoTransformable, TransformGizmoPlugin};
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
-use robot_editor::states::*;
 use robot_editor::{
-    components::DisplayModelCamera,
-    plugins::*,
-    selection_behaviour::plugins::PickingPluginExtras,
-    systems::shape::Cube,
-    ui::{DisplayModel, DisplayModelImage},
+    model_display::components::DisplayModel, plugins::*, selection_behaviour::plugins::PickingPluginExtras, states::RobotEditorState, systems::shape::Cube
 };
 
 pub fn main() {
@@ -66,67 +61,8 @@ pub fn main() {
         // world setup
         .add_systems(Update, visualize_window_for::<DisplayModel>)
         .add_systems(Startup, setup_editor_area)
-        .add_systems(PreStartup, second_camera_test)
         //.add_systems(Update, display_model_image_to_file)
         .run();
 }
 
-pub fn second_camera_test(
-    mut commands: Commands,
-    mut images: ResMut<Assets<Image>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-) {
-    let size = Extent3d {
-        width: 512,
-        height: 512,
-        ..default()
-    };
 
-    let mut image = Image {
-        texture_descriptor: TextureDescriptor {
-            label: None,
-            size,
-            dimension: TextureDimension::D2,
-            format: TextureFormat::Bgra8UnormSrgb,
-            mip_level_count: 1,
-            sample_count: 1,
-            usage: TextureUsages::TEXTURE_BINDING
-                | TextureUsages::COPY_DST
-                | TextureUsages::RENDER_ATTACHMENT,
-            view_formats: &[],
-        },
-        ..default()
-    };
-
-    // fill image.data with zeroes
-    image.resize(size);
-
-    let image_handle = images.add(image);
-    commands.insert_resource(DisplayModelImage(image_handle.clone()));
-
-    //camera
-    commands.spawn((
-        Camera3dBundle {
-            camera: Camera {
-                order: 1,
-                target: image_handle.clone().into(),
-                ..default()
-            },
-            transform: Transform::from_xyz(0.0, 2.5, 4.7)
-                .with_rotation(Quat::from_rotation_x(-0.5)),
-            ..default()
-        },
-        RenderLayers::layer(1),
-        Name::new("Display Camera"),
-    ));
-    // // Cube
-    commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-            ..default()
-        },
-        RenderLayers::layer(1),
-        Name::new("showcase_cube"),
-        DisplayModelCamera,
-    ));
-}

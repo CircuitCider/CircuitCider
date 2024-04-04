@@ -24,6 +24,7 @@ use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
 use bevy_transform_gizmo::GizmoTransformable;
 use bevy_transform_gizmo::TransformGizmoPlugin;
 
+use crate::model_display::plugins::ModelDisplayerPlugin;
 use crate::raycast_utils::resources::MouseOverWindow;
 use crate::resources::BuildToolMode;
 use crate::selection_behaviour::plugins::PickingPluginExtras;
@@ -33,6 +34,8 @@ use crate::states::*;
 use crate::systems::*;
 use crate::ui::ModelFolder;
 use crate::ui::*;
+
+use self::plugins::CustomShadersPlugin;
 
 pub struct CachePrefabsPlugin;
 
@@ -73,17 +76,12 @@ pub struct RobotEditorPlugin;
 
 impl Plugin for RobotEditorPlugin {
     fn build(&self, app: &mut App) {
-        // load shaders
-        load_internal_asset!(
-            app,
-            neon_glow::NEON_GLOW_SHADER_HANDLE,
-            "shaders/neon_glow.wgsl",
-            Shader::from_wgsl
-        );
-        app.add_plugins(MaterialPlugin::<NeonGlowMaterial>::default());
 
         app
         
+        // load shaders
+        .add_plugins(CustomShadersPlugin)
+
         // asset_loader
         .init_state::<RobotEditorState>()
 
@@ -109,6 +107,8 @@ impl Plugin for RobotEditorPlugin {
         // selection behaviour(what things do when clicked on)
         
         .add_plugins(EditorToolingPlugin)
+
+        .add_plugins(ModelDisplayerPlugin)
 
         .init_resource::<MouseOverWindow>()
 
@@ -178,6 +178,7 @@ pub fn setup_editor_area(
             ..default()
         },
         PhysicsBundle::default(),
+        Name::new("Editor baseplate")
     ));
 
     // light
