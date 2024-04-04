@@ -1,9 +1,16 @@
 //! test for the positioning of displaying models
-//! 
+//!
 
 use bevy::{prelude::*, render::view::RenderLayers};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use robot_editor::{model_display::{components::{DisplayModel, DisplayModelCamera}, plugins::{ModelDisplayerPlugin, DISPLAY_MODEL_TRANSLATION}, systems::display_model}, shaders::{neon_glow::NeonGlowMaterial, plugins::CustomShadersPlugin}};
+use robot_editor::{
+    model_display::{
+        components::{DisplayModel, DisplayModelCamera},
+        plugins::{ModelDisplayerPlugin, DISPLAY_MODEL_TRANSLATION},
+        systems::display_model,
+    },
+    shaders::{neon_glow::NeonGlowMaterial, plugins::CustomShadersPlugin},
+};
 
 pub fn main() {
     App::new()
@@ -14,8 +21,6 @@ pub fn main() {
         .add_systems(Startup, display_model_test)
         .run();
 }
-
-
 
 pub fn display_model_test(
     mut commands: Commands,

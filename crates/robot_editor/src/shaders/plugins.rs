@@ -2,7 +2,6 @@ use bevy::{asset::load_internal_asset, prelude::*};
 
 use crate::shaders::neon_glow::{self, *};
 
-
 /// !!! ADD THIS TO PLUGINS WHEN USING SHADERS FROM THIS MODULE OR BEVY WILL CRASH !!!
 pub struct CustomShadersPlugin;
 

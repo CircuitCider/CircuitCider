@@ -6,7 +6,6 @@ use crate::shaders::neon_glow::NeonGlowMaterial;
 
 use super::{components::*, plugins::DISPLAY_MODEL_TRANSLATION};
 
-
 /// enviorment display models are showcased in.
 pub fn setup_display_area(
     mut commands: Commands,
@@ -47,16 +46,13 @@ pub fn setup_display_area(
     ));
 }
 
-
-
 pub fn rotate_display_model(
     mut display_models: Query<&mut Transform, With<DisplayModel>>,
-    time: Res<Time>
+    time: Res<Time>,
 ) {
     for mut trans in display_models.iter_mut() {
         //trans.rotate_x(1.0 * time.delta_seconds());
         trans.rotate_y(0.55 * time.delta_seconds());
-
     }
 }
 
@@ -81,19 +77,19 @@ pub fn display_model<'a>(
     commands: &'a mut Commands,
     neon_materials: &'a mut ResMut<Assets<NeonGlowMaterial>>,
     //meshes: &'a mut ResMut<Assets<Mesh>>,
-    mesh: Handle<Mesh>
+    mesh: Handle<Mesh>,
 ) {
     // Cube
     commands.spawn((
         MaterialMeshBundle {
             mesh: mesh,
             transform: Transform::from_translation(DISPLAY_MODEL_TRANSLATION)
-            .with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, 0.7, 0.0)),
+                .with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, 0.7, 0.0)),
             material: neon_materials.add(Color::BLUE),
             ..default()
         },
         RenderLayers::layer(1),
         Name::new("showcase model"),
-        DisplayModel
+        DisplayModel,
     ));
-} 
+}

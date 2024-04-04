@@ -36,7 +36,9 @@ use bevy_serialization_urdf::{
 use bevy_transform_gizmo::{GizmoTransformable, TransformGizmoPlugin};
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 use robot_editor::{
-    model_display::components::DisplayModel, plugins::*, selection_behaviour::plugins::PickingPluginExtras, states::RobotEditorState, systems::shape::Cube
+    model_display::components::DisplayModel, plugins::*,
+    selection_behaviour::plugins::PickingPluginExtras, states::RobotEditorState,
+    systems::shape::Cube,
 };
 
 pub fn main() {
@@ -64,5 +66,3 @@ pub fn main() {
         //.add_systems(Update, display_model_image_to_file)
         .run();
 }
-
-

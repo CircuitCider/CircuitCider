@@ -5,7 +5,10 @@ use std::{
     thread::spawn,
 };
 
-use crate::{model_display::{components::DisplayModel, systems::display_model}, shaders::neon_glow::NeonGlowMaterial};
+use crate::{
+    model_display::{components::DisplayModel, systems::display_model},
+    shaders::neon_glow::NeonGlowMaterial,
+};
 use crate::{
     raycast_utils::{resources::MouseOverWindow, systems::*},
     resources::BuildToolMode,
@@ -132,8 +135,6 @@ pub fn save_load_model_ui(
     }
 }
 
-
-
 #[derive(Resource, Deref, Default)]
 pub struct DisplayModelImage(pub Handle<Image>);
 
@@ -235,17 +236,17 @@ pub fn placer_mode_ui(
                             }
                             if display_models.iter().len() < 1 {
                                 display_model(&mut commands, &mut placer_materials, mesh_handle)
-                            //     commands.spawn((
-                            //         MaterialMeshBundle {
-                            //             mesh: mesh_handle.clone(),
-                            //             material: placer_materials.add(NeonGlowMaterial {
-                            //                 color: Color::BLUE.into(),
-                            //             }),
-                            //             ..default()
-                            //         },
-                            //         DisplayModel,
-                            //         RenderLayers::layer(1),
-                            //     ));
+                                //     commands.spawn((
+                                //         MaterialMeshBundle {
+                                //             mesh: mesh_handle.clone(),
+                                //             material: placer_materials.add(NeonGlowMaterial {
+                                //                 color: Color::BLUE.into(),
+                                //             }),
+                                //             ..default()
+                                //         },
+                                //         DisplayModel,
+                                //         RenderLayers::layer(1),
+                                //     ));
                             }
                             //ui.image(source)
                         } else {

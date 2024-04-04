@@ -8,6 +8,6 @@ pub struct DisplayModelCamera;
 #[derive(Component)]
 pub struct DisplayModel;
 
-/// thing display model is sat on top of. 
+/// thing display model is sat on top of.
 #[derive(Component)]
 pub struct DisplayModelStaging;

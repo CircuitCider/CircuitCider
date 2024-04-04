@@ -76,7 +76,6 @@ pub struct RobotEditorPlugin;
 
 impl Plugin for RobotEditorPlugin {
     fn build(&self, app: &mut App) {
-
         app
         
         // load shaders
@@ -178,7 +177,7 @@ pub fn setup_editor_area(
             ..default()
         },
         PhysicsBundle::default(),
-        Name::new("Editor baseplate")
+        Name::new("Editor baseplate"),
     ));
 
     // light
