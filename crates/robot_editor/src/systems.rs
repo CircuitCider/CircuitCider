@@ -89,6 +89,7 @@ pub fn attach_placer(
         &Placer,
     )>,
     mouse: Res<ButtonInput<MouseButton>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
     mut tool_mode: ResMut<BuildToolMode>,
     mouse_over_window: Res<MouseOverWindow>,
@@ -120,6 +121,11 @@ pub fn attach_placer(
                 ));
                 *tool_mode = BuildToolMode::EditerMode;
             }
+        }
+    }
+    if keys.just_pressed(KeyCode::Escape) {
+        for (e, ..) in placers.iter() {
+            commands.entity(e).despawn_recursive();
         }
     }
 }

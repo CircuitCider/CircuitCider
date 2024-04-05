@@ -46,12 +46,38 @@ use std::fmt::Debug;
 pub struct ModelFolder(pub Handle<LoadedFolder>);
 
 pub fn cache_initial_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(ModelFolder(asset_server.load_folder("root://models")));
+    commands.insert_resource(ModelFolder(asset_server.load_folder("root://editor_model_parts")));
 }
 
 /// entity used to place other similar entities.
-#[derive(Component, Default)]
-pub struct Placer;
+#[derive(Component, Default, Display)]
+pub enum Placer {
+    #[default]
+    Hull,
+    Wheel,
+}
+
+impl Placer {
+    /// infer placer type from path
+    pub fn from_path(path: &str) -> Self{
+        let lower_case = path.to_lowercase();
+        let split_path = lower_case.split(&['/', '.']).collect::<Vec<_>>();
+        
+        // println!("split path of placer is {:#?}", split_path);
+        if split_path.contains(&"wheel") {
+            Self::Wheel
+        }
+        else if split_path.contains(&"hull") {
+            Self::Hull
+        } 
+        // default to hull if no valid placer type if found
+        else {
+            info!("cannot infer placer type from path. Defaulting to hull");
+            Self::Hull
+        }
+        
+    }
+}
 
 /// gets first raycast hit on entity with select component marker
 // pub fn first_hit_with::<T: Component> {
@@ -135,40 +161,53 @@ pub fn save_load_model_ui(
     }
 }
 
-#[derive(Resource, Deref, Default)]
-pub struct DisplayModelImage(pub Handle<Image>);
+// #[derive(Resource, Deref, Default)]
+// pub struct DisplayModelImage(pub Handle<Image>);
 
-/// save the display model image to file so egui can load it
-// pub fn display_model_image_to_file(
-//     display_model_image: Res<DisplayModelImage>,
-//     images: ResMut<Assets<Image>>,
-//     model_folder: Res<ModelFolder>,
-//     folders: Res<Assets<LoadedFolder>>,
 
-// ) {
-//     let image_handle = &**display_model_image;
-//     let Some(image) = images.get(image_handle) else {return};
+/// ui for editing functionality of placed part
+pub fn placer_editor_ui(
+    placers: Query<(&Placer, &Name)>,
+    mut primary_window: Query<(&Window, &mut EguiContext), With<PrimaryWindow>>,
+    keys: Res<ButtonInput<KeyCode>>
 
-//     println!("image format info: {:#?}", image.texture_view_descriptor);
-//     let Ok(dyn_image) = image.clone().try_into_dynamic() else { return};
-//     // let save_info = dyn_image.save("image_test_path.png");
+) {
+    if placers.iter().len() <= 0 {return}
 
-//     // match save_info {
-//     //         Ok(_) => println!("successfully saved image"),
-//     //         Err(reason) => println!("failed to save image: Reason: {:#}", reason),
-//     // }
-// }
+    for (win, mut context) in primary_window.iter_mut() {
+        let ui_name = "Model features";
+
+        let Some(cursor_pos) = win.cursor_position() else {return};
+
+        // offset cursor pos to not have mouse click on this window
+        let offset_cursor_pos = Vec2::new(cursor_pos.x + 10.0, cursor_pos.y - 10.0);
+        let mut window = egui::Window::new(ui_name);
+        
+        // have window follow cursor if not kept in place
+        if keys.pressed(KeyCode::ControlLeft) == false {
+            window = window.fixed_pos(offset_cursor_pos.to_array());
+        }
+        
+        window
+        //.
+        .show(context.get_mut(), |ui| {
+            ui.label("text");
+            for (placer, name) in placers.iter() {
+                ui.label(format!("name: {:#}", name.to_string()));
+            
+                ui.label(format!("Placer type: {:#?}", placer.to_string()));
+            }
+        })
+        ;
+        
+    }
+}
 
 /// list all placeable models
-pub fn placer_mode_ui(
-    display_model_image: Res<DisplayModelImage>,
-    images: ResMut<Assets<Image>>,
-    //mut raycast: Raycast,
-    //cursor_ray: Res<CursorRay>,
+pub fn placer_spawner_ui(
     folders: Res<Assets<LoadedFolder>>,
     model_folder: Res<ModelFolder>,
     mut tool_mode: ResMut<BuildToolMode>,
-    //meshes: Res<Assets<Mesh>>,
     mut placer_materials: ResMut<Assets<NeonGlowMaterial>>,
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     display_models: Query<(Entity, &Handle<Mesh>), With<DisplayModel>>,
@@ -181,10 +220,6 @@ pub fn placer_mode_ui(
     //println!("PREPARING TO ADD STUFF TO PLACE MODE UI");
     //info!("PRIMARY WINDOW COUNT: {:#?}", primary_window.iter().len());
     for mut context in primary_window.iter_mut() {
-        // install image loader for egui:
-        //egui_extras::install_image_loaders(context.get_mut());
-        //context.get_mut().add_bytes_loader(loader)
-        //println!("POPULATiNG PLACER MODE UI");
         let ui_name = "prefab meshes";
         egui::SidePanel::left(ui_name).show(context.get_mut(), |ui| {
             ui.heading(ui_name);
@@ -201,7 +236,9 @@ pub fn placer_mode_ui(
                     //let mesh = meshes.get(mesh_handle.clone()).expect("not loaded");
                     if let Some(path) = mesh_handle.path() {
                         let str_path = path.path().to_str().unwrap();
-                        let spawn_button = ui.button(str_path);
+
+                        let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
+                        let spawn_button = ui.button(model_name.clone());
 
                         if spawn_button.clicked() {
                             //TODO! put raycasting code here
@@ -213,22 +250,16 @@ pub fn placer_mode_ui(
                                     }),
                                     ..default()
                                 },
-                                Placer,
+                                Placer::from_path(str_path),
                                 ColliderFlag::Convex,
                                 Sensor,
+                                Name::new(model_name.clone())
                             ));
                             *tool_mode = BuildToolMode::PlacerMode
                         }
                         //spawn display model for hovered over spawnables
                         if spawn_button.hovered() {
                             ui.label("show display model here!");
-                            // if let Some(image) = images.get(display_model_image.0.clone()) {
-                            //     // let egui_image = egui::Image::from_bytes(
-                            //     //     "bytes://model.png",
-                            //     //     image.data.clone(),
-                            //     // );
-                            //     // ui.image(egui_image.source().clone());
-                            // }
                             for (e, display_handle) in display_models.iter() {
                                 if mesh_handle.path() != display_handle.path() {
                                     commands.entity(e).despawn()
@@ -236,19 +267,7 @@ pub fn placer_mode_ui(
                             }
                             if display_models.iter().len() < 1 {
                                 display_model(&mut commands, &mut placer_materials, mesh_handle)
-                                //     commands.spawn((
-                                //         MaterialMeshBundle {
-                                //             mesh: mesh_handle.clone(),
-                                //             material: placer_materials.add(NeonGlowMaterial {
-                                //                 color: Color::BLUE.into(),
-                                //             }),
-                                //             ..default()
-                                //         },
-                                //         DisplayModel,
-                                //         RenderLayers::layer(1),
-                                //     ));
                             }
-                            //ui.image(source)
                         } else {
                             for (e, ..) in display_models.iter() {
                                 commands.entity(e).despawn()

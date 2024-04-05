@@ -42,11 +42,13 @@ pub struct CachePrefabsPlugin;
 impl Plugin for CachePrefabsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(BuildToolMode::PlacerMode)
-            .init_resource::<DisplayModelImage>()
+            //.init_resource::<DisplayModelImage>()
             .insert_resource(ModelFolder::default())
             .add_systems(Startup, cache_initial_folders)
-            .add_systems(Update, placer_mode_ui)
-            .add_systems(Update, select_build_tool);
+            .add_systems(Update, placer_spawner_ui)
+            .add_systems(Update, select_build_tool)
+            .add_systems(Update, placer_editor_ui)
+            ;
     }
 }
 
