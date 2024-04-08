@@ -33,11 +33,10 @@ use bevy_serialization_urdf::{
     loaders::urdf_loader::Urdf,
     plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
 };
-use bevy_transform_gizmo::{GizmoTransformable, TransformGizmoPlugin};
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 use robot_editor::{
     model_display::components::DisplayModel, plugins::*,
-    selection_behaviour::plugins::PickingPluginExtras, states::RobotEditorState,
+    states::RobotEditorState,
     systems::shape::Cube,
 };
 

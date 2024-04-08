@@ -16,7 +16,9 @@ egui = "0.26"
 
 bevy_serialization_extras = "0.4.3"
 bevy_serialization_urdf = "0.2"
-bevy_transform_gizmo = {git = "https://github.com/rydb/bevy_transform_gizmo", rev="dada826"}
+bevy_mod_outline = "0.7"
+#bevy_transform_gizmo = {git = "https://github.com/rydb/bevy_transform_gizmo", rev="dada826"}
+transform-gizmo-bevy = "0.1"
 bevy_mod_picking = {version = "0.18", features = ["backend_egui"]}
 bevy_camera_extras = "0.3"
 bevy_mod_raycast = "0.17"

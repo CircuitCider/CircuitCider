@@ -21,13 +21,20 @@ use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
 use bevy_serialization_extras::prelude::PhysicsBundle;
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
-use bevy_transform_gizmo::GizmoTransformable;
-use bevy_transform_gizmo::TransformGizmoPlugin;
+use transform_gizmo_bevy::enum_set;
+use transform_gizmo_bevy::GizmoCamera;
+use transform_gizmo_bevy::GizmoMode;
+use transform_gizmo_bevy::GizmoOptions;
+use transform_gizmo_bevy::GizmoOrientation;
+use transform_gizmo_bevy::GizmoTarget;
+use transform_gizmo_bevy::TransformGizmoPlugin;
+// use bevy_transform_gizmo::GizmoTransformable;
+// use bevy_transform_gizmo::TransformGizmoPlugin;
 
 use crate::model_display::plugins::ModelDisplayerPlugin;
+use crate::picking::plugins::PickingPlugin;
 use crate::raycast_utils::resources::MouseOverWindow;
 use crate::resources::BuildToolMode;
-use crate::selection_behaviour::plugins::PickingPluginExtras;
 use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::shaders::*;
 use crate::states::*;
@@ -93,17 +100,18 @@ impl Plugin for RobotEditorPlugin {
         // Picking
         .add_plugins(DefaultCameraPlugin)
         .register_type::<PickingInteraction>()
-        // .add_plugins(
-        //     (
-        //         DefaultPickingPlugins.build().disable::<DebugPickingPlugin>(),
-        //         TransformGizmoPlugin::new(
-        //             Quat::from_rotation_y(-0.2), // Align the gizmo to a different coordinate system.
-        //                                          // Use TransformGizmoPlugin::default() to align to the
-        //                                          // scene's coordinate system.
-        //         ),
-        //         //PickingPluginExtras
-        //     )
-        // )
+        .add_plugins(
+            (
+            TransformGizmoPlugin,
+            PickingPlugin,
+
+            )
+        )
+        .insert_resource(GizmoOptions {
+            gizmo_modes: enum_set!(GizmoMode::Rotate | GizmoMode::Translate),
+            gizmo_orientation: GizmoOrientation::Global,
+            ..default()
+        })
         .insert_resource(DebugPickingMode::Normal)
         // selection behaviour(what things do when clicked on)
         
@@ -129,7 +137,6 @@ impl Plugin for RobotEditorPlugin {
 
         //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
         //.add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
-        .add_systems(Update, make_models_pickable)
 
         //.add_systems(Update, make_robots_editable)
         
@@ -154,7 +161,9 @@ pub fn setup_editor_area(
             ..Default::default()
         },
         FlyCam,
-        bevy_transform_gizmo::GizmoPickSource::default(),
+        GizmoCamera,
+        Name::new("Gizmo Camera"),
+        //bevy_transform_gizmo::GizmoPickSource::default(),
         RenderLayers::layer(0),
     ));
     // robot
@@ -194,22 +203,7 @@ pub fn setup_editor_area(
     },));
 }
 
-pub fn make_models_pickable(
-    mut commands: Commands,
-    models_query: Query<Entity, (With<Handle<Mesh>>, Without<Pickable>)>,
-) {
-    for e in models_query.iter() {
-        commands.entity(e).insert((
-            PickableBundle {
-                pickable: Pickable::default(),
-                interaction: PickingInteraction::default(),
-                selection: PickSelection::default(),
-                highlight: PickHighlight::default(),
-            },
-            GizmoTransformable,
-        ));
-    }
-}
+
 
 pub fn set_robot_to_follow(
     joints: Query<Entity, (With<JointFlag>, Without<Watched>)>,
@@ -219,3 +213,11 @@ pub fn set_robot_to_follow(
         commands.entity(e).insert(Watched);
     }
 }
+
+
+use bevy::prelude::*;
+use bevy_mod_outline::*;
+use bevy_mod_picking::{
+    picking_core::PickingPluginsSettings, prelude::*, selection::SelectionPluginSettings,
+};
+
