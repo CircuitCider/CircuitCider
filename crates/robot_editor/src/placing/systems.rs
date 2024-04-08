@@ -2,12 +2,23 @@ use bevy::prelude::*;
 use bevy_mod_raycast::{immediate::Raycast, CursorRay};
 use bevy_rapier3d::plugin::RapierContext;
 
-use crate::{placing::components::AttachCandidate, raycast_utils::{resources::MouseOverWindow, systems::{cursor_ray_hititer, get_first_hit_without_mut}}, resources::BuildToolMode, shaders::neon_glow::NeonGlowMaterial, ui::Edited};
+use crate::{
+    placing::components::AttachCandidate,
+    raycast_utils::{
+        resources::MouseOverWindow,
+        systems::{cursor_ray_hititer, get_first_hit_without_mut},
+    },
+    resources::BuildToolMode,
+    shaders::neon_glow::NeonGlowMaterial,
+    ui::Edited,
+};
 
 use super::{components::Placer, resources::ModelFolder};
 
 pub fn cache_initial_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(ModelFolder(asset_server.load_folder("root://editor_model_parts")));
+    commands.insert_resource(ModelFolder(
+        asset_server.load_folder("root://editor_model_parts"),
+    ));
 }
 
 /// gets rid of placers if current mode is not placermode

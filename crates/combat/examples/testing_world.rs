@@ -15,9 +15,7 @@ use bevy_serialization_urdf::{
 };
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 use robot_editor::{
-    plugins::RobotEditorPlugin,
-    raycast_utils::debug::debug_mouse_info,
-    states::RobotEditorState,
+    plugins::RobotEditorPlugin, raycast_utils::debug::debug_mouse_info, states::RobotEditorState,
 };
 
 pub fn main() {

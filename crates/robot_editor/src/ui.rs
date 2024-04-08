@@ -5,7 +5,6 @@ use std::{
     thread::spawn,
 };
 
-
 use crate::{
     raycast_utils::{resources::MouseOverWindow, systems::*},
     resources::BuildToolMode,
@@ -38,12 +37,6 @@ use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
 
 use std::fmt::Debug;
-
-
-
-
-
-
 
 pub fn select_build_tool(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
@@ -81,8 +74,6 @@ pub fn check_if_mouse_over_ui(
 #[derive(Component, Default)]
 pub struct Edited;
 
-
-
 // /// editor mode for editing attached
 // pub fn editor_mode_ui
 
@@ -109,6 +100,3 @@ pub fn save_load_model_ui(
 
 // #[derive(Resource, Deref, Default)]
 // pub struct DisplayModelImage(pub Handle<Image>);
-
-
-

@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_mod_outline::{OutlineBundle, OutlineVolume};
 use bevy_mod_picking::{
-    focus::PickingInteraction, highlight::PickHighlight, picking_core::Pickable, selection::PickSelection, PickableBundle
+    focus::PickingInteraction, highlight::PickHighlight, picking_core::Pickable,
+    selection::PickSelection, PickableBundle,
 };
 
 /// de-select clicked selected things.
@@ -12,7 +13,6 @@ pub fn deselect_clicked(mut selectables: Query<(&mut PickSelection, &PickingInte
         }
     }
 }
-
 
 pub fn make_models_pickable(
     mut commands: Commands,

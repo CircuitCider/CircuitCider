@@ -17,8 +17,7 @@ impl Plugin for CachePrefabsPlugin {
             .add_systems(Startup, cache_initial_folders)
             .add_systems(Update, placer_spawner_ui)
             .add_systems(Update, select_build_tool)
-            .add_systems(Update, placer_editor_ui)
-            ;
+            .add_systems(Update, placer_editor_ui);
     }
 }
 

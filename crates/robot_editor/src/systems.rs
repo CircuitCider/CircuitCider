@@ -17,17 +17,11 @@ use bevy_serialization_extras::prelude::{
     rigidbodies::RigidBodyFlag,
 };
 
-
-
-
-
 use crate::{
     components::Wheel,
     raycast_utils::{resources::MouseOverWindow, systems::cursor_ray_hititer},
     resources::BuildToolMode,
 };
-
-
 
 #[derive(Component)]
 pub struct WasFrozen;

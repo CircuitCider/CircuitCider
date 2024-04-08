@@ -1,12 +1,12 @@
 use app_core::ROOT;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
+use bevy_camera_extras::components::FlyCam;
 use bevy_camera_extras::components::Watched;
 use bevy_camera_extras::plugins::DefaultCameraPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_picking::debug::DebugPickingMode;
 use bevy_mod_picking::focus::PickingInteraction;
-use bevy_camera_extras::components::FlyCam;
 use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
@@ -31,10 +31,6 @@ use crate::systems::*;
 use crate::ui::*;
 
 use self::plugins::CustomShadersPlugin;
-
-
-
-
 
 /// ui for robot editor
 pub struct RobotEditorUiPlugin;
@@ -167,8 +163,6 @@ pub fn setup_editor_area(
     },));
 }
 
-
-
 pub fn set_robot_to_follow(
     joints: Query<Entity, (With<JointFlag>, Without<Watched>)>,
     mut commands: Commands,
@@ -178,10 +172,8 @@ pub fn set_robot_to_follow(
     }
 }
 
-
 use bevy::prelude::*;
 use bevy_mod_outline::*;
 use bevy_mod_picking::{
     picking_core::PickingPluginsSettings, prelude::*, selection::SelectionPluginSettings,
 };
-

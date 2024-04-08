@@ -1,5 +1,5 @@
-mod ui;
-pub mod plugins;
-mod systems;
 mod components;
+pub mod plugins;
 mod resources;
+mod systems;
+mod ui;

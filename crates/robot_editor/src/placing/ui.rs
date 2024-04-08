@@ -10,44 +10,45 @@ use crate::model_display::systems::display_model;
 use crate::resources::BuildToolMode;
 use crate::shaders::neon_glow::NeonGlowMaterial;
 
-use super::resources::*;
 use super::components::*;
+use super::resources::*;
 
 /// ui for editing functionality of placed part
 pub fn placer_editor_ui(
     placers: Query<(&Placer, &Name)>,
     mut primary_window: Query<(&Window, &mut EguiContext), With<PrimaryWindow>>,
-    keys: Res<ButtonInput<KeyCode>>
-
+    keys: Res<ButtonInput<KeyCode>>,
 ) {
-    if placers.iter().len() <= 0 {return}
+    if placers.iter().len() <= 0 {
+        return;
+    }
 
     for (win, mut context) in primary_window.iter_mut() {
         let ui_name = "Model features";
 
-        let Some(cursor_pos) = win.cursor_position() else {return};
+        let Some(cursor_pos) = win.cursor_position() else {
+            return;
+        };
 
         // offset cursor pos to not have mouse click on this window
         let offset_cursor_pos = Vec2::new(cursor_pos.x + 10.0, cursor_pos.y - 10.0);
         let mut window = egui::Window::new(ui_name);
-        
+
         // have window follow cursor if not kept in place
         if keys.pressed(KeyCode::ControlLeft) == false {
             window = window.fixed_pos(offset_cursor_pos.to_array());
         }
-        
+
         window
-        //.
-        .show(context.get_mut(), |ui| {
-            ui.label("text");
-            for (placer, name) in placers.iter() {
-                ui.label(format!("name: {:#}", name.to_string()));
-            
-                ui.label(format!("Placer type: {:#?}", placer.to_string()));
-            }
-        })
-        ;
-        
+            //.
+            .show(context.get_mut(), |ui| {
+                ui.label("text");
+                for (placer, name) in placers.iter() {
+                    ui.label(format!("name: {:#}", name.to_string()));
+
+                    ui.label(format!("Placer type: {:#?}", placer.to_string()));
+                }
+            });
     }
 }
 
@@ -101,7 +102,7 @@ pub fn placer_spawner_ui(
                                 Placer::from_path(str_path),
                                 ColliderFlag::Convex,
                                 Sensor,
-                                Name::new(model_name.clone())
+                                Name::new(model_name.clone()),
                             ));
                             *tool_mode = BuildToolMode::PlacerMode
                         }

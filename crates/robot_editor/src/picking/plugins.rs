@@ -1,11 +1,17 @@
 pub use bevy::prelude::*;
 use bevy_mod_outline::{OutlinePlugin, OutlineVolume};
-use bevy_mod_picking::{debug::DebugPickingPlugin, highlight::DefaultHighlightingPlugin, picking_core::PickingPluginsSettings, selection::{PickSelection, SelectionPluginSettings}, DefaultPickingPlugins};
+use bevy_mod_picking::{
+    debug::DebugPickingPlugin,
+    highlight::DefaultHighlightingPlugin,
+    picking_core::PickingPluginsSettings,
+    selection::{PickSelection, SelectionPluginSettings},
+    DefaultPickingPlugins,
+};
 use transform_gizmo_bevy::GizmoTarget;
 
 use super::systems::{deselect_clicked, make_models_pickable};
 
-/// picking plugin for this project. 
+/// picking plugin for this project.
 pub struct PickingPlugin;
 
 impl Plugin for PickingPlugin {

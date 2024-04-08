@@ -35,8 +35,7 @@ use bevy_serialization_urdf::{
 };
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 use robot_editor::{
-    model_display::components::DisplayModel, plugins::*,
-    states::RobotEditorState,
+    model_display::components::DisplayModel, plugins::*, states::RobotEditorState,
     systems::shape::Cube,
 };
 
