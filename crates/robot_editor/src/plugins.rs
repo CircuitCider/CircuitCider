@@ -1,19 +1,11 @@
 use app_core::ROOT;
-use bevy::asset::load_internal_asset;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 use bevy_camera_extras::components::Watched;
 use bevy_camera_extras::plugins::DefaultCameraPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_picking::debug::DebugPickingMode;
-use bevy_mod_picking::debug::DebugPickingPlugin;
 use bevy_mod_picking::focus::PickingInteraction;
-use bevy_mod_picking::highlight::PickHighlight;
-use bevy_mod_picking::picking_core::Pickable;
-use bevy_mod_picking::selection::PickSelection;
-use bevy_mod_picking::DefaultPickingPlugins;
-use bevy_mod_picking::PickableBundle;
-//use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_camera_extras::components::FlyCam;
 use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
@@ -26,51 +18,23 @@ use transform_gizmo_bevy::GizmoCamera;
 use transform_gizmo_bevy::GizmoMode;
 use transform_gizmo_bevy::GizmoOptions;
 use transform_gizmo_bevy::GizmoOrientation;
-use transform_gizmo_bevy::GizmoTarget;
 use transform_gizmo_bevy::TransformGizmoPlugin;
-// use bevy_transform_gizmo::GizmoTransformable;
-// use bevy_transform_gizmo::TransformGizmoPlugin;
 
 use crate::model_display::plugins::ModelDisplayerPlugin;
 use crate::picking::plugins::PickingPlugin;
+use crate::placing::plugins::CachePrefabsPlugin;
+use crate::placing::plugins::PlacingToolingPlugin;
 use crate::raycast_utils::resources::MouseOverWindow;
-use crate::resources::BuildToolMode;
-use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::shaders::*;
 use crate::states::*;
 use crate::systems::*;
-use crate::ui::ModelFolder;
 use crate::ui::*;
 
 use self::plugins::CustomShadersPlugin;
 
-pub struct CachePrefabsPlugin;
 
-impl Plugin for CachePrefabsPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(BuildToolMode::PlacerMode)
-            //.init_resource::<DisplayModelImage>()
-            .insert_resource(ModelFolder::default())
-            .add_systems(Startup, cache_initial_folders)
-            .add_systems(Update, placer_spawner_ui)
-            .add_systems(Update, select_build_tool)
-            .add_systems(Update, placer_editor_ui)
-            ;
-    }
-}
 
-/// stuff required to run individual tools of robot editor
-pub struct EditorToolingPlugin;
 
-impl Plugin for EditorToolingPlugin {
-    fn build(&self, app: &mut App) {
-        // placers
-        app.add_systems(Update, move_placer_to_cursor)
-            .add_systems(Update, attach_placer)
-            .add_systems(Update, delete_placers)
-            .add_systems(Update, delete_attach_candidates);
-    }
-}
 
 /// ui for robot editor
 pub struct RobotEditorUiPlugin;
@@ -115,7 +79,7 @@ impl Plugin for RobotEditorPlugin {
         .insert_resource(DebugPickingMode::Normal)
         // selection behaviour(what things do when clicked on)
         
-        .add_plugins(EditorToolingPlugin)
+        .add_plugins(PlacingToolingPlugin)
 
         .add_plugins(ModelDisplayerPlugin)
 

@@ -7,5 +7,5 @@ pub enum Wheel {
     Right,
 }
 
-#[derive(Component, Reflect, Default)]
-pub struct GizmoFocused;
+// #[derive(Component, Reflect, Default)]
+// pub struct GizmoFocused;

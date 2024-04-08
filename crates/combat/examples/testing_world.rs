@@ -15,11 +15,9 @@ use bevy_serialization_urdf::{
 };
 use bevy_ui_extras::systems::{visualize_right_sidepanel_for, visualize_window_for};
 use robot_editor::{
-    components::GizmoFocused,
-    plugins::{CachePrefabsPlugin, RobotEditorPlugin},
+    plugins::RobotEditorPlugin,
     raycast_utils::debug::debug_mouse_info,
     states::RobotEditorState,
-    systems::{delete_attach_candidates, delete_placers, move_placer_to_cursor},
 };
 
 pub fn main() {
@@ -41,7 +39,7 @@ pub fn main() {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
         // world setup
-        .add_systems(Update, visualize_window_for::<GizmoFocused>)
+        //.add_systems(Update, visualize_window_for::<GizmoFocused>)
         .add_systems(Startup, setup)
         .add_systems(PostStartup, turn_on_editor)
         .add_systems(Update, debug_mouse_info)

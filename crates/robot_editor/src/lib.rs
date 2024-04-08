@@ -8,6 +8,7 @@ pub mod states;
 pub mod systems;
 pub mod picking;
 pub mod ui;
+pub mod placing;
 
 pub mod prelude {
     pub use crate::*;
