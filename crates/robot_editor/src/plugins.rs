@@ -20,6 +20,7 @@ use transform_gizmo_bevy::GizmoOptions;
 use transform_gizmo_bevy::GizmoOrientation;
 use transform_gizmo_bevy::TransformGizmoPlugin;
 
+use crate::attaching::plugins::AttachingToolingPlugin;
 use crate::model_display::plugins::ModelDisplayerPlugin;
 use crate::picking::plugins::PickingPlugin;
 use crate::placing::plugins::CachePrefabsPlugin;
@@ -75,7 +76,13 @@ impl Plugin for RobotEditorPlugin {
         .insert_resource(DebugPickingMode::Normal)
         // selection behaviour(what things do when clicked on)
         
-        .add_plugins(PlacingToolingPlugin)
+        // build tools
+        .add_plugins(
+            (
+            PlacingToolingPlugin,
+            AttachingToolingPlugin,
+            )
+        )
 
         .add_plugins(ModelDisplayerPlugin)
 

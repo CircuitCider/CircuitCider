@@ -38,6 +38,22 @@ use strum_macros::{Display, EnumIter};
 
 use std::fmt::Debug;
 
+/// creates a egui window that follows mouse when its given condition is satisfied.
+/// 
+/// if mouse is not in window, this will not create a iwndow
+pub fn window_follow_mouse(window: &Window, condition: bool, ui_name: &str) -> Option<egui::Window<'static>> {
+    let offset = 10.0;
+
+    let cursor_pos = window.cursor_position()?;
+
+    let window = egui::Window::new(ui_name);
+    if condition {
+        return Some(window.fixed_pos((cursor_pos.x + offset, cursor_pos.y + offset)))
+    } else {
+        return Some(window)
+    }
+}
+
 pub fn select_build_tool(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     mut tool_mode: ResMut<BuildToolMode>,
@@ -92,7 +108,7 @@ pub fn save_load_model_ui(
 
                 ui.horizontal(|ui| {
                     ui.button("save");
-                    //ui.button("load");
+
                 });
             });
     }

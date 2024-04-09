@@ -4,6 +4,7 @@ use bevy_mod_picking::{
     focus::PickingInteraction, highlight::PickHighlight, picking_core::Pickable,
     selection::PickSelection, PickableBundle,
 };
+use bevy_serialization_extras::prelude::link::StructureFlag;
 
 /// de-select clicked selected things.
 pub fn deselect_clicked(mut selectables: Query<(&mut PickSelection, &PickingInteraction)>) {
@@ -16,7 +17,7 @@ pub fn deselect_clicked(mut selectables: Query<(&mut PickSelection, &PickingInte
 
 pub fn make_models_pickable(
     mut commands: Commands,
-    models_query: Query<Entity, (With<Handle<Mesh>>, Without<Pickable>)>,
+    models_query: Query<Entity, (With<StructureFlag>, Without<Pickable>)>,
 ) {
     for e in models_query.iter() {
         commands.entity(e).insert((

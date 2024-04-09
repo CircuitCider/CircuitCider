@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 use strum_macros::Display;
 
-/// marker for objects that are not yet a part of a structure but could be
-/// (placed build mode models)
-#[derive(Component, Default)]
-pub struct AttachCandidate;
+
 
 /// entity used to place other similar entities.
 #[derive(Component, Default, Display)]

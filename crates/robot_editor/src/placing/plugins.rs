@@ -15,9 +15,9 @@ impl Plugin for CachePrefabsPlugin {
             //.init_resource::<DisplayModelImage>()
             .insert_resource(ModelFolder::default())
             .add_systems(Startup, cache_initial_folders)
-            .add_systems(Update, placer_spawner_ui)
             .add_systems(Update, select_build_tool)
-            .add_systems(Update, placer_editor_ui);
+            
+            ;
     }
 }
 
@@ -30,6 +30,10 @@ impl Plugin for PlacingToolingPlugin {
         app.add_systems(Update, move_placer_to_cursor)
             .add_systems(Update, attach_placer)
             .add_systems(Update, delete_placers)
-            .add_systems(Update, delete_attach_candidates);
+            .add_systems(Update, placer_editor_ui)
+            .add_systems(Update, placer_spawner_ui)
+
+
+            ;
     }
 }

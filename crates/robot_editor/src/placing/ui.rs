@@ -3,15 +3,21 @@ use std::any::TypeId;
 use bevy::{asset::LoadedFolder, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_rapier3d::geometry::Sensor;
+use bevy_rapier3d::plugin::RapierContext;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
+use egui::Color32;
+use egui::RichText;
 
 use crate::model_display::components::DisplayModel;
 use crate::model_display::systems::display_model;
 use crate::resources::BuildToolMode;
 use crate::shaders::neon_glow::NeonGlowMaterial;
+use crate::ui::window_follow_mouse;
 
 use super::components::*;
 use super::resources::*;
+
+
 
 /// ui for editing functionality of placed part
 pub fn placer_editor_ui(
@@ -19,38 +25,28 @@ pub fn placer_editor_ui(
     mut primary_window: Query<(&Window, &mut EguiContext), With<PrimaryWindow>>,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
-    if placers.iter().len() <= 0 {
-        return;
-    }
+    if placers.iter().len() <= 0 {return;}
 
     for (win, mut context) in primary_window.iter_mut() {
         let ui_name = "Model features";
 
-        let Some(cursor_pos) = win.cursor_position() else {
-            return;
-        };
-
-        // offset cursor pos to not have mouse click on this window
-        let offset_cursor_pos = Vec2::new(cursor_pos.x + 10.0, cursor_pos.y - 10.0);
-        let mut window = egui::Window::new(ui_name);
-
-        // have window follow cursor if not kept in place
-        if keys.pressed(KeyCode::ControlLeft) == false {
-            window = window.fixed_pos(offset_cursor_pos.to_array());
-        }
+        let fix_window_not_pressed = !keys.pressed(KeyCode::ControlLeft);
+        
+        let Some(window) = window_follow_mouse(win, fix_window_not_pressed, ui_name) else {return};
 
         window
-            //.
-            .show(context.get_mut(), |ui| {
-                ui.label("text");
-                for (placer, name) in placers.iter() {
-                    ui.label(format!("name: {:#}", name.to_string()));
-
-                    ui.label(format!("Placer type: {:#?}", placer.to_string()));
-                }
-            });
+        .show(context.get_mut(), |ui| {
+            for (placer, name) in placers.iter() {
+                ui.label(format!("name: {:#}", name.to_string()));
+                ui.label(format!("Placer type: {:#?}", placer.to_string()));
+            }
+        });
     }
 }
+
+
+
+
 
 /// list all placeable models
 pub fn placer_spawner_ui(
@@ -68,6 +64,8 @@ pub fn placer_spawner_ui(
     let typeid = TypeId::of::<Mesh>();
     //println!("PREPARING TO ADD STUFF TO PLACE MODE UI");
     //info!("PRIMARY WINDOW COUNT: {:#?}", primary_window.iter().len());
+    let mut model_hovered = false;
+
     for mut context in primary_window.iter_mut() {
         let ui_name = "prefab meshes";
         egui::SidePanel::left(ui_name).show(context.get_mut(), |ui| {
@@ -89,6 +87,7 @@ pub fn placer_spawner_ui(
                         let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
                         let spawn_button = ui.button(model_name.clone());
 
+ 
                         if spawn_button.clicked() {
                             //TODO! put raycasting code here
                             commands.spawn((
@@ -107,7 +106,9 @@ pub fn placer_spawner_ui(
                             *tool_mode = BuildToolMode::PlacerMode
                         }
                         //spawn display model for hovered over spawnables
+
                         if spawn_button.hovered() {
+                            model_hovered = true;
                             ui.label("show display model here!");
                             for (e, display_handle) in display_models.iter() {
                                 if mesh_handle.path() != display_handle.path() {
@@ -117,13 +118,17 @@ pub fn placer_spawner_ui(
                             if display_models.iter().len() < 1 {
                                 display_model(&mut commands, &mut placer_materials, mesh_handle)
                             }
-                        } else {
-                            for (e, ..) in display_models.iter() {
-                                commands.entity(e).despawn()
-                            }
-                        }
+                        } 
+                    }
+
+                }
+                if model_hovered == false {
+                    for (e, ..) in display_models.iter() {
+                        commands.entity(e).despawn()
                     }
                 }
+                //println!("model hover status: {:#?}", model_hovered);
+
             } else {
                 ui.label("could not load folder...");
             }

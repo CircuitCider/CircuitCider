@@ -1,16 +1,13 @@
 use bevy::prelude::*;
 use bevy_mod_raycast::{immediate::Raycast, CursorRay};
-use bevy_rapier3d::plugin::RapierContext;
+use bevy_rapier3d::{geometry::{Collider, Sensor}, plugin::RapierContext};
+use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 
 use crate::{
-    placing::components::AttachCandidate,
-    raycast_utils::{
+    attaching::components::AttachCandidate, raycast_utils::{
         resources::MouseOverWindow,
         systems::{cursor_ray_hititer, get_first_hit_without_mut},
-    },
-    resources::BuildToolMode,
-    shaders::neon_glow::NeonGlowMaterial,
-    ui::Edited,
+    }, resources::BuildToolMode, shaders::neon_glow::NeonGlowMaterial, ui::Edited
 };
 
 use super::{components::Placer, resources::ModelFolder};
@@ -77,6 +74,8 @@ pub fn attach_placer(
                     },
                     Edited,
                     AttachCandidate,
+                    ColliderFlag::Convex,
+                    Sensor,
                 ));
                 *tool_mode = BuildToolMode::EditerMode;
             }
@@ -89,18 +88,7 @@ pub fn attach_placer(
     }
 }
 
-/// gets rid of placers if current mode is not placermode
-pub fn delete_attach_candidates(
-    tool_mode: ResMut<BuildToolMode>,
-    placers: Query<Entity, With<AttachCandidate>>,
-    mut commands: Commands,
-) {
-    if *tool_mode != BuildToolMode::EditerMode {
-        for e in placers.iter() {
-            commands.entity(e).despawn()
-        }
-    }
-}
+
 
 pub fn move_placer_to_cursor(
     mut raycast: Raycast,
