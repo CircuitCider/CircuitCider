@@ -23,6 +23,32 @@ use crate::{
     resources::BuildToolMode,
 };
 
+/// find models with given component, and change their material based on if it has any intersections or not.
+pub fn intersection_colors_for<T: Component, U: Material>(
+    rapier_context: Res<RapierContext>,
+    thing_query: Query<(Entity, &Handle<U>), With<T>>,
+    mut materials: ResMut<Assets<U>>
+) 
+    where
+        U: From<Color>
+{
+    for (e, mat_handle) in thing_query.iter() {
+        let Some(mat) = materials.get_mut(mat_handle) else {return};
+
+        if rapier_context
+        .intersection_pairs_with(e)
+        .collect::<Vec<_>>()
+        .len()
+        > 0
+        {
+            *mat = Color::RED.into();
+        } else {
+            *mat = Color::GREEN.into();
+        }
+    }
+
+}
+
 #[derive(Component)]
 pub struct WasFrozen;
 

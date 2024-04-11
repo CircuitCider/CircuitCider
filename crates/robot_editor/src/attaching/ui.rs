@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
-use bevy_rapier3d::plugin::RapierContext;
+use bevy_rapier3d::{geometry::Sensor, plugin::RapierContext};
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 use egui::{Color32, RichText};
 
@@ -25,7 +25,6 @@ pub fn attach_candidate_edit_ui(
     let mut placement_conditions = Vec::new();
 
     let mut no_intersections = false;
-
 
     // check attach canidates to confirm nothing is wrong with them before attaching
     for (e, ..) in attach_candidates.iter() {

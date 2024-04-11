@@ -1,8 +1,11 @@
 use bevy::prelude::*;
 
 use crate::resources::BuildToolMode;
+use crate::shaders::neon_glow::NeonGlowMaterial;
+use crate::systems::intersection_colors_for;
 use crate::ui::select_build_tool;
 
+use super::components::Placer;
 use super::resources::*;
 use super::systems::*;
 use super::ui::*;
@@ -27,13 +30,14 @@ pub struct PlacingToolingPlugin;
 impl Plugin for PlacingToolingPlugin {
     fn build(&self, app: &mut App) {
         // placers
-        app.add_systems(Update, move_placer_to_cursor)
-            .add_systems(Update, attach_placer)
-            .add_systems(Update, delete_placers)
-            .add_systems(Update, placer_editor_ui)
-            .add_systems(Update, placer_spawner_ui)
-
-
-            ;
+        app
+        .add_systems(Update, intersection_colors_for::<Placer, NeonGlowMaterial>)
+        
+        .add_systems(Update, move_placer_to_cursor)
+        .add_systems(Update, attach_placer)
+        .add_systems(Update, delete_placers)
+        .add_systems(Update, placer_editor_ui)
+        .add_systems(Update, placer_spawner_ui)
+        ;
     }
 }

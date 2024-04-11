@@ -51,20 +51,8 @@ pub fn attach_placer(
     mouse_over_window: Res<MouseOverWindow>,
 ) {
     if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
-        for (e, handle, mesh, trans, ..) in placers.iter() {
-            if let Some(mat) = neon_materials.get_mut(handle) {
-                if rapier_context
-                    .intersection_pairs_with(e)
-                    .collect::<Vec<_>>()
-                    .len()
-                    > 0
-                {
-                    *mat = Color::RED.into();
-                } else {
-                    *mat = Color::GREEN.into();
-                }
+        for (_, handle, mesh, trans, ..) in placers.iter() {
                 println!("placing placer..");
-
                 commands.spawn((
                     MaterialMeshBundle {
                         mesh: mesh.clone(),
@@ -78,7 +66,6 @@ pub fn attach_placer(
                     Sensor,
                 ));
                 *tool_mode = BuildToolMode::EditerMode;
-            }
         }
     }
     if keys.just_pressed(KeyCode::Escape) {
