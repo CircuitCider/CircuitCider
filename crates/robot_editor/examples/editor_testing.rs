@@ -38,7 +38,6 @@ use robot_editor::{
     model_display::components::DisplayModel, plugins::*, states::RobotEditorState,
     systems::shape::Cube,
 };
-
 pub fn main() {
     App::new()
         .insert_state(RobotEditorState::Active)
