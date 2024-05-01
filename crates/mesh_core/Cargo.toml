@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 bevy = {version = "0.13", features = ["dynamic_linking"]}
 bevy-inspector-egui = "0.24"
+egui_extras = "0.27"
 
 strum = "0.26"
 strum_macros = "0.26"

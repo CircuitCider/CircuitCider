@@ -29,7 +29,7 @@ impl From<Arrow3D> for Mesh {
 
         let topol = cylinder_info.attribute(Mesh::ATTRIBUTE_POSITION).unwrap();
 
-        println!("topology info is {:#?}", topol);
+        //println!("topology info is {:#?}", topol);
 
         cylinder_info
     }
