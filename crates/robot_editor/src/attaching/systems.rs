@@ -15,3 +15,15 @@ pub fn delete_attach_candidates(
         }
     }
 }
+
+/// manages gizmos associated with attacher
+pub fn manage_attacher_position(
+
+) {
+
+}
+
+/// confirms attacher target for attacher
+pub fn confirm_attacher_target() {
+
+}

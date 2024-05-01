@@ -2,6 +2,7 @@ use bevy::{
     prelude::*,
     render::{mesh::Indices, render_asset::RenderAssetUsages, render_resource::PrimitiveTopology},
 };
+
 /// A cone shape.
 #[derive(Debug, Clone, Copy)]
 pub struct Cone {
@@ -19,6 +20,9 @@ impl Default for Cone {
         }
     }
 }
+
+// pub fn cone_builder(cone: Cone) -> MeshAttributes {
+// }
 
 impl From<Cone> for Mesh {
     fn from(cone: Cone) -> Self {
