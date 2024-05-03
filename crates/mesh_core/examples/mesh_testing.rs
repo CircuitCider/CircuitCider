@@ -2,10 +2,11 @@
 
 use std::fmt::Display;
 
-use bevy::{prelude::*, render::{mesh::{self, VertexAttributeValues}, render_resource::VertexAttribute}, window::PrimaryWindow};
+use bevy::{prelude::*, render::{mesh::{self, Indices, VertexAttributeValues}, render_resource::VertexAttribute}, window::PrimaryWindow};
 use bevy_inspector_egui::{bevy_egui::EguiContext, egui::{self, Ui}, quick::WorldInspectorPlugin};
 use egui_extras::{Column, TableBody, TableBuilder};
-use mesh_core::{arrow::Arrow3D, cone::Cone, ui::{MeshAttributes, TablePick}};
+use mesh_core::{arrow::Arrow3D, cone::Cone, ui::{MeshAttributes, TablePick}, MeshAttr};
+use mesh_core::*;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
 
@@ -40,33 +41,33 @@ fn spawn_mesh_for<T: Into<Mesh> + Default>(
         MeshInfoTarget
     ));
 }
-pub fn mesh_attr_formatted(
-    attr_check: Option<&VertexAttributeValues>,
-) -> &Vec<[f32; 3]>{
-    match attr_check {
-        Some(attr_type) => {
-            match attr_type {
-                VertexAttributeValues::Float32x3(attr_vec) => {
-                    &attr_vec
-                },
-                //FIXME! uv uses Float32x2. Adjust code to account for this.
-                _ => todo!("position, (oops this is Float32x2)uv, and normal all use float32x3, how did this get here?")
-            }
+// pub fn mesh_attr_formatted(
+//     attr_check: Option<&mut VertexAttributeValues>,
+// ) -> &mut Vec<[f32; 3]>{
+//     match attr_check {
+//         Some(attr_type) => {
+//             match attr_type {
+//                 VertexAttributeValues::Float32x3(mut attr_vec) => {
+//                     &mut attr_vec
+//                 },
+//                 //FIXME! uv uses Float32x2. Adjust code to account for this.
+//                 _ => todo!("position, (oops this is Float32x2)uv, and normal all use float32x3, how did this get here?")
+//             }
             
-            //return format!("{:#?}", attr_type)
-        }
-        None => {
-            todo!("implement this properly later")
-            //return Vec::<[f32; 3]>::new();
-        }
-    }
-}
+//             //return format!("{:#?}", attr_type)
+//         }
+//         None => {
+//             todo!("implement this properly later")
+//             //return Vec::<[f32; 3]>::new();
+//         }
+//     }
+// }
 /// gives a ui window displaying mesh 
 pub fn display_mesh_info(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     mut mesh_attr_table: ResMut<TablePick<MeshAttributes>>,
     target_meshes: Query<&Handle<Mesh>, With<MeshInfoTarget>>,
-    meshes: ResMut<Assets<Mesh>>
+    mut meshes: ResMut<Assets<Mesh>>
 ) {
     for mut context in primary_window.iter_mut() {
         let ui_name = "Mesh Info";
@@ -75,7 +76,7 @@ pub fn display_mesh_info(
         .resizable(false)
         .show(context.get_mut(), |ui| {
             for mesh_check in target_meshes.iter() {
-                let Some(mesh) = meshes.get(mesh_check) else {continue;};
+                let Some(mesh) = meshes.get_mut(mesh_check) else {continue;};
                 
                 //let table_attrs = mesh_attr_table.get_table(ui);
                 
@@ -106,58 +107,65 @@ pub fn display_mesh_info(
                                 row.col(|ui| {
                                     match attr_type {
                                         MeshAttributes::POSITION => {
-                                            let attr_vec = mesh_attr_formatted(mesh.attribute(Mesh::ATTRIBUTE_POSITION));
-
-                                            for attr in attr_vec.iter() {
-                                                //let attr_str = attr.iter().map(|mut n| &mut n);
-                                                let attr_str = attr.iter().map(|n| n.to_string()).collect::<Vec<String>>();
-                                                ui.horizontal(|ui| {
-                                                    for mut str in attr_str {
-                                                        ui.text_edit_singleline(&mut str);
-    
-                                                    }
-                                                });   
-
-                                            }     
-              
+                                            let mut pos_vertices = attr_to_vec(mesh.attribute_mut(Mesh::ATTRIBUTE_POSITION)).unwrap_or_default();                                            
+                                                for vertex in pos_vertices.iter_mut() {
+                                                    ui.horizontal(|ui| {
+                                                        for n in vertex.iter_mut() {
+                                                            ui.add(egui::DragValue::new(*n).speed(0.1));
+                                                        }
+                                                    });   
+                                                }     
                                         },
                                         MeshAttributes::INDICE => {
+                                            let Some(indicies_type) = mesh.indices() else {return;};
+                                            let mut indicies = Vec::new();
+                                            match indicies_type {
+                                                Indices::U32(vec) => {
+                                                    for n in vec {
+                                                        indicies.push(*n)
+                                                    }  
+                                                },
+                                                Indices::U16(vec) => {
+                                                    for n in vec {
+                                                        indicies.push(*n as u32)
+                                                    }  
+                                                    //&(vec.iter().map(|n| n.to_owned() as u32).collect::<Vec<_>>())
+                                                }
+                                            };
+                                            let grouped = indicies.chunks_exact(3);
+                                            for indice in grouped.into_iter() {
+                                                ui.horizontal(|ui| {
+                                                    for n in indice.iter() {
+                                                        ui.label(n.to_string());
+                                                    }
+                                                });
+                                            }
                                             ui.label(
                                                 format!(
                                                     "INDICES: {:#?}", 
-                                                    mesh.indices()
+                                                    mesh.indices_mut()
                                                 )
                                             );            
                                         },
                                         MeshAttributes::NORMAL => {
-                                            let attr_vec = mesh_attr_formatted(mesh.attribute(Mesh::ATTRIBUTE_NORMAL));
-
-                                            for attr in attr_vec.iter() {
-                                                //let attr_str = attr.iter().map(|mut n| &mut n);
-                                                let attr_str = attr.iter().map(|n| n.to_string()).collect::<Vec<String>>();
-                                                ui.horizontal(|ui| {
-                                                    for mut str in attr_str {
-                                                        ui.text_edit_singleline(&mut str);
-    
-                                                    }
-                                                });   
-
-                                            }             
+                                            let mut pos_vertices = attr_to_vec(mesh.attribute_mut(Mesh::ATTRIBUTE_NORMAL)).unwrap_or_default();                                            
+                                                for vertex in pos_vertices.iter_mut() {
+                                                    ui.horizontal(|ui| {
+                                                        for n in vertex.iter_mut() {
+                                                            ui.add(egui::DragValue::new(*n).speed(0.1));
+                                                        }
+                                                    });   
+                                                }             
                                         },
                                         MeshAttributes::UV => {
-                                            let attr_vec = mesh_attr_formatted(mesh.attribute(Mesh::ATTRIBUTE_UV_0));
-
-                                            for attr in attr_vec.iter() {
-                                                //let attr_str = attr.iter().map(|mut n| &mut n);
-                                                let attr_str = attr.iter().map(|n| n.to_string()).collect::<Vec<String>>();
-                                                ui.horizontal(|ui| {
-                                                    for mut str in attr_str {
-                                                        ui.text_edit_singleline(&mut str);
-    
-                                                    }
-                                                });   
-
-                                            }             
+                                            let mut pos_vertices = attr_to_vec(mesh.attribute_mut(Mesh::ATTRIBUTE_UV_0)).unwrap_or_default();                                            
+                                                for vertex in pos_vertices.iter_mut() {
+                                                    ui.horizontal(|ui| {
+                                                        for n in vertex.iter_mut() {
+                                                            ui.add(egui::DragValue::new(*n).speed(0.1));
+                                                        }
+                                                    });   
+                                                }              
                                         },
                                         _ => {
                                             ui.label("unimplemented");
