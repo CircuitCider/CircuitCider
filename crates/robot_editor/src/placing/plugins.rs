@@ -18,7 +18,7 @@ impl Plugin for CachePrefabsPlugin {
             //.init_resource::<DisplayModelImage>()
             .insert_resource(ModelFolder::default())
             .add_systems(Startup, cache_initial_folders)
-            .add_systems(Update, select_build_tool)
+            //.add_systems(Update, select_build_tool)
             
             ;
     }
