@@ -9,6 +9,7 @@ pub mod resources;
 pub mod shaders;
 pub mod states;
 pub mod systems;
+pub mod camera_controls;
 pub mod ui;
 
 pub mod prelude {

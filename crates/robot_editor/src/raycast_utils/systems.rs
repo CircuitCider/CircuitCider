@@ -45,12 +45,12 @@ pub fn cursor_ray_hititer<'a>(
 
 /// Get hit data for first hit entity in hit criteria + query data(immutable)
 pub fn get_first_hit_with<'a, T: ReadOnlyQueryData, F: QueryFilter>(
-    hit_list: Option<std::slice::Iter<'a, (Entity, IntersectionData)>>,
+    hit_list: &Vec<(Entity, IntersectionData)>,
     hit_match_criteria: &'a Query<T, F>,
 ) -> Option<(Entity, IntersectionData, T::Item<'a>)>
 where
 {
-    let first_hit = hit_list?
+    let first_hit = hit_list.iter()
         .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
         .nth(0)?;
 

@@ -21,10 +21,12 @@ use transform_gizmo_bevy::GizmoOrientation;
 use transform_gizmo_bevy::TransformGizmoPlugin;
 
 use crate::attaching::plugins::AttachingToolingPlugin;
+use crate::camera_controls::plugins::RobotEditorCameraPlugin;
 use crate::model_display::plugins::ModelDisplayerPlugin;
 use crate::picking::plugins::PickingPlugin;
 use crate::placing::plugins::CachePrefabsPlugin;
 use crate::placing::plugins::PlacingToolingPlugin;
+use crate::raycast_utils::plugins::CursorRayHitsPlugin;
 use crate::raycast_utils::resources::MouseOverWindow;
 use crate::shaders::*;
 use crate::states::*;
@@ -59,7 +61,8 @@ impl Plugin for RobotEditorPlugin {
         .add_plugins(CachePrefabsPlugin)
 
         // Picking
-        .add_plugins(DefaultCameraPlugin)
+        .add_plugins(RobotEditorCameraPlugin)
+        .add_plugins(CursorRayHitsPlugin)
         .register_type::<PickingInteraction>()
         .add_plugins(
             (
