@@ -4,10 +4,7 @@ use bevy_rapier3d::{geometry::{Collider, Sensor}, plugin::RapierContext};
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 
 use crate::{
-    attaching::components::AttachCandidate, raycast_utils::{
-        resources::MouseOverWindow,
-        systems::{cursor_ray_hititer, get_first_hit_without_mut},
-    }, resources::BuildToolMode, shaders::neon_glow::NeonGlowMaterial, ui::Edited
+    attaching::components::AttachCandidate, raycast_utils::resources::{CursorRayHits, MouseOverWindow}, resources::BuildToolMode, shaders::neon_glow::NeonGlowMaterial, ui::Edited
 };
 
 use super::{components::Placer, resources::ModelFolder};
@@ -64,6 +61,7 @@ pub fn attach_placer(
                     AttachCandidate,
                     ColliderFlag::Convex,
                     Sensor,
+                    Name::new("Attach Candidate")
                 ));
                 *tool_mode = BuildToolMode::EditerMode;
         }
@@ -78,8 +76,7 @@ pub fn attach_placer(
 
 
 pub fn move_placer_to_cursor(
-    mut raycast: Raycast,
-    cursor_ray: Res<CursorRay>,
+    cursor_hits: Res<CursorRayHits>,
     tool_mode: ResMut<BuildToolMode>,
     mut placers: Query<&mut Transform, With<Placer>>,
     mouse_over_window: Res<MouseOverWindow>,
@@ -88,10 +85,7 @@ pub fn move_placer_to_cursor(
 
     // }
     if *tool_mode == BuildToolMode::PlacerMode {
-        if let Some((.., hit)) = get_first_hit_without_mut(
-            cursor_ray_hititer(&cursor_ray, &mut raycast, &mouse_over_window),
-            &mut placers,
-        ) {
+        if let Some((.., hit)) = cursor_hits.first_without_mut(&mut placers) {
             for mut trans in placers.iter_mut() {
                 //println!("moving placer to cursor");
                 let hit_pos = hit.position();

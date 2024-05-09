@@ -1,5 +1,5 @@
 use bevy::{
-    ecs::{entity::Entity, system::Resource},
+    ecs::{entity::Entity, query::{QueryData, QueryFilter, ReadOnlyQueryData}, system::{Query, Resource}},
     prelude::{Deref, DerefMut},
     reflect::Reflect,
 };
@@ -16,3 +16,67 @@ pub struct MouseOverWindow(bool);
 pub struct CursorRayHits (
     pub Vec<(Entity, IntersectionData)>
 );
+
+/// weather shot rays should be gizmo rendered.
+#[derive(Resource, Deref, DerefMut)]
+pub struct RayCastDebugMode(pub bool);
+
+impl CursorRayHits {
+    /// Get hit data for first hit entity not in hit criteria
+    pub fn first_without<'a, T: ReadOnlyQueryData, F: QueryFilter>(
+        &self,
+        hit_match_criteria: &'a Query<T, F>,
+    ) -> Option<(Entity, IntersectionData)> {
+        let first_hit = self
+            .iter()
+            .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
+            .nth(0)?;
+
+        //let query_data = hit_match_criteria.get(first_hit.0).ok()?;
+
+        Some((first_hit.0, first_hit.1.clone()))
+    }
+    pub fn first_with<'a, T: ReadOnlyQueryData, F: QueryFilter>(
+        &self,
+        hit_match_criteria: &'a Query<T, F>,
+    ) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
+        let first_hit = self
+            .iter()
+            .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
+            .nth(0)?;
+
+        let query_data = hit_match_criteria.get(first_hit.0).ok()?;
+
+        Some((first_hit.0, first_hit.1.clone(), query_data))
+    }
+    /// Get hit data for first hit entity in hit criteria + query data(mutable)
+    pub fn first_with_mut<'a, T: QueryData, F: QueryFilter>(
+        &self,
+        hit_match_criteria: &'a mut Query<T, F>,
+    ) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
+        let first_hit = self
+            .iter()
+            .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
+            .nth(0)?;
+
+        let query_data = hit_match_criteria.get_mut(first_hit.0).ok()?;
+
+        Some((first_hit.0, first_hit.1.clone(), query_data))
+    }
+    /// Get hit data for first hit entity in hit criteria(with mutable query input)
+    pub fn first_without_mut<'a, T: QueryData, F: QueryFilter>(
+        &self,
+        hit_match_criteria: &'a mut Query<T, F>,
+    ) -> Option<(Entity, IntersectionData)> {
+        let first_hit = self
+            .iter()
+            .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
+            .nth(0)?;
+
+        //println!("first hit is {:#?}", first_hit);
+        //let query_data = hit_match_criteria.get_mut(first_hit.0).ok()?;
+
+        Some((first_hit.0, first_hit.1.clone()))
+    }
+
+}

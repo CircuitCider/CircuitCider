@@ -4,7 +4,7 @@ use bevy_egui::EguiContext;
 use bevy_mod_raycast::{immediate::Raycast, CursorRay};
 use bevy_ui_extras::systems::visualize_window_for;
 
-use crate::raycast_utils::{resources::CursorRayHits, systems::{cursor_ray_hititer, get_first_hit_with}};
+use crate::raycast_utils::resources::CursorRayHits;
 
 /// camera controls for robot editor camera
 pub struct RobotEditorCameraPlugin;
@@ -33,7 +33,7 @@ pub fn set_cam_to_watch(
 
 ///click a target to focus camera on
 pub fn click_camera_focus_target(
-    cursor_ray_hits: ResMut<CursorRayHits>,
+    cursor_ray_hits: Res<CursorRayHits>,
     mesh_query: Query<(Entity, &Handle<Mesh>)>,
     watched_bodies: Query<&Watched>,
     mouse: ResMut<ButtonInput<MouseButton>>,
@@ -41,10 +41,11 @@ pub fn click_camera_focus_target(
     mut commands: Commands,
 ) {
     if mouse.just_pressed(MouseButton::Right) && keys.pressed(KeyCode::ShiftLeft){
-        let Some((_, _, (e, _))) = get_first_hit_with(
-            &**cursor_ray_hits
-            , &mesh_query
-        ) else {return;};
+        let Some((_, _, (e, _))) = cursor_ray_hits.first_with(&mesh_query) else {return;};
+        // get_first_hit_with(
+        //     &**cursor_ray_hits
+        //     , &mesh_query
+        // ) else {return;};
         if watched_bodies.contains(e) {
             commands.entity(e).remove::<Watched>();
         } else {
