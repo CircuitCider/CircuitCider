@@ -8,9 +8,9 @@ edition = "2021"
 [dependencies]
 app_core = {path = "../app_core", version = "0.1"}
 bevy = {version = "0.13.1", features = ["dynamic_linking"]}
-bevy-inspector-egui = "0.23"
-bevy_egui = "0.25"
-egui = "0.26"
+bevy-inspector-egui = "0.24"
+bevy_egui = "0.27"
+egui = "0.27"
 #egui_extras = { version = "0.26", features = ["all_loaders", "image", "file"] }
 #image = { version = "0.24", features = ["jpeg", "png"] } # Add the types you want support for
 
