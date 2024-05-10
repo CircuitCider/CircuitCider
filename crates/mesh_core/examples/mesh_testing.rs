@@ -5,7 +5,7 @@ use std::fmt::Display;
 use bevy::{prelude::*, render::{mesh::{self, Indices, VertexAttributeValues}, render_resource::VertexAttribute}, window::PrimaryWindow};
 use bevy_inspector_egui::{bevy_egui::EguiContext, egui::{self, Ui}, quick::WorldInspectorPlugin};
 use egui_extras::{Column, TableBody, TableBuilder};
-use mesh_core::{arrow::Arrow3D, cone::Cone, ui::{MeshAttributes, TablePick}, MeshAttr};
+use mesh_core::{arrow::Arrow3D, cone::Cone, ui::{MeshAttributes, TablePick, TableTemplate}, MeshAttr};
 use mesh_core::*;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
@@ -80,26 +80,10 @@ pub fn display_mesh_info(
                 
                 //let table_attrs = mesh_attr_table.get_table(ui);
                 
+                let collum_count = MeshAttributes::iter().len();
+                //let collum_count = 4;//table_attrs.iter().len();
 
-                let collum_count = 4;//table_attrs.iter().len();
-
-                let table = TableBuilder::new(ui)
-                .columns(Column::auto()
-                    .resizable(true)
-                    .clip(false)
-                    .at_least(150.0)
-                    , 
-                    collum_count
-                )
-                .min_scrolled_height(0.0)
-                .auto_shrink(true)
-                .resizable(true)
-                ;
-                // //println!("collum count: {:#?}", collum_count);
-                table
-                .header(20.0, |mut header| {
-                    mesh_attr_table.layout_headers(&mut header)
-                })
+                TableTemplate::new(ui, &mut *mesh_attr_table)
                 .body(|mut body| {
                     body.row(20.0, |mut row| {
                         for attr_type in MeshAttributes::iter() {
