@@ -1,9 +1,7 @@
-use app_core::{plugins::AppSourcesPlugin, ExecLocation};
+use app_core::{plugins::AppSourcesPlugin};
 use bevy::{
-    asset::io::{file::FileAssetReader, AssetSource},
     prelude::*,
 };
-use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use ui_core::plugins::StartMenuPlugin;
 

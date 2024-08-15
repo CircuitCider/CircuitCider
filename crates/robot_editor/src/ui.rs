@@ -1,41 +1,16 @@
-use std::{
-    any::TypeId,
-    collections::{HashMap, HashSet},
-    io::ErrorKind,
-    thread::spawn,
-};
 
 use crate::{
-    raycast_utils::{resources::MouseOverWindow, systems::*},
+    raycast_utils::{resources::MouseOverWindow},
     resources::BuildToolMode,
 };
 use bevy::{
-    asset::{AssetContainer, LoadedFolder},
-    ecs::query::{QueryData, QueryFilter, ReadOnlyQueryData, WorldQuery},
-    input::mouse::MouseButtonInput,
-    log::tracing_subscriber::field::display,
     prelude::*,
-    reflect::erased_serde::Error,
-    render::{render_asset::RenderAssets, render_resource::TextureFormat, view::RenderLayers},
     window::PrimaryWindow,
 };
 use bevy_egui::EguiContext;
-use bevy_mod_raycast::{
-    immediate::{Raycast, RaycastSettings, RaycastVisibility},
-    primitives::IntersectionData,
-};
-use bevy_rapier3d::{
-    geometry::{Collider, Sensor},
-    plugin::RapierContext,
-    rapier::geometry::CollisionEventFlags,
-};
-use bevy_serialization_extras::prelude::{colliders::ColliderFlag, link::StructureFlag};
 use egui::Align2;
-use std::hash::Hash;
 use strum::IntoEnumIterator;
-use strum_macros::{Display, EnumIter};
 
-use std::fmt::Debug;
 
 /// creates a egui window that follows mouse when its given condition is satisfied.
 ///

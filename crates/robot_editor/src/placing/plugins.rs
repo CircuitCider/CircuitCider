@@ -3,7 +3,6 @@ use bevy::prelude::*;
 use crate::resources::BuildToolMode;
 use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::systems::intersection_colors_for;
-use crate::ui::select_build_tool;
 
 use super::components::Placer;
 use super::resources::*;

@@ -1,12 +1,11 @@
 //! test for the positioning of displaying models
 //!
 
-use bevy::{prelude::*, render::view::RenderLayers};
+use bevy::{prelude::*};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use robot_editor::{
     model_display::{
-        components::{DisplayModel, DisplayModelCamera},
-        plugins::{ModelDisplayerPlugin, DISPLAY_MODEL_TRANSLATION},
+        plugins::{ModelDisplayerPlugin},
         systems::display_model,
     },
     shaders::{neon_glow::NeonGlowMaterial, plugins::CustomShadersPlugin},

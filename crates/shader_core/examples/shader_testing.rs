@@ -4,7 +4,6 @@ use bevy::{
     pbr::MeshLayouts,
     prelude::*,
     render::{
-        render_resource::{AsBindGroup, ShaderRef, ShaderType},
         renderer::RenderDevice,
     },
 };

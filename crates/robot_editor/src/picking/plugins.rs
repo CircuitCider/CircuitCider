@@ -9,7 +9,7 @@ use bevy_mod_picking::{
 };
 use transform_gizmo_bevy::GizmoTarget;
 
-use super::systems::{deselect_clicked, make_models_pickable};
+use super::systems::{make_models_pickable};
 
 /// picking plugin for this project.
 pub struct PickingPlugin;

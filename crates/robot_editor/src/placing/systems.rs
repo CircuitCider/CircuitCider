@@ -36,7 +36,7 @@ pub fn attach_placer(
     //mut raycast: Raycast,
     //cursor_ray: Res<CursorRay>,
     rapier_context: Res<RapierContext>,
-    mut neon_materials: ResMut<Assets<NeonGlowMaterial>>,
+    neon_materials: ResMut<Assets<NeonGlowMaterial>>,
     placers: Query<(
         Entity,
         &Handle<NeonGlowMaterial>,

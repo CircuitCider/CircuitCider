@@ -1,37 +1,17 @@
-use app_core::{plugins::AppSourcesPlugin, ExecLocation, ROOT};
+use app_core::{plugins::AppSourcesPlugin};
 use bevy::{
     prelude::*,
-    render::{
-        render_resource::{
-            Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
-        },
-        view::RenderLayers,
-    },
-    transform::commands,
-};
-use bevy_camera_extras::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_mod_picking::{
-    backends::raycast::RaycastBackend,
-    debug::{DebugPickingMode, DebugPickingPlugin},
-    focus::PickingInteraction,
-    highlight::PickHighlight,
-    picking_core::Pickable,
-    selection::PickSelection,
-    DefaultPickingPlugins, PickableBundle,
 };
 use bevy_mod_raycast::cursor::CursorRayPlugin;
-use bevy_obj::ObjPlugin;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
 use bevy_serialization_extras::prelude::{
-    AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin,
+    PhysicsSerializationPlugin,
     SerializationPlugin,
 };
 use bevy_serialization_urdf::{
-    loaders::urdf_loader::Urdf,
     plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
 };
 use bevy_ui_extras::*;

@@ -1,5 +1,4 @@
 use bevy::{
-    asset::io::{file::FileAssetReader, AssetSource},
     prelude::*,
 };
 

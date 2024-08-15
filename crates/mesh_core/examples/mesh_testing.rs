@@ -1,26 +1,22 @@
 //! A simple 3D scene with light shining over a cube sitting on a plane.
 
-use std::fmt::Display;
 
 use bevy::{
     prelude::*,
     render::{
-        mesh::{self, Indices, VertexAttributeValues},
-        render_resource::VertexAttribute,
+        mesh::{Indices},
     },
     window::PrimaryWindow,
 };
 use bevy_inspector_egui::{
     bevy_egui::EguiContext,
-    egui::{self, Ui},
+    egui::{self},
     quick::WorldInspectorPlugin,
 };
 use bevy_ui_extras::*;
-use egui_extras::{Column, TableBody, TableBuilder};
 use mesh_core::*;
-use mesh_core::{arrow::Arrow3D, cone::Cone, ui::MeshAttributes, MeshAttr};
+use mesh_core::{arrow::Arrow3D, ui::MeshAttributes};
 use strum::IntoEnumIterator;
-use strum_macros::{Display, EnumIter};
 
 fn main() {
     App::new()

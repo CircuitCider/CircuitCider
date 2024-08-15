@@ -1,5 +1,5 @@
 use crate::states::MainMenuState;
-use bevy::{prelude::*, transform::commands};
+use bevy::{prelude::*};
 use robot_editor::states::RobotEditorState;
 
 use super::components::*;
@@ -52,7 +52,7 @@ pub fn start_arena(
         (Changed<Interaction>, With<Button>, With<StartArenaWidget>),
     >,
 ) {
-    for (interaction, mut color, mut border_color) in &mut interaction_query {
+    for (interaction, color, mut border_color) in &mut interaction_query {
         //let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
@@ -83,7 +83,7 @@ pub fn start_editor(
     mut main_menu_state: ResMut<NextState<MainMenuState>>,
     mut editor_state: ResMut<NextState<RobotEditorState>>,
 ) {
-    for (interaction, mut color, mut border_color) in &mut interaction_query {
+    for (interaction, color, mut border_color) in &mut interaction_query {
         //let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
@@ -115,7 +115,7 @@ pub fn exit_app_button(
         (Changed<Interaction>, With<Button>, With<ExitAppWidget>),
     >,
 ) {
-    for (interaction, mut color, mut border_color) in &mut interaction_query {
+    for (interaction, color, mut border_color) in &mut interaction_query {
         //let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {

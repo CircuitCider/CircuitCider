@@ -1,11 +1,8 @@
 use crate::{
-    components::*, resources::RobotControls, shaders::neon_glow::NeonGlowMaterial, ui::Edited,
+    resources::RobotControls,
 };
 pub use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 //use bevy_camera_extras::Watched;
-use bevy_egui::EguiContext;
-use bevy_mod_raycast::immediate::Raycast;
 use bevy_rapier3d::plugin::RapierContext;
 use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
@@ -13,7 +10,7 @@ use bevy_serialization_extras::prelude::{
 };
 
 use crate::{
-    components::Wheel, raycast_utils::resources::MouseOverWindow, resources::BuildToolMode,
+    components::Wheel,
 };
 
 /// find models with given component, and change their material based on if it has any intersections or not.

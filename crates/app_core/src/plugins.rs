@@ -1,11 +1,10 @@
 use bevy_app::prelude::*;
 use bevy_asset::{
     io::{file::FileAssetReader, AssetSource},
-    AssetApp, AssetPlugin, AssetServer,
+    AssetApp,
 };
-use bevy_obj::ObjPlugin;
 
-use crate::{ExecLocation, ROOT};
+use crate::{ROOT};
 
 /// PUT THIS PLUGIN BEFORE [`DefaultPlugins`]!!!
 ///

@@ -3,10 +3,7 @@ use std::any::TypeId;
 use bevy::{asset::LoadedFolder, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_rapier3d::geometry::Sensor;
-use bevy_rapier3d::plugin::RapierContext;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
-use egui::Color32;
-use egui::RichText;
 
 use crate::model_display::components::DisplayModel;
 use crate::model_display::systems::display_model;

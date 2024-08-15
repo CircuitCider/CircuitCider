@@ -4,7 +4,6 @@
 
 use bevy::{
     math::primitives::Cylinder,
-    reflect::{Reflect, TypePath},
     render::mesh::Mesh,
 };
 

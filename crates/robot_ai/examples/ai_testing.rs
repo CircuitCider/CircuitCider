@@ -1,12 +1,8 @@
-use app_core::{plugins::AppSourcesPlugin, ExecLocation, ROOT};
+use app_core::{plugins::AppSourcesPlugin, ROOT};
 use bevy::{
-    asset::io::{file::FileAssetReader, AssetSource},
     prelude::*,
 };
 use bevy_camera_extras::CameraExtrasPlugin;
-use bevy_component_extras::components::{Followed, Watched};
-use bevy_egui::EguiPlugin;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
