@@ -1,9 +1,12 @@
 //! code for making arrows
-//! 
-//! 
+//!
+//!
 
-use bevy::{math::primitives::Cylinder, reflect::{Reflect, TypePath}, render::mesh::Mesh};
-
+use bevy::{
+    math::primitives::Cylinder,
+    reflect::{Reflect, TypePath},
+    render::mesh::Mesh,
+};
 
 #[derive(Default)]
 pub enum Direction {
@@ -11,7 +14,7 @@ pub enum Direction {
     UP,
     DOWN,
     LEFT,
-    RIGHT
+    RIGHT,
 }
 
 //3d arrow mesh

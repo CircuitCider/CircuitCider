@@ -1,5 +1,12 @@
 use bevy::{
-    ecs::{entity::Entity, query::{QueryData, QueryFilter, ReadOnlyQueryData}, system::{Query, Resource}}, math::Ray3d, prelude::{Component, Deref, DerefMut}, reflect::Reflect
+    ecs::{
+        entity::Entity,
+        query::{QueryData, QueryFilter, ReadOnlyQueryData},
+        system::{Query, Resource},
+    },
+    math::Ray3d,
+    prelude::{Component, Deref, DerefMut},
+    reflect::Reflect,
 };
 use bevy_mod_raycast::primitives::IntersectionData;
 
@@ -8,12 +15,10 @@ use bevy_mod_raycast::primitives::IntersectionData;
 pub struct MouseOverWindow(bool);
 
 /// collection of things that [`CursorRay`] hit.
-/// 
+///
 /// TODO: Give hit filter functions to this as an impl. very clunky to use this ATM.
 #[derive(Resource, Default, Deref, DerefMut)]
-pub struct CursorRayHits (
-    pub Vec<(Entity, IntersectionData)>
-);
+pub struct CursorRayHits(pub Vec<(Entity, IntersectionData)>);
 
 // #[derive(Resource, Default, Deref)]
 // pub struct RayCasts(pub Option<Ray3d>);
@@ -31,7 +36,8 @@ impl RaycastSource {
         &self,
         hit_match_criteria: &'a Query<T, F>,
     ) -> Option<(Entity, IntersectionData)> {
-        let first_hit = self.hits
+        let first_hit = self
+            .hits
             .iter()
             .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
             .nth(0)?;
@@ -44,7 +50,8 @@ impl RaycastSource {
         &self,
         hit_match_criteria: &'a Query<T, F>,
     ) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
-        let first_hit = self.hits
+        let first_hit = self
+            .hits
             .iter()
             .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
             .nth(0)?;
@@ -58,7 +65,8 @@ impl RaycastSource {
         &self,
         hit_match_criteria: &'a mut Query<T, F>,
     ) -> Option<(Entity, IntersectionData, T::Item<'a>)> {
-        let first_hit = self.hits
+        let first_hit = self
+            .hits
             .iter()
             .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == true)
             .nth(0)?;
@@ -72,7 +80,8 @@ impl RaycastSource {
         &self,
         hit_match_criteria: &'a mut Query<T, F>,
     ) -> Option<(Entity, IntersectionData)> {
-        let first_hit = self.hits
+        let first_hit = self
+            .hits
             .iter()
             .filter(|(e, ..)| hit_match_criteria.contains(e.clone()) == false)
             .nth(0)?;
@@ -82,7 +91,6 @@ impl RaycastSource {
 
         Some((first_hit.0, first_hit.1.clone()))
     }
-
 }
 
 /// weather shot rays should be gizmo rendered.
@@ -146,5 +154,4 @@ impl CursorRayHits {
 
         Some((first_hit.0, first_hit.1.clone()))
     }
-
 }

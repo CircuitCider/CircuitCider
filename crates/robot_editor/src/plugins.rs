@@ -16,6 +16,7 @@ use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
 use bevy_serialization_extras::prelude::PhysicsBundle;
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
+use bevy_ui_extras::visualize_resource;
 use transform_gizmo_bevy::enum_set;
 use transform_gizmo_bevy::GizmoCamera;
 use transform_gizmo_bevy::GizmoMode;
@@ -31,6 +32,7 @@ use crate::placing::plugins::CachePrefabsPlugin;
 use crate::placing::plugins::PlacingToolingPlugin;
 use crate::raycast_utils::plugins::CursorRayHitsPlugin;
 use crate::raycast_utils::resources::MouseOverWindow;
+use crate::resources::RobotControls;
 use crate::shaders::*;
 use crate::states::*;
 use crate::systems::*;
@@ -80,6 +82,8 @@ impl Plugin for RobotEditorPlugin {
             ..default()
         })
         .insert_resource(DebugPickingMode::Normal)
+        .insert_resource(RobotControls::default())
+        .register_type::<RobotControls>()
         // selection behaviour(what things do when clicked on)
         
         // build tools
@@ -104,7 +108,7 @@ impl Plugin for RobotEditorPlugin {
         .add_systems(Update, control_robot.run_if(in_state(RobotEditorState::Active)))
         .add_systems(Update, freeze_spawned_robots)
         .add_systems(Update, bind_left_and_right_wheel)
-
+        .add_systems(Update, visualize_resource::<RobotControls>(bevy_ui_extras::Display::Window))
         //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
         //.add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
 
@@ -131,9 +135,8 @@ pub fn setup_editor_area(
             ..Default::default()
         },
         CameraControllerFree {
-            restrained: CameraRestrained(true)
-            // attach_to: None,
-            // camera_mode: bevy_camera_extras::CameraMode::ThirdPerson(CameraDistanceOffset::default())
+            restrained: CameraRestrained(true), // attach_to: None,
+                                                // camera_mode: bevy_camera_extras::CameraMode::ThirdPerson(CameraDistanceOffset::default())
         },
         GizmoCamera,
         Name::new("Gizmo Camera"),
@@ -152,9 +155,10 @@ pub fn setup_editor_area(
     // plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(
-                Plane3d::new(Vec3::new(0.0, 1.0, 0.0), Vec2::new(50.0, 50.0))
-            ),
+            mesh: meshes.add(Plane3d::new(
+                Vec3::new(0.0, 1.0, 0.0),
+                Vec2::new(50.0, 50.0),
+            )),
             material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
             transform: Transform::from_xyz(0.0, -1.0, 0.0),
             ..default()
@@ -188,4 +192,3 @@ pub fn set_robot_to_follow(
         commands.entity(e).insert(ObservedBy(camera));
     }
 }
-

@@ -62,7 +62,7 @@ fn setup_camera(mut commands: Commands) {
         },
         CameraController {
             restrained: CameraRestrained(true),
-            camera_mode: CameraMode::Observer(ObserverCam::Orbit)
+            camera_mode: CameraMode::Observer(ObserverCam::Orbit),
         },
         //bevy_transform_gizmo::GizmoPickSource::default(),
     ));

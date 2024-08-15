@@ -8,20 +8,21 @@ use crate::ui::window_follow_mouse;
 
 use super::components::AttachCandidate;
 
-
 /// ui for editing attach candidates to fine tune and confirm their placement.
 pub fn attach_candidate_edit_ui(
     rapier_context: Res<RapierContext>,
     mut primary_window: Query<(&Window, &mut EguiContext), With<PrimaryWindow>>,
     attach_candidates: Query<(Entity, &mut Transform, &ColliderFlag, &AttachCandidate)>,
-    keys: Res<ButtonInput<KeyCode>>
+    keys: Res<ButtonInput<KeyCode>>,
 ) {
     //don't render this ui if there is nothing its focusing on.
-    if attach_candidates.iter().len() <= 0 {return;}
+    if attach_candidates.iter().len() <= 0 {
+        return;
+    }
 
     let valid_button_color = Color32::GREEN;
     let invalid_button_color = Color32::RED;
-    
+
     let mut placement_conditions = Vec::new();
 
     let mut no_intersections = false;
@@ -31,7 +32,8 @@ pub fn attach_candidate_edit_ui(
         if rapier_context
             .intersection_pairs_with(e)
             .collect::<Vec<_>>()
-            .len() <= 0
+            .len()
+            <= 0
         {
             no_intersections = true;
         } else {
@@ -44,12 +46,15 @@ pub fn attach_candidate_edit_ui(
         let ui_name = "edit attachemnt";
 
         let fix_window_not_pressed = !keys.pressed(KeyCode::ControlLeft);
-        
-        let Some(window) = window_follow_mouse(win, fix_window_not_pressed, ui_name) else {return};
-        window
-        .show(context.get_mut(), |ui| {
-            if ui.button(RichText::new("Confirm").color(valid_button_color))
-            .clicked() {
+
+        let Some(window) = window_follow_mouse(win, fix_window_not_pressed, ui_name) else {
+            return;
+        };
+        window.show(context.get_mut(), |ui| {
+            if ui
+                .button(RichText::new("Confirm").color(valid_button_color))
+                .clicked()
+            {
                 println!("attaching candidate")
             }
             ui.horizontal(|ui| {
@@ -64,7 +69,6 @@ pub fn attach_candidate_edit_ui(
                 color = valid_button_color;
             }
             ui.label(RichText::new("no intersections?").color(color));
-        })
-        ;
+        });
     }
 }

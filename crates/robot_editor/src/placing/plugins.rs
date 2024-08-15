@@ -30,14 +30,11 @@ pub struct PlacingToolingPlugin;
 impl Plugin for PlacingToolingPlugin {
     fn build(&self, app: &mut App) {
         // placers
-        app
-        .add_systems(Update, intersection_colors_for::<Placer, NeonGlowMaterial>)
-        
-        .add_systems(Update, move_placer_to_cursor)
-        .add_systems(Update, attach_placer)
-        .add_systems(Update, delete_placers)
-        .add_systems(Update, placer_editor_ui)
-        .add_systems(Update, placer_spawner_ui)
-        ;
+        app.add_systems(Update, intersection_colors_for::<Placer, NeonGlowMaterial>)
+            .add_systems(Update, move_placer_to_cursor)
+            .add_systems(Update, attach_placer)
+            .add_systems(Update, delete_placers)
+            .add_systems(Update, placer_editor_ui)
+            .add_systems(Update, placer_spawner_ui);
     }
 }

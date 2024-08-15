@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 use strum_macros::Display;
 
-
-
 /// entity used to place other similar entities.
 #[derive(Component, Default, Display)]
 pub enum Placer {

@@ -34,10 +34,8 @@ use bevy_serialization_urdf::{
     loaders::urdf_loader::Urdf,
     plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
 };
-use bevy_ui_extras::{visualize_components_for, visualize_entities_with_component};
-use robot_editor::{
-    model_display::components::DisplayModel, plugins::*, states::RobotEditorState,
-};
+use bevy_ui_extras::*;
+use robot_editor::{model_display::components::DisplayModel, plugins::*, states::RobotEditorState};
 pub fn main() {
     App::new()
         .add_plugins(AppSourcesPlugin::CRATE)
@@ -46,14 +44,11 @@ pub fn main() {
         })
         .add_plugins(CursorRayPlugin)
         .add_plugins(DefaultPlugins.set(bevy_mod_raycast::low_latency_window_plugin()))
-
         .insert_state(RobotEditorState::Active)
         // app sources
-
-        //.add_plugins(WorldInspectorPlugin::default())
         // robot editor
         .add_plugins(RobotEditorPlugin)
-        // // serialization plugins
+        // serialization plugins
         .add_plugins(SerializationPlugin)
         .add_plugins(PhysicsSerializationPlugin)
         .add_plugins(UrdfSerializationPlugin)
@@ -61,7 +56,12 @@ pub fn main() {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
         // world setup
-        .add_systems(Update, visualize_entities_with_component::<DisplayModel>(bevy_ui_extras::Display::Side(bevy_ui_extras::Side::Right)))
+        .add_systems(
+            Update,
+            visualize_entities_with_component::<DisplayModel>(bevy_ui_extras::Display::Side(
+                bevy_ui_extras::Side::Right,
+            )),
+        )
         .add_systems(Startup, setup_editor_area)
         //.add_systems(Update, display_model_image_to_file)
         .run();

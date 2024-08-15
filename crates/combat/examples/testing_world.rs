@@ -1,4 +1,3 @@
-
 //! A simple 3D scene with light shining over a cube sitting on a plane.
 
 use bevy::prelude::*;
@@ -28,17 +27,15 @@ fn setup(
         ..default()
     });
     // cube
-    commands.spawn(
-        (
+    commands.spawn((
         PbrBundle {
             mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
             material: materials.add(Color::rgb_u8(124, 144, 255)),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
         },
-        Health::default()
-    )
-);
+        Health::default(),
+    ));
     // light
     commands.spawn(PointLightBundle {
         point_light: PointLight {

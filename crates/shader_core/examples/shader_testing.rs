@@ -1,25 +1,29 @@
 //! A simple 3D scene with light shining over a cube sitting on a plane.
 
-use bevy::{pbr::MeshLayouts, prelude::*, render::{render_resource::{AsBindGroup, ShaderRef, ShaderType}, renderer::RenderDevice}};
+use bevy::{
+    pbr::MeshLayouts,
+    prelude::*,
+    render::{
+        render_resource::{AsBindGroup, ShaderRef, ShaderType},
+        renderer::RenderDevice,
+    },
+};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() {
     App::new()
-    .add_plugins(
-        DefaultPlugins.set(AssetPlugin {
-        // Tell the asset server to watch for asset changes on disk:
-        watch_for_changes_override: Some(true),
-        ..default()
-    }))
+        .add_plugins(DefaultPlugins.set(AssetPlugin {
+            // Tell the asset server to watch for asset changes on disk:
+            watch_for_changes_override: Some(true),
+            ..default()
+        }))
         .add_plugins(WorldInspectorPlugin::new())
         .add_systems(Startup, setup)
         //.add_systems(Startup, display_mesh_bindgroup_info)
         .run();
 }
 /// print relevant information about mesh_bindgroups
-pub fn display_mesh_bindgroup_info(
-    render_device: Res<RenderDevice>,
-) {
+pub fn display_mesh_bindgroup_info(render_device: Res<RenderDevice>) {
     println!("bind group layout for mesh:");
 
     println!("{:#?}", MeshLayouts::new(&*render_device).model_only)
@@ -39,23 +43,20 @@ fn setup(
         ..default()
     });
     // cube
-    commands.spawn(
-    (
+    commands.spawn((
         MaterialMeshBundle {
-        mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-        // material: fresnel_mats.add(
-        //     NormalVisualizerMaterial {
-        //         selection: Vec4::new(0.0, 0.0, 0.0, 1.0)
-        //     }
-        
-        // ),
-        material: materials.add(
-            Color::LinearRgba(LinearRgba::BLUE)
-        ),
-        transform: Transform::from_xyz(0.0, 0.5, 0.0),
-        ..default()
+            mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+            // material: fresnel_mats.add(
+            //     NormalVisualizerMaterial {
+            //         selection: Vec4::new(0.0, 0.0, 0.0, 1.0)
+            //     }
+
+            // ),
+            material: materials.add(Color::LinearRgba(LinearRgba::BLUE)),
+            transform: Transform::from_xyz(0.0, 0.5, 0.0),
+            ..default()
         },
-        Name::new("Cube")
+        Name::new("Cube"),
     ));
     // light
     commands.spawn(PointLightBundle {
@@ -72,4 +73,3 @@ fn setup(
         ..default()
     });
 }
-

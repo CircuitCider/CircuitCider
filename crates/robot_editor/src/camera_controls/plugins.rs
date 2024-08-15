@@ -39,8 +39,10 @@ pub fn click_camera_focus_target(
     cameras: Query<Entity, With<CameraMode>>,
     mut commands: Commands,
 ) {
-    if mouse.just_pressed(MouseButton::Right) && keys.pressed(KeyCode::ShiftLeft){
-        let Some((_, _, (e, _))) = cursor_ray_hits.first_with(&mesh_query) else {return;};
+    if mouse.just_pressed(MouseButton::Right) && keys.pressed(KeyCode::ShiftLeft) {
+        let Some((_, _, (e, _))) = cursor_ray_hits.first_with(&mesh_query) else {
+            return;
+        };
         // get_first_hit_with(
         //     &**cursor_ray_hits
         //     , &mesh_query

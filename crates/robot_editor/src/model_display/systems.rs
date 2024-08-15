@@ -31,7 +31,10 @@ pub fn setup_display_area(
     // plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(Plane3d::new(Vec3::new(0.0, 1.0, 0.0), Vec2::new(50.0, 50.0))),
+            mesh: meshes.add(Plane3d::new(
+                Vec3::new(0.0, 1.0, 0.0),
+                Vec2::new(50.0, 50.0),
+            )),
             material: materials.add(Color::WHITE),
             transform: Transform::from_xyz(0.0, -47.2, -91.5),
             ..default()

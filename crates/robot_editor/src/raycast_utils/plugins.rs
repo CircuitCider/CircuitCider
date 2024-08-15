@@ -8,11 +8,9 @@ pub struct CursorRayHitsPlugin;
 
 impl Plugin for CursorRayHitsPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .init_resource::<MouseOverWindow>()
-        .init_resource::<CursorRayHits>()
-        .insert_resource(RayCastDebugMode(true))
-        .add_systems(PreUpdate, update_cursor_ray_hits)
-        ;
+        app.init_resource::<MouseOverWindow>()
+            .init_resource::<CursorRayHits>()
+            .insert_resource(RayCastDebugMode(true))
+            .add_systems(PreUpdate, update_cursor_ray_hits);
     }
 }

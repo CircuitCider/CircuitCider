@@ -30,9 +30,7 @@
 
 // pub mod ui;
 
-pub fn main() {
-    
-}
+pub fn main() {}
 
 // pub fn main() {
 //     App::new()

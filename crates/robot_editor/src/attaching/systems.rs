@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-use crate::resources::*;
 use super::components::*;
+use crate::resources::*;
 
 /// gets rid of placers if current mode is not placermode
 pub fn delete_attach_candidates(
@@ -17,13 +17,7 @@ pub fn delete_attach_candidates(
 }
 
 /// manages gizmos associated with attacher
-pub fn manage_attacher_position(
-
-) {
-
-}
+pub fn manage_attacher_position() {}
 
 /// confirms attacher target for attacher
-pub fn confirm_attacher_target() {
-
-}
+pub fn confirm_attacher_target() {}

@@ -3,7 +3,11 @@ use bevy_rapier3d::{geometry::Sensor, plugin::RapierContext};
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 
 use crate::{
-    attaching::components::AttachCandidate, raycast_utils::resources::{CursorRayHits, MouseOverWindow}, resources::BuildToolMode, shaders::neon_glow::NeonGlowMaterial, ui::Edited
+    attaching::components::AttachCandidate,
+    raycast_utils::resources::{CursorRayHits, MouseOverWindow},
+    resources::BuildToolMode,
+    shaders::neon_glow::NeonGlowMaterial,
+    ui::Edited,
 };
 
 use super::{components::Placer, resources::ModelFolder};
@@ -48,21 +52,21 @@ pub fn attach_placer(
 ) {
     if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
         for (_, handle, mesh, trans, ..) in placers.iter() {
-                println!("placing placer..");
-                commands.spawn((
-                    MaterialMeshBundle {
-                        mesh: mesh.clone(),
-                        material: handle.clone(),
-                        transform: *trans,
-                        ..default()
-                    },
-                    Edited,
-                    AttachCandidate,
-                    ColliderFlag::Convex,
-                    Sensor,
-                    Name::new("Attach Candidate")
-                ));
-                *tool_mode = BuildToolMode::EditerMode;
+            println!("placing placer..");
+            commands.spawn((
+                MaterialMeshBundle {
+                    mesh: mesh.clone(),
+                    material: handle.clone(),
+                    transform: *trans,
+                    ..default()
+                },
+                Edited,
+                AttachCandidate,
+                ColliderFlag::Convex,
+                Sensor,
+                Name::new("Attach Candidate"),
+            ));
+            *tool_mode = BuildToolMode::EditerMode;
         }
     }
     if keys.just_pressed(KeyCode::Escape) {
@@ -71,8 +75,6 @@ pub fn attach_placer(
         }
     }
 }
-
-
 
 pub fn move_placer_to_cursor(
     cursor_hits: Res<CursorRayHits>,
