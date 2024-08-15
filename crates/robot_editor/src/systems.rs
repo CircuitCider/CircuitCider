@@ -5,9 +5,9 @@ use crate::{
 };
 pub use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use bevy_camera_extras::components::Watched;
+//use bevy_camera_extras::Watched;
 use bevy_egui::EguiContext;
-use bevy_mod_raycast::{immediate::Raycast, CursorRay};
+use bevy_mod_raycast::{immediate::Raycast};
 use bevy_rapier3d::plugin::RapierContext;
 use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
@@ -16,7 +16,7 @@ use bevy_serialization_extras::prelude::{
 
 use crate::{
     components::Wheel,
-    raycast_utils::{resources::MouseOverWindow, systems::cursor_ray_hititer},
+    raycast_utils::{resources::MouseOverWindow},
     resources::BuildToolMode,
 };
 
@@ -27,7 +27,7 @@ pub fn intersection_colors_for<T: Component, U: Material>(
     mut materials: ResMut<Assets<U>>
 ) 
     where
-        U: From<Color>
+        U: From<LinearRgba>
 {
     for (e, mat_handle) in thing_query.iter() {
         let Some(mat) = materials.get_mut(mat_handle) else {return};
@@ -38,9 +38,9 @@ pub fn intersection_colors_for<T: Component, U: Material>(
         .len()
         > 0
         {
-            *mat = Color::RED.into();
+            *mat = LinearRgba::RED.into();
         } else {
-            *mat = Color::GREEN.into();
+            *mat = LinearRgba::GREEN.into();
         }
     }
 

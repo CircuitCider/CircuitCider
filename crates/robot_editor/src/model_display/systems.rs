@@ -31,11 +31,7 @@ pub fn setup_display_area(
     // plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(
-                Plane3d::new(Vec3::new(0.0, 1.0, 0.0))
-                    .mesh()
-                    .size(50.0, 50.0),
-            ),
+            mesh: meshes.add(Plane3d::new(Vec3::new(0.0, 1.0, 0.0), Vec2::new(50.0, 50.0))),
             material: materials.add(Color::WHITE),
             transform: Transform::from_xyz(0.0, -47.2, -91.5),
             ..default()
@@ -85,7 +81,7 @@ pub fn display_model<'a>(
             mesh: mesh,
             transform: Transform::from_translation(DISPLAY_MODEL_TRANSLATION)
                 .with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, 0.7, 0.0)),
-            material: neon_materials.add(Color::BLUE),
+            material: neon_materials.add(LinearRgba::BLUE),
             ..default()
         },
         RenderLayers::layer(1),

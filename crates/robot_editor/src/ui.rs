@@ -23,7 +23,6 @@ use bevy_egui::EguiContext;
 use bevy_mod_raycast::{
     immediate::{Raycast, RaycastSettings, RaycastVisibility},
     primitives::IntersectionData,
-    CursorRay,
 };
 use bevy_rapier3d::{
     geometry::{Collider, Sensor},

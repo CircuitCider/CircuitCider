@@ -1,13 +1,16 @@
 use app_core::ROOT;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
-use bevy_camera_extras::components::FlyCam;
-use bevy_camera_extras::components::Watched;
-use bevy_camera_extras::plugins::DefaultCameraPlugin;
+use bevy_camera_extras::CameraControllerFree;
+use bevy_camera_extras::CameraRestrained;
+use bevy_camera_extras::ObservedBy;
+//use bevy_camera_extras::components::FlyCam;
+//use bevy_camera_extras::components::Watched;
+//use bevy_camera_extras::plugins::DefaultCameraPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_picking::debug::DebugPickingMode;
 use bevy_mod_picking::focus::PickingInteraction;
-use bevy_mod_raycast::DefaultRaycastingPlugin;
+//use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
@@ -72,7 +75,7 @@ impl Plugin for RobotEditorPlugin {
             )
         )
         .insert_resource(GizmoOptions {
-            gizmo_modes: enum_set!(GizmoMode::Rotate | GizmoMode::Translate),
+            gizmo_modes: enum_set!(GizmoMode::RotateX | GizmoMode::RotateY | GizmoMode::RotateZ |GizmoMode::TranslateX | GizmoMode::TranslateY | GizmoMode::TranslateZ),
             gizmo_orientation: GizmoOrientation::Global,
             ..default()
         })
@@ -96,9 +99,6 @@ impl Plugin for RobotEditorPlugin {
         .add_systems(PreUpdate, check_if_mouse_over_ui)
         .add_plugins(
             WorldInspectorPlugin::default().run_if(in_state(RobotEditorState::Active)),
-        )
-        .add_plugins(
-            DefaultRaycastingPlugin,
         )
         //.add_systems(Update, set_robot_to_follow.run_if(in_state(RobotEditorState::Active)))
         .add_systems(Update, control_robot.run_if(in_state(RobotEditorState::Active)))
@@ -130,7 +130,11 @@ pub fn setup_editor_area(
             transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         },
-        FlyCam,
+        CameraControllerFree {
+            restrained: CameraRestrained(true)
+            // attach_to: None,
+            // camera_mode: bevy_camera_extras::CameraMode::ThirdPerson(CameraDistanceOffset::default())
+        },
         GizmoCamera,
         Name::new("Gizmo Camera"),
         //bevy_transform_gizmo::GizmoPickSource::default(),
@@ -149,9 +153,7 @@ pub fn setup_editor_area(
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(
-                Plane3d::new(Vec3::new(0.0, 1.0, 0.0))
-                    .mesh()
-                    .size(50.0, 50.0),
+                Plane3d::new(Vec3::new(0.0, 1.0, 0.0), Vec2::new(50.0, 50.0))
             ),
             material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
             transform: Transform::from_xyz(0.0, -1.0, 0.0),
@@ -174,16 +176,16 @@ pub fn setup_editor_area(
 }
 
 pub fn set_robot_to_follow(
-    joints: Query<Entity, (With<JointFlag>, Without<Watched>)>,
+    cameras: Query<Entity, With<CameraRestrained>>,
+    joints: Query<Entity, (With<JointFlag>, Without<ObservedBy>)>,
     mut commands: Commands,
 ) {
+    let Ok(camera) = cameras.get_single() else {
+        warn!("multiple cameras found. Skipping");
+        return;
+    };
     for e in joints.iter() {
-        commands.entity(e).insert(Watched);
+        commands.entity(e).insert(ObservedBy(camera));
     }
 }
 
-use bevy::prelude::*;
-use bevy_mod_outline::*;
-use bevy_mod_picking::{
-    picking_core::PickingPluginsSettings, prelude::*, selection::SelectionPluginSettings,
-};

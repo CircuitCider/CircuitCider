@@ -4,8 +4,9 @@ use std::fmt::Display;
 
 use bevy::{prelude::*, render::{mesh::{self, Indices, VertexAttributeValues}, render_resource::VertexAttribute}, window::PrimaryWindow};
 use bevy_inspector_egui::{bevy_egui::EguiContext, egui::{self, Ui}, quick::WorldInspectorPlugin};
+use bevy_ui_extras::*;
 use egui_extras::{Column, TableBody, TableBuilder};
-use mesh_core::{arrow::Arrow3D, cone::Cone, ui::{MeshAttributes, TablePick, TableTemplate}, MeshAttr};
+use mesh_core::{arrow::Arrow3D, cone::Cone, ui::MeshAttributes, MeshAttr};
 use mesh_core::*;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter};
@@ -30,6 +31,7 @@ fn spawn_mesh_for<T: Into<Mesh> + Default>(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    let x = Vec3::new(0.0, 0.0, 0.0);
     commands.spawn(
         (
         PbrBundle {

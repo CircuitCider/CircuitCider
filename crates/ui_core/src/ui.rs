@@ -58,7 +58,7 @@ pub fn start_arena(
             Interaction::Pressed => {
                 //text.sections[0].value = "Press".to_string();
                 //*color = PRESSED_BUTTON.into();
-                border_color.0 = Color::RED;
+                border_color.0 = Color::LinearRgba(LinearRgba::RED);
 
                 //println!("starting editor")
             }
@@ -80,8 +80,8 @@ pub fn start_editor(
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<Button>, With<StartEditorWidget>),
     >,
-    mut app_state: Res<State<MainMenuState>>,
-    mut commands: Commands,
+    mut main_menu_state: ResMut<NextState<MainMenuState>>,
+    mut editor_state: ResMut<NextState<RobotEditorState>>,
 ) {
     for (interaction, mut color, mut border_color) in &mut interaction_query {
         //let mut text = text_query.get_mut(children[0]).unwrap();
@@ -89,11 +89,11 @@ pub fn start_editor(
             Interaction::Pressed => {
                 //text.sections[0].value = "Press".to_string();
                 //*color = PRESSED_BUTTON.into();
-                border_color.0 = Color::RED;
+                border_color.0 = Color::LinearRgba(LinearRgba::RED);
 
                 println!("Opening the editor");
-                commands.insert_resource(NextState(Some(MainMenuState::Inactive)));
-                commands.insert_resource(NextState(Some(RobotEditorState::Active)));
+                main_menu_state.set(MainMenuState::Inactive);
+                editor_state.set(RobotEditorState::Active);
             }
             Interaction::Hovered => {
                 //text.sections[0].value = "Hover".to_string();
@@ -121,7 +121,7 @@ pub fn exit_app_button(
             Interaction::Pressed => {
                 //text.sections[0].value = "Press".to_string();
                 //*color = PRESSED_BUTTON.into();
-                border_color.0 = Color::RED;
+                border_color.0 = Color::LinearRgba(LinearRgba::RED);
 
                 std::process::exit(0);
             }

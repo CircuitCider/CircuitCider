@@ -3,7 +3,7 @@ use bevy::{
     asset::io::{file::FileAssetReader, AssetSource},
     prelude::*,
 };
-use bevy_camera_extras::plugins::DefaultCameraPlugin;
+use bevy_camera_extras::CameraExtrasPlugin;
 use bevy_component_extras::components::{Followed, Watched};
 use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -13,8 +13,6 @@ use bevy_rapier3d::{
     render::RapierDebugRenderPlugin,
 };
 use bevy_serialization_extras::prelude::{
-    link::{JointFlag, LinkFlag, StructureFlag},
-    rigidbodies::RigidBodyFlag,
     AssetSpawnRequest, AssetSpawnRequestQueue, PhysicsBundle, PhysicsSerializationPlugin,
     SerializationPlugin,
 };
@@ -22,7 +20,6 @@ use bevy_serialization_urdf::{
     loaders::urdf_loader::Urdf,
     plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
 };
-use bevy_ui_extras::systems::visualize_right_sidepanel_for;
 use robot_editor::{plugins::RobotEditorPlugin, states::RobotEditorState};
 
 pub fn main() {
@@ -35,7 +32,7 @@ pub fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(RobotEditorPlugin)
         // camera
-        .add_plugins(DefaultCameraPlugin)
+        .add_plugins(CameraExtrasPlugin::default())
         // serialization plugins
         .add_plugins(SerializationPlugin)
         .add_plugins(PhysicsSerializationPlugin)
@@ -48,8 +45,8 @@ pub fn main() {
         .run();
 }
 
-fn turn_on_editor(mut commands: Commands) {
-    commands.insert_resource(NextState(Some(RobotEditorState::Active)));
+fn turn_on_editor(mut editor_state: ResMut<NextState<RobotEditorState>>) {
+    editor_state.set(RobotEditorState::Active);
 }
 
 fn setup(
@@ -70,12 +67,8 @@ fn setup(
     // plane
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(
-                Plane3d::new(Vec3::new(0.0, 1.0, 0.0))
-                    .mesh()
-                    .size(50.0, 50.0),
-            ),
-            material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
+            mesh: meshes.add(Plane3d::new(Vec3::new(0.0, 1.0, 0.0), Vec2::new(50.0, 50.0))),
+            material: materials.add(Color::LinearRgba(LinearRgba::new(0.3, 0.5, 0.3, 1.0))),
             transform: Transform::from_xyz(0.0, -1.0, 0.0),
             ..default()
         },

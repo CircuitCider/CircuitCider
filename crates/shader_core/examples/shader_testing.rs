@@ -50,7 +50,7 @@ fn setup(
         
         // ),
         material: materials.add(
-            Color::BLUE
+            Color::LinearRgba(LinearRgba::BLUE)
         ),
         transform: Transform::from_xyz(0.0, 0.5, 0.0),
         ..default()

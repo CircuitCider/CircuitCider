@@ -6,6 +6,6 @@ description = "core stuff other crates rely on that doesn't justify its own crat
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy_asset = "0.13"
-bevy_app = "0.13"
-bevy_obj = "0.13"
+bevy_asset = "0.14"
+bevy_app = "0.14"
+bevy_obj = "0.14"

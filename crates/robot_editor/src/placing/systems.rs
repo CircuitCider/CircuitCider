@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-use bevy_mod_raycast::{immediate::Raycast, CursorRay};
-use bevy_rapier3d::{geometry::{Collider, Sensor}, plugin::RapierContext};
+use bevy_rapier3d::{geometry::Sensor, plugin::RapierContext};
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 
 use crate::{

@@ -4,13 +4,11 @@ use bevy::{
         Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
     },
 };
-use bevy_camera_extras::plugins::DefaultCameraPlugin;
-use bevy_camera_extras::prelude::*;
+use bevy_camera_extras::*;
 
 use bevy_egui::EguiPlugin;
 
 use app_core::{plugins::AppSourcesPlugin, ExecLocation};
-use bevy_camera_extras::components::FlyCam;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
@@ -18,7 +16,6 @@ use bevy_rapier3d::{
 };
 use bevy_serialization_extras::prelude::{PhysicsSerializationPlugin, SerializationPlugin};
 use bevy_serialization_urdf::plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin};
-use bevy_transform_gizmo::{GizmoTransformable, TransformGizmoPlugin};
 use robot_editor::{
     plugins::{setup_editor_area, RobotEditorPlugin},
     states::RobotEditorState,
@@ -31,10 +28,6 @@ fn main() {
         .add_plugins(AppSourcesPlugin::MAIN)
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "assets".to_owned(),
-        })
-        .insert_resource(KeyBindings {
-            toggle_grab_cursor: KeyCode::ControlLeft,
-            ..default()
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(EguiPlugin)
@@ -67,7 +60,10 @@ fn setup_camera(mut commands: Commands) {
             transform: Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         },
-        FlyCam,
-        bevy_transform_gizmo::GizmoPickSource::default(),
+        CameraController {
+            restrained: CameraRestrained(true),
+            camera_mode: CameraMode::Observer(ObserverCam::Orbit)
+        },
+        //bevy_transform_gizmo::GizmoPickSource::default(),
     ));
 }
