@@ -1,15 +1,11 @@
 use bevy::{
     prelude::*,
-    render::render_resource::{
-        Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
-    },
 };
 use bevy_camera_extras::*;
 
 use bevy_egui::EguiPlugin;
 
-use app_core::{plugins::AppSourcesPlugin, ExecLocation};
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use app_core::{plugins::AppSourcesPlugin};
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
