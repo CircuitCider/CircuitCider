@@ -1,13 +1,15 @@
-use bevy::{ecs::system::Resource, prelude::KeyCode, reflect::Reflect};
+use bevy::{ecs::system::Resource, prelude::{KeyCode, States}, reflect::Reflect};
 use strum_macros::{Display, EnumIter};
 
-#[derive(Resource, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display)]
+#[derive(Hash, States, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display, Default)]
 pub enum BuildToolMode {
     GizmoMode,
     PlacerMode,
     SelectorMode,
     //AttachMode,
     EditerMode,
+    #[default]
+    None
 }
 
 #[derive(Resource, Reflect)]

@@ -5,7 +5,7 @@ use crate::resources::*;
 
 /// gets rid of placers if current mode is not placermode
 pub fn delete_attach_candidates(
-    tool_mode: ResMut<BuildToolMode>,
+    tool_mode: ResMut<State<BuildToolMode>>,
     placers: Query<Entity, With<AttachCandidate>>,
     mut commands: Commands,
 ) {

@@ -20,11 +20,11 @@ pub fn cache_initial_folders(mut commands: Commands, asset_server: Res<AssetServ
 
 /// gets rid of placers if current mode is not placermode
 pub fn delete_placers(
-    tool_mode: ResMut<BuildToolMode>,
+    tool_mode: ResMut<State<BuildToolMode>>,
     placers: Query<Entity, With<Placer>>,
     mut commands: Commands,
 ) {
-    if *tool_mode != BuildToolMode::PlacerMode {
+    if **tool_mode != BuildToolMode::PlacerMode {
         for e in placers.iter() {
             commands.entity(e).despawn()
         }
@@ -47,7 +47,7 @@ pub fn attach_placer(
     mouse: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
-    mut tool_mode: ResMut<BuildToolMode>,
+    mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mouse_over_window: Res<MouseOverWindow>,
 ) {
     if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
@@ -66,7 +66,7 @@ pub fn attach_placer(
                 Sensor,
                 Name::new("Attach Candidate"),
             ));
-            *tool_mode = BuildToolMode::EditerMode;
+            tool_mode.set(BuildToolMode::EditerMode);
         }
     }
     if keys.just_pressed(KeyCode::Escape) {
@@ -78,7 +78,7 @@ pub fn attach_placer(
 
 pub fn move_placer_to_cursor(
     cursor_hits: Res<CursorRayHits>,
-    tool_mode: ResMut<BuildToolMode>,
+    tool_mode: ResMut<State<BuildToolMode>>,
     mut placers: Query<&mut Transform, With<Placer>>,
     mouse_over_window: Res<MouseOverWindow>,
 ) {

@@ -6,6 +6,7 @@ use bevy_camera_extras::*;
 use bevy_egui::EguiPlugin;
 
 use app_core::{plugins::AppSourcesPlugin};
+use bevy_mod_raycast::cursor::CursorRayPlugin;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
@@ -25,6 +26,7 @@ fn main() {
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "assets".to_owned(),
         })
+        .add_plugins(CursorRayPlugin)
         .add_plugins(DefaultPlugins)
         .add_plugins(EguiPlugin)
         .add_plugins(StartMenuPlugin)

@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::resources::BuildToolMode;
 use crate::shaders::neon_glow::NeonGlowMaterial;
+use crate::states::RobotEditorState;
 use crate::systems::intersection_colors_for;
 
 use super::components::Placer;
@@ -13,7 +14,8 @@ pub struct CachePrefabsPlugin;
 
 impl Plugin for CachePrefabsPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(BuildToolMode::PlacerMode)
+        app
+        .init_state::<BuildToolMode>()
             //.init_resource::<DisplayModelImage>()
             .insert_resource(ModelFolder::default())
             .add_systems(Startup, cache_initial_folders)
@@ -34,6 +36,6 @@ impl Plugin for PlacingToolingPlugin {
             .add_systems(Update, attach_placer)
             .add_systems(Update, delete_placers)
             .add_systems(Update, placer_editor_ui)
-            .add_systems(Update, placer_spawner_ui);
+            .add_systems(Update, placer_spawner_ui.run_if(in_state(RobotEditorState::Active)));
     }
 }

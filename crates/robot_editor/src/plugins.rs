@@ -2,6 +2,7 @@ use app_core::ROOT;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 use bevy_camera_extras::CameraControllerFree;
+use bevy_camera_extras::CameraMode;
 use bevy_camera_extras::CameraRestrained;
 use bevy_camera_extras::ObservedBy;
 //use bevy_camera_extras::components::FlyCam;
@@ -45,7 +46,7 @@ pub struct RobotEditorUiPlugin;
 
 impl Plugin for RobotEditorUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, save_load_model_ui);
+        app.add_systems(Update, save_load_model_ui.run_if(in_state(RobotEditorState::Active)));
     }
 }
 
@@ -54,7 +55,6 @@ pub struct RobotEditorPlugin;
 impl Plugin for RobotEditorPlugin {
     fn build(&self, app: &mut App) {
         app
-        
         // load shaders
         .add_plugins(CustomShadersPlugin)
 
@@ -108,7 +108,6 @@ impl Plugin for RobotEditorPlugin {
         .add_systems(Update, control_robot.run_if(in_state(RobotEditorState::Active)))
         .add_systems(Update, freeze_spawned_robots)
         .add_systems(Update, bind_left_and_right_wheel)
-        .add_systems(Update, visualize_resource::<RobotControls>(bevy_ui_extras::Display::Window))
         //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
         //.add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
 
@@ -123,26 +122,34 @@ pub fn setup_editor_area(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
-    cameras: Query<(Entity, &Camera)>,
+    cameras: Query<(Entity, &Camera), With<CameraMode>>,
 ) {
     println!("setting up editor...");
-    // for (e, ..) in cameras.iter() {
-    //     commands.entity(e).despawn_recursive();
-    // }
-    commands.spawn((
-        Camera3dBundle {
-            transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..Default::default()
+    match cameras.get_single() {
+        Ok(_) => {},
+        Err(_) => {
+            warn!("multiple cameras with controlers not supported. Despawning extra cameras and spawning new replacement camera");
+            for (e, ..) in cameras.iter() {
+                commands.entity(e).despawn_recursive();
+            }
+
+            commands.spawn((
+                Camera3dBundle {
+                    transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+                    ..Default::default()
+                },
+                CameraControllerFree {
+                    restrained: CameraRestrained(true), // attach_to: None,
+                                                        // camera_mode: bevy_camera_extras::CameraMode::ThirdPerson(CameraDistanceOffset::default())
+                },
+                GizmoCamera,
+                Name::new("Gizmo Camera"),
+                //bevy_transform_gizmo::GizmoPickSource::default(),
+                RenderLayers::layer(0),
+            ));
         },
-        CameraControllerFree {
-            restrained: CameraRestrained(true), // attach_to: None,
-                                                // camera_mode: bevy_camera_extras::CameraMode::ThirdPerson(CameraDistanceOffset::default())
-        },
-        GizmoCamera,
-        Name::new("Gizmo Camera"),
-        //bevy_transform_gizmo::GizmoPickSource::default(),
-        RenderLayers::layer(0),
-    ));
+    }
+
     // robot
     urdf_load_requests.requests.push_front(AssetSpawnRequest {
         source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)

@@ -2,6 +2,7 @@ use app_core::{plugins::AppSourcesPlugin};
 use bevy::{
     prelude::*,
 };
+use bevy_camera_extras::ObservedBy;
 use bevy_mod_raycast::cursor::CursorRayPlugin;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
@@ -15,7 +16,7 @@ use bevy_serialization_urdf::{
     plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
 };
 use bevy_ui_extras::*;
-use robot_editor::{model_display::components::DisplayModel, plugins::*, states::RobotEditorState};
+use robot_editor::{model_display::components::DisplayModel, plugins::*, resources::RobotControls, states::RobotEditorState};
 pub fn main() {
     App::new()
         .add_plugins(AppSourcesPlugin::CRATE)
@@ -42,6 +43,9 @@ pub fn main() {
                 bevy_ui_extras::Side::Right,
             )),
         )
+        .add_systems(Update, visualize_entities_with_component::<ObservedBy>(bevy_ui_extras::Display::Side(bevy_ui_extras::Side::Right)))
+        .add_systems(Update, visualize_resource::<RobotControls>(bevy_ui_extras::Display::Window))
+
         .add_systems(Startup, setup_editor_area)
         //.add_systems(Update, display_model_image_to_file)
         .run();

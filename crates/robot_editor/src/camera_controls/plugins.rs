@@ -10,9 +10,12 @@ pub struct RobotEditorCameraPlugin;
 impl Plugin for RobotEditorCameraPlugin {
     fn build(&self, app: &mut App) {
         app
-        .add_plugins(CameraExtrasPlugin::default())
+        .add_plugins(CameraExtrasPlugin {
+            cursor_grabbed_by_default: false,
+            keybinds_override: None,
+            movement_settings_override: None
+        })
         //.add_systems(Update, set_cam_to_watch)
-        .add_systems(Update, visualize_entities_with_component::<ObservedBy>(bevy_ui_extras::Display::Side(bevy_ui_extras::Side::Right)))
         .add_systems(Update, click_camera_focus_target)
         //.add_systems(PreUpdate, click_camera_focus_target)
         ;

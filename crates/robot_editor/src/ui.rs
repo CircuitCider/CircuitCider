@@ -34,7 +34,7 @@ pub fn window_follow_mouse(
 
 pub fn select_build_tool(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut tool_mode: ResMut<BuildToolMode>,
+    mut tool_mode: ResMut<NextState<BuildToolMode>>,
 ) {
     for mut context in primary_window.iter_mut() {
         egui::Window::new("BuildToolMode debug").show(context.get_mut(), |ui| {
@@ -42,7 +42,7 @@ pub fn select_build_tool(
             ui.label(format!("Current mode: {:#?}", *tool_mode));
             for tool in BuildToolMode::iter() {
                 if ui.button(tool.to_string()).clicked() {
-                    *tool_mode = tool
+                    tool_mode.set(tool);
                 }
             }
         });

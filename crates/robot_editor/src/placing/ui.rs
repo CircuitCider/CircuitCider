@@ -67,7 +67,7 @@ pub fn load_assets_in<T: Asset>(
 pub fn placer_spawner_ui(
     folders: Res<Assets<LoadedFolder>>,
     model_folder: Res<ModelFolder>,
-    mut tool_mode: ResMut<BuildToolMode>,
+    mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mut placer_materials: ResMut<Assets<NeonGlowMaterial>>,
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     display_models: Query<(Entity, &Handle<Mesh>), With<DisplayModel>>,
@@ -108,7 +108,7 @@ pub fn placer_spawner_ui(
                             Sensor,
                             Name::new(model_name.clone()),
                         ));
-                        *tool_mode = BuildToolMode::PlacerMode
+                        tool_mode.set(BuildToolMode::PlacerMode)
                     }
                     //spawn display model for hovered over spawnables
 
