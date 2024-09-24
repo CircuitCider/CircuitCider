@@ -9,7 +9,7 @@ impl Plugin for CursorRayHitsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<MouseOverWindow>()
             .init_resource::<CursorRayHits>()
-            .insert_resource(RayCastDebugMode(true))
+            .insert_resource(RayCastDebugMode(false))
             .add_systems(PreUpdate, update_cursor_ray_hits);
     }
 }

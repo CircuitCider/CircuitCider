@@ -14,7 +14,7 @@ bevy_serialization_extras = "0.5.0"
 bevy_serialization_urdf = "0.3"
 bevy_camera_extras = "0.12"
 #bevy_component_extras = "*"
-bevy_ui_extras = "0.9.1"
+bevy_ui_extras = "0.10.0"
 bevy_rapier3d = "0.27"
 strum = "0.26"
 strum_macros = "0.26"
@@ -22,7 +22,6 @@ bevy_mod_raycast = "0.18.0"
 
 robot_editor = {path = "./crates/robot_editor", version = "0.1"}
 app_core = {path = "./crates/app_core", version = "0.1"}
-editor_ui = {path = "./crates/editor_ui", version = "0.1"}
 ui_core = {path = "./crates/ui_core", version = "0.1"}
 
 

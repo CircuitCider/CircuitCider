@@ -8,6 +8,7 @@ use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
     rigidbodies::RigidBodyFlag,
 };
+use bevy_toon_shader::{ToonShaderMainCamera, ToonShaderMaterial, ToonShaderSun};
 
 use crate::{
     components::Wheel,
@@ -149,5 +150,60 @@ pub fn bind_left_and_right_wheel(
         if split_up.contains(&Wheel::Right.to_string().to_lowercase().as_str()) {
             commands.entity(e).insert(Wheel::Right);
         }
+    }
+}
+
+pub fn spawn_toon_shader_cam(
+    mut commands: Commands,
+) {
+    commands.spawn(
+        (
+            Camera3dBundle {
+                camera: Camera {
+                    hdr: true,
+                    order: 3,
+                    ..default()
+                },
+                transform: Transform::from_xyz(0.0, 8., 12.0)
+                    .looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
+                ..default()
+            },
+            ToonShaderMainCamera,
+            Name::new("toon camera"),
+        )
+    );  
+
+}
+
+/// change robots to use toon shader 
+pub fn set_robot_to_toon_shader(
+    mut commands: Commands,
+    standard_mats: ResMut<Assets<StandardMaterial>>,
+    mut toon_mats: ResMut<Assets<ToonShaderMaterial>>,
+    bots: Query<(Entity, Option<&Handle<StandardMaterial>>), (Without<StructureFlag>, Without<Handle<ToonShaderMaterial>>)>,
+) {
+    for (bot, handle) in bots.iter() {
+        println!("setting {:#} to toon shader..", bot);
+        let mat = match handle {
+            Some(mat) => {
+                standard_mats.get(mat).unwrap()
+            }
+            None => &StandardMaterial::default()
+        };
+        let toon_mat = toon_mats.add(ToonShaderMaterial {
+            color: mat.base_color,
+            sun_dir: Vec3::default(),
+            sun_color: Color::LinearRgba(LinearRgba::WHITE),
+            camera_pos: Vec3::default(),
+            ambient_color: Color::LinearRgba(LinearRgba::WHITE),
+            base_color_texture: None,
+        });
+        commands.entity(bot).insert(
+            toon_mat
+        );
+
+        commands.entity(bot).remove::<Handle<StandardMaterial>>();
+        
+
     }
 }

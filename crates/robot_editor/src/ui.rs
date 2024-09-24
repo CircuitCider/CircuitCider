@@ -75,6 +75,7 @@ pub fn save_load_model_ui(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     //mut commands: Commands,
 ) {
+    let Ok(context) = primary_window.get_single() else {return;};
     for mut context in primary_window.iter_mut() {
         let ui_name = "Save Load Model";
         egui::Window::new(ui_name)

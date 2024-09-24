@@ -1,6 +1,9 @@
+use std::f32::consts::PI;
+
 use app_core::ROOT;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
+use bevy::transform::commands;
 use bevy_camera_extras::CameraControllerFree;
 use bevy_camera_extras::CameraMode;
 use bevy_camera_extras::CameraRestrained;
@@ -13,10 +16,15 @@ use bevy_mod_picking::debug::DebugPickingMode;
 use bevy_mod_picking::focus::PickingInteraction;
 //use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
+use bevy_serialization_extras::prelude::link::StructureFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
 use bevy_serialization_extras::prelude::PhysicsBundle;
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
+use bevy_toon_shader::ToonShaderMainCamera;
+use bevy_toon_shader::ToonShaderMaterial;
+use bevy_toon_shader::ToonShaderPlugin;
+use bevy_toon_shader::ToonShaderSun;
 use bevy_ui_extras::visualize_resource;
 use transform_gizmo_bevy::enum_set;
 use transform_gizmo_bevy::GizmoCamera;
@@ -57,6 +65,7 @@ impl Plugin for RobotEditorPlugin {
         app
         // load shaders
         .add_plugins(CustomShadersPlugin)
+        .add_plugins(ToonShaderPlugin)
 
         // asset_loader
         .init_state::<RobotEditorState>()
@@ -108,6 +117,8 @@ impl Plugin for RobotEditorPlugin {
         .add_systems(Update, control_robot.run_if(in_state(RobotEditorState::Active)))
         .add_systems(Update, freeze_spawned_robots)
         .add_systems(Update, bind_left_and_right_wheel)
+        .add_systems(Update, set_robot_to_toon_shader)
+        .add_systems(Startup, spawn_toon_shader_cam)
         //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
         //.add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
 
@@ -122,14 +133,16 @@ pub fn setup_editor_area(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
-    cameras: Query<(Entity, &Camera), With<CameraMode>>,
+    cameras: Query<(Entity, &Camera, Option<&Name>), With<CameraMode>>,
 ) {
     println!("setting up editor...");
     match cameras.get_single() {
         Ok(_) => {},
         Err(_) => {
             warn!("multiple cameras with controlers not supported. Despawning extra cameras and spawning new replacement camera");
-            for (e, ..) in cameras.iter() {
+            for (e, _, name) in cameras.iter() {
+                let name = name.map(|n| n.to_string()).unwrap_or(format!("{:#}", e));
+                println!("despawning: {:#}", name);
                 commands.entity(e).despawn_recursive();
             }
 
@@ -142,6 +155,7 @@ pub fn setup_editor_area(
                     restrained: CameraRestrained(true), // attach_to: None,
                                                         // camera_mode: bevy_camera_extras::CameraMode::ThirdPerson(CameraDistanceOffset::default())
                 },
+                ToonShaderMainCamera,
                 GizmoCamera,
                 Name::new("Gizmo Camera"),
                 //bevy_transform_gizmo::GizmoPickSource::default(),
@@ -173,17 +187,39 @@ pub fn setup_editor_area(
         PhysicsBundle::default(),
         Name::new("Editor baseplate"),
     ));
-
-    // light
-    commands.spawn((PointLightBundle {
-        point_light: PointLight {
-            intensity: 1500.0,
-            shadows_enabled: true,
+    // Sun
+    commands
+    .spawn((
+        DirectionalLightBundle {
+            directional_light: DirectionalLight {
+                shadows_enabled: true,
+                illuminance: 10_000.,
+                ..default()
+            },
+            transform: Transform {
+                translation: Vec3::new(2.0, 2.0, 2.0),
+                rotation: Quat::from_euler(EulerRot::XYZ, -PI / 4., PI / 6., 0.),
+                ..default()
+            },
             ..default()
         },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0),
-        ..default()
-    },));
+        ToonShaderSun,
+        Name::new("Sun")
+    ));
+    // light
+    commands
+    .spawn((
+        PointLightBundle {
+            point_light: PointLight {
+                intensity: 1500.0,
+                shadows_enabled: true,
+                ..default()
+            },
+            transform: Transform::from_xyz(4.0, 8.0, 4.0),
+            ..default()
+        },
+    )
+);
 }
 
 pub fn set_robot_to_follow(
@@ -199,3 +235,4 @@ pub fn set_robot_to_follow(
         commands.entity(e).insert(ObservedBy(camera));
     }
 }
+

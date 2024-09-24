@@ -20,7 +20,7 @@ use strum::IntoEnumIterator;
 
 fn main() {
     App::new()
-        .init_resource::<TablePick<MeshAttributes>>()
+        .init_resource::<QuickTable<MeshAttributes>>()
         .add_plugins(DefaultPlugins)
         .add_plugins(WorldInspectorPlugin::default())
         // demo mesh
@@ -72,7 +72,7 @@ fn spawn_mesh_for<T: Into<Mesh> + Default>(
 /// gives a ui window displaying mesh
 pub fn display_mesh_info(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut mesh_attr_table: ResMut<TablePick<MeshAttributes>>,
+    mut mesh_attr_table: ResMut<QuickTable<MeshAttributes>>,
     target_meshes: Query<&Handle<Mesh>, With<MeshInfoTarget>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
@@ -91,11 +91,11 @@ pub fn display_mesh_info(
 
                     let collum_count = MeshAttributes::iter().len();
                     //let collum_count = 4;//table_attrs.iter().len();
-
-                    TableTemplate::new(ui, &mut *mesh_attr_table).body(|mut body| {
+                    mesh_attr_table.ui(ui)
+                    .body(|mut body| {
                         body.row(20.0, |mut row| {
                             for attr_type in MeshAttributes::iter() {
-                                if mesh_attr_table.contains_key(&attr_type.to_string()) {
+                                if mesh_attr_table.0.contains_key(&attr_type.to_string()) {
                                     row.col(|ui| {
                                         match attr_type {
                                             MeshAttributes::POSITION => {
@@ -186,7 +186,10 @@ pub fn display_mesh_info(
                                 }
                             }
                         });
-                    });
+                    })
+                    
+
+                    //});
                 }
             });
     }

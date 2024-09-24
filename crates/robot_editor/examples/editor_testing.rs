@@ -9,8 +9,7 @@ use bevy_rapier3d::{
     render::RapierDebugRenderPlugin,
 };
 use bevy_serialization_extras::prelude::{
-    PhysicsSerializationPlugin,
-    SerializationPlugin,
+    mesh::{GeometryFile, GeometryFlag}, DeserializeAssetFrom, SerializationBasePlugin, SerializationPhysicsPlugin, SerializationPlugin
 };
 use bevy_serialization_urdf::{
     plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
@@ -26,24 +25,29 @@ pub fn main() {
         .add_plugins(CursorRayPlugin)
         .add_plugins(DefaultPlugins.set(bevy_mod_raycast::low_latency_window_plugin()))
         .insert_state(RobotEditorState::Active)
-        // app sources
         // robot editor
         .add_plugins(RobotEditorPlugin)
+        .add_plugins(UiExtrasDebug)
+
         // serialization plugins
         .add_plugins(SerializationPlugin)
-        .add_plugins(PhysicsSerializationPlugin)
+        // .add_plugins(SerializationBasePlugin)
+        .add_plugins(DeserializeAssetFrom::<GeometryFlag, Mesh>::default())
+        .add_plugins(DeserializeAssetFrom::<GeometryFile, Mesh>::default())
+
+        .add_plugins(SerializationPhysicsPlugin)
         .add_plugins(UrdfSerializationPlugin)
         // // physics
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
         // world setup
-        .add_systems(
-            Update,
-            visualize_entities_with_component::<DisplayModel>(bevy_ui_extras::Display::Side(
-                bevy_ui_extras::Side::Right,
-            )),
-        )
-        .add_systems(Update, visualize_entities_with_component::<ObservedBy>(bevy_ui_extras::Display::Side(bevy_ui_extras::Side::Right)))
+        // .add_systems(
+        //     Update,
+        //     visualize_entities_with_component::<DisplayModel>(bevy_ui_extras::Display::Side(
+        //         bevy_ui_extras::Side::Right,
+        //     )),
+        // )
+        // .add_systems(Update, visualize_entities_with_component::<ObservedBy>(bevy_ui_extras::Display::Side(bevy_ui_extras::Side::Right)))
         .add_systems(Update, visualize_resource::<RobotControls>(bevy_ui_extras::Display::Window))
 
         .add_systems(Startup, setup_editor_area)
