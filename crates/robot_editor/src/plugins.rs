@@ -4,7 +4,7 @@ use app_core::ROOT;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 use bevy::transform::commands;
-use bevy_camera_extras::CameraControllerFree;
+use bevy_camera_extras::CameraController;
 use bevy_camera_extras::CameraMode;
 use bevy_camera_extras::CameraRestrained;
 use bevy_camera_extras::ObservedBy;
@@ -110,9 +110,9 @@ impl Plugin for RobotEditorPlugin {
         // ui
         .add_plugins(RobotEditorUiPlugin)
         .add_systems(PreUpdate, check_if_mouse_over_ui)
-        .add_plugins(
-            WorldInspectorPlugin::default().run_if(in_state(RobotEditorState::Active)),
-        )
+        // .add_plugins(
+        //     WorldInspectorPlugin::default().run_if(in_state(RobotEditorState::Active)),
+        // )
         //.add_systems(Update, set_robot_to_follow.run_if(in_state(RobotEditorState::Active)))
         .add_systems(Update, control_robot.run_if(in_state(RobotEditorState::Active)))
         .add_systems(Update, freeze_spawned_robots)
@@ -149,15 +149,21 @@ pub fn setup_editor_area(
             commands.spawn((
                 Camera3dBundle {
                     transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+                    camera: Camera {
+                        order: 2, 
+                        ..default()
+                    },
                     ..Default::default()
+                    
                 },
-                CameraControllerFree {
-                    restrained: CameraRestrained(true), // attach_to: None,
+                CameraController {
+                    camera_mode: CameraMode::Free,
+                    restrained: CameraRestrained(false), // attach_to: None,
                                                         // camera_mode: bevy_camera_extras::CameraMode::ThirdPerson(CameraDistanceOffset::default())
                 },
                 ToonShaderMainCamera,
                 GizmoCamera,
-                Name::new("Gizmo Camera"),
+                Name::new("editor cam"),
                 //bevy_transform_gizmo::GizmoPickSource::default(),
                 RenderLayers::layer(0),
             ));

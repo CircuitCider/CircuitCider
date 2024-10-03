@@ -161,7 +161,7 @@ pub fn spawn_toon_shader_cam(
             Camera3dBundle {
                 camera: Camera {
                     hdr: true,
-                    order: 3,
+                    order: 1,
                     ..default()
                 },
                 transform: Transform::from_xyz(0.0, 8., 12.0)
@@ -180,7 +180,7 @@ pub fn set_robot_to_toon_shader(
     mut commands: Commands,
     standard_mats: ResMut<Assets<StandardMaterial>>,
     mut toon_mats: ResMut<Assets<ToonShaderMaterial>>,
-    bots: Query<(Entity, Option<&Handle<StandardMaterial>>), (Without<StructureFlag>, Without<Handle<ToonShaderMaterial>>)>,
+    bots: Query<(Entity, Option<&Handle<StandardMaterial>>), (With<StructureFlag>, Without<Handle<ToonShaderMaterial>>)>,
 ) {
     for (bot, handle) in bots.iter() {
         println!("setting {:#} to toon shader..", bot);

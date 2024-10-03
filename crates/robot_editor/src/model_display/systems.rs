@@ -15,7 +15,7 @@ pub fn setup_display_area(
     commands.spawn((
         Camera3dBundle {
             camera: Camera {
-                order: 1,
+                order: 0,
                 //target: image_handle.clone().into(),
                 ..default()
             },

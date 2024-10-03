@@ -16,6 +16,7 @@ use bevy_serialization_urdf::{
 };
 use bevy_ui_extras::*;
 use robot_editor::{model_display::components::DisplayModel, plugins::*, resources::RobotControls, states::RobotEditorState};
+
 pub fn main() {
     App::new()
         .add_plugins(AppSourcesPlugin::CRATE)
@@ -27,11 +28,14 @@ pub fn main() {
         .insert_state(RobotEditorState::Active)
         // robot editor
         .add_plugins(RobotEditorPlugin)
-        .add_plugins(UiExtrasDebug)
+        .add_plugins(UiExtrasDebug {
+            ui_style: UiStyle::Default,
+            ..default()
+        })
 
         // serialization plugins
         .add_plugins(SerializationPlugin)
-        // .add_plugins(SerializationBasePlugin)
+         //.add_plugins(SerializationBasePlugin)
         .add_plugins(DeserializeAssetFrom::<GeometryFlag, Mesh>::default())
         .add_plugins(DeserializeAssetFrom::<GeometryFile, Mesh>::default())
 
