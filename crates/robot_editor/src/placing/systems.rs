@@ -1,6 +1,9 @@
 use bevy::prelude::*;
+use bevy_mod_outline::{OutlineBundle, OutlineVolume};
+use bevy_mod_picking::{focus::PickingInteraction, prelude::{PickSelection, Pickable}, PickableBundle};
 use bevy_rapier3d::{geometry::Sensor, plugin::RapierContext};
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
+use transform_gizmo_bevy::GizmoTarget;
 
 use crate::{
     attaching::components::AttachCandidate,
@@ -64,6 +67,11 @@ pub fn attach_placer(
                 AttachCandidate,
                 ColliderFlag::Convex,
                 Sensor,
+                Pickable::default(),
+                PickSelection {
+                    is_selected: true
+                },
+                GizmoTarget::default(),
                 Name::new("Attach Candidate"),
             ));
             tool_mode.set(BuildToolMode::EditerMode);
