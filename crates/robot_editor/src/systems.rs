@@ -1,6 +1,7 @@
 use crate::{
     resources::RobotControls,
 };
+use bevy::{asset::LoadState, render::render_resource::{TextureViewDescriptor, TextureViewDimension}};
 pub use bevy::prelude::*;
 //use bevy_camera_extras::Watched;
 use bevy_rapier3d::plugin::RapierContext;
@@ -9,10 +10,10 @@ use bevy_serialization_extras::prelude::{
     rigidbodies::RigidBodyFlag,
 };
 use bevy_toon_shader::{ToonShaderMainCamera, ToonShaderMaterial, ToonShaderSun};
+use components::Wheel;
+use resources::ImageHandles;
 
-use crate::{
-    components::Wheel,
-};
+use super::*;
 
 /// find models with given component, and change their material based on if it has any intersections or not.
 pub fn intersection_colors_for<T: Component, U: Material>(
@@ -37,6 +38,29 @@ pub fn intersection_colors_for<T: Component, U: Material>(
         } else {
             *mat = LinearRgba::GREEN.into();
         }
+    }
+}
+
+pub fn configure_skybox_texture(
+    image_handles: Res<ImageHandles>,
+    mut images: ResMut<Assets<Image>>,
+    asset_server: Res<AssetServer>,
+) {
+    let skybox = &image_handles.skybox;
+    
+    if !matches!(asset_server.get_load_state(skybox), Some(LoadState::Loaded)) {
+        return;
+    }
+    let image = images.get_mut(skybox).unwrap();
+    // Note: PNGs do not have any metadata that could indicate they contain a cubemap texture,
+    // so they appear as one texture. The following code reconfigures the texture as necessary.
+    // We could use ktx2, but generating it with gltf-ibl-sampler-egui made the sky too oversaturated.
+    if image.texture_descriptor.array_layer_count() == 1 {
+        image.reinterpret_stacked_2d_as_array(image.height() / image.width());
+        image.texture_view_descriptor = Some(TextureViewDescriptor {
+            dimension: Some(TextureViewDimension::Cube),
+            ..default()
+        });
     }
 }
 

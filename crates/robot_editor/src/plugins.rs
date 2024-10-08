@@ -1,53 +1,51 @@
 use std::f32::consts::PI;
 
 use app_core::ROOT;
+use attaching::plugins::AttachingToolingPlugin;
+use bevy::core_pipeline::Skybox;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
-use bevy::transform::commands;
+use bevy_asset_loader::asset_collection::AssetCollectionApp;
 use bevy_camera_extras::CameraController;
 use bevy_camera_extras::CameraMode;
 use bevy_camera_extras::CameraRestrained;
 use bevy_camera_extras::ObservedBy;
-//use bevy_camera_extras::components::FlyCam;
-//use bevy_camera_extras::components::Watched;
-//use bevy_camera_extras::plugins::DefaultCameraPlugin;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_mod_picking::backends::raycast::RaycastPickable;
 use bevy_mod_picking::debug::DebugPickingMode;
 use bevy_mod_picking::focus::PickingInteraction;
+use bevy_mod_raycast::prelude::RaycastSource;
 //use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
-use bevy_serialization_extras::prelude::link::StructureFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
 use bevy_serialization_extras::prelude::PhysicsBundle;
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
 use bevy_toon_shader::ToonShaderMainCamera;
-use bevy_toon_shader::ToonShaderMaterial;
 use bevy_toon_shader::ToonShaderPlugin;
 use bevy_toon_shader::ToonShaderSun;
-use bevy_ui_extras::visualize_resource;
+use camera_controls::plugins::RobotEditorCameraPlugin;
+use model_display::plugins::ModelDisplayerPlugin;
+use picking::plugins::PickingPlugin;
+use placing::plugins::CachePrefabsPlugin;
+use placing::plugins::PlacingToolingPlugin;
+use raycast_utils::plugins::CursorRayCam;
+use raycast_utils::plugins::CursorRayHitsPlugin;
+use raycast_utils::resources::MouseOverWindow;
+use resources::ImageHandles;
+use resources::RobotControls;
+use shaders::plugins::CustomShadersPlugin;
+use states::RobotEditorState;
+use systems::configure_skybox_texture;
 use transform_gizmo_bevy::enum_set;
 use transform_gizmo_bevy::GizmoCamera;
 use transform_gizmo_bevy::GizmoMode;
 use transform_gizmo_bevy::GizmoOptions;
 use transform_gizmo_bevy::GizmoOrientation;
 use transform_gizmo_bevy::TransformGizmoPlugin;
+use ui::*;
+use systems::*;
 
-use crate::attaching::plugins::AttachingToolingPlugin;
-use crate::camera_controls::plugins::RobotEditorCameraPlugin;
-use crate::model_display::plugins::ModelDisplayerPlugin;
-use crate::picking::plugins::PickingPlugin;
-use crate::placing::plugins::CachePrefabsPlugin;
-use crate::placing::plugins::PlacingToolingPlugin;
-use crate::raycast_utils::plugins::CursorRayHitsPlugin;
-use crate::raycast_utils::resources::MouseOverWindow;
-use crate::resources::RobotControls;
-use crate::shaders::*;
-use crate::states::*;
-use crate::systems::*;
-use crate::ui::*;
-
-use self::plugins::CustomShadersPlugin;
+use super::*;
 
 /// ui for robot editor
 pub struct RobotEditorUiPlugin;
@@ -66,17 +64,18 @@ impl Plugin for RobotEditorPlugin {
         // load shaders
         .add_plugins(CustomShadersPlugin)
         .add_plugins(ToonShaderPlugin)
+        .init_collection::<ImageHandles>()
 
-        // asset_loader
+        .add_systems(Update, configure_skybox_texture)
         .init_state::<RobotEditorState>()
 
 
         // asset folders
         .add_plugins(CachePrefabsPlugin)
 
-        // Picking
+        // PickingRobotEditorPlugin
         .add_plugins(RobotEditorCameraPlugin)
-        .add_plugins(CursorRayHitsPlugin)
+        .add_plugins(CursorRayHitsPlugin {debug_mode: true})
         .register_type::<PickingInteraction>()
         .add_plugins(
             (
@@ -92,9 +91,7 @@ impl Plugin for RobotEditorPlugin {
         })
         .insert_resource(DebugPickingMode::Normal)
         .insert_resource(RobotControls::default())
-        .register_type::<RobotControls>()
-        // selection behaviour(what things do when clicked on)
-        
+        .register_type::<RobotControls>()        
         // build tools
         .add_plugins(
             (
@@ -110,10 +107,7 @@ impl Plugin for RobotEditorPlugin {
         // ui
         .add_plugins(RobotEditorUiPlugin)
         .add_systems(PreUpdate, check_if_mouse_over_ui)
-        // .add_plugins(
-        //     WorldInspectorPlugin::default().run_if(in_state(RobotEditorState::Active)),
-        // )
-        //.add_systems(Update, set_robot_to_follow.run_if(in_state(RobotEditorState::Active)))
+
         .add_systems(Update, control_robot.run_if(in_state(RobotEditorState::Active)))
         .add_systems(Update, freeze_spawned_robots)
         .add_systems(Update, bind_left_and_right_wheel)
@@ -122,7 +116,6 @@ impl Plugin for RobotEditorPlugin {
         //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
         //.add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
 
-        //.add_systems(Update, make_robots_editable)
         
         ;
     }
@@ -133,6 +126,7 @@ pub fn setup_editor_area(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
+    images: Res<ImageHandles>,
     cameras: Query<(Entity, &Camera, Option<&Name>), With<CameraMode>>,
 ) {
     println!("setting up editor...");
@@ -163,9 +157,16 @@ pub fn setup_editor_area(
                 },
                 ToonShaderMainCamera,
                 GizmoCamera,
+                RaycastPickable,
+                CursorRayCam, // Set this camera as a raycaster using the mouse cursor
+
                 Name::new("editor cam"),
                 //bevy_transform_gizmo::GizmoPickSource::default(),
                 RenderLayers::layer(0),
+                Skybox {
+                    image: images.skybox.clone(),
+                    brightness: 1000.0
+                }
             ));
         },
     }

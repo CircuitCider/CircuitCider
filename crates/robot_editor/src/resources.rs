@@ -1,4 +1,5 @@
-use bevy::{ecs::system::Resource, prelude::{KeyCode, States}, reflect::Reflect};
+use bevy::{asset::{AssetServer, Assets, Handle, LoadState}, ecs::system::Resource, prelude::{Image, KeyCode, NextState, Res, ResMut, States}, reflect::Reflect, render::render_resource::{TextureViewDescriptor, TextureViewDimension}, utils::default};
+use bevy_asset_loader::asset_collection::AssetCollection;
 use strum_macros::{Display, EnumIter};
 
 #[derive(Hash, States, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display, Default)]
@@ -11,6 +12,18 @@ pub enum BuildToolMode {
     #[default]
     None
 }
+
+#[derive(AssetCollection, Resource)]
+pub struct ImageHandles {
+    #[asset(path = "images/skybox.png")]
+    pub skybox: Handle<Image>,
+}
+
+// /// weather skybox is preprocessed already(should be no by default)
+// #[derive(Resource)]
+// pub struct SkyBoxPreprocessed(pub bool);
+
+
 
 #[derive(Resource, Reflect)]
 pub struct RobotControls {

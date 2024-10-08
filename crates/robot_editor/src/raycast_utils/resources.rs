@@ -17,7 +17,7 @@ pub struct MouseOverWindow(bool);
 /// collection of things that [`CursorRay`] hit.
 ///
 /// TODO: Give hit filter functions to this as an impl. very clunky to use this ATM.
-#[derive(Resource, Default, Deref, DerefMut)]
+#[derive(Resource, Default, Deref, DerefMut, Reflect)]
 pub struct CursorRayHits(pub Vec<(Entity, IntersectionData)>);
 
 // #[derive(Resource, Default, Deref)]
@@ -94,7 +94,7 @@ impl RaycastSource {
 }
 
 /// weather shot rays should be gizmo rendered.
-#[derive(Resource, Deref, DerefMut)]
+#[derive(Resource, Deref, DerefMut, Reflect)]
 pub struct RayCastDebugMode(pub bool);
 
 impl CursorRayHits {

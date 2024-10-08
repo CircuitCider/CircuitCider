@@ -19,17 +19,27 @@ bevy_serialization_urdf = "0.4"
 bevy_mod_outline = "0.8"
 #bevy_transform_gizmo = {git = "https://github.com/rydb/bevy_transform_gizmo", rev="dada826"}
 transform-gizmo-bevy = "0.3"
-bevy_mod_picking = {version = "0.20", features = ["backend_egui"]}
-bevy_camera_extras = "0.13"
+bevy_mod_picking = {version = "0.20", features = ["backend_egui", "backend_raycast"]}
+bevy_camera_extras = "0.14"
 bevy_mod_raycast = "0.18.0"
 bevy_obj = "0.14"
 bevy_ui_extras = "0.12.0"
 bevy_rapier3d = "0.27"
 strum = "0.26"
 strum_macros = "0.26"
-bevy_toon_shader = {git = "https://github.com/rydb/bevy_toon_shader", rev = "4aa9b6b"}
+bevy_asset_loader = "0.21"
+bevy_toon_shader = {git = "https://github.com/rydb/bevy_toon_shader", rev = "1b96d3e"}
 #async-trait = "*"
 
 # parrallize compile
 [build]
 rustflags = ["-Z", "threads=8"]
+
+
+# Enable max optimizations for dependencies, but not for our code:
+# [profile.dev.package."*"]
+# opt-level = 3
+
+# # Enable only a small amount of optimization in debug mode
+# [profile.dev]
+# opt-level = 1
