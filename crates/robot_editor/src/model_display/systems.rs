@@ -1,7 +1,6 @@
 
 use bevy::{prelude::*, render::view::RenderLayers};
-
-use crate::shaders::neon_glow::NeonGlowMaterial;
+use shader_core::shaders::neon_glow::NeonGlowMaterial;
 
 use super::{components::*, plugins::DISPLAY_MODEL_TRANSLATION};
 
@@ -15,7 +14,7 @@ pub fn setup_display_area(
     commands.spawn((
         Camera3dBundle {
             camera: Camera {
-                order: 0,
+                order: 4,
                 //target: image_handle.clone().into(),
                 ..default()
             },

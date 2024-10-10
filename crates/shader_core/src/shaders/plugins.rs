@@ -11,7 +11,7 @@ impl Plugin for CustomShadersPlugin {
         load_internal_asset!(
             app,
             neon_glow::NEON_GLOW_SHADER_HANDLE,
-            "neon_glow.wgsl",
+            "../../assets/shaders/neon_glow.wgsl",
             Shader::from_wgsl
         );
         app.add_plugins(MaterialPlugin::<NeonGlowMaterial>::default());

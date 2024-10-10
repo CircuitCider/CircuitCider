@@ -4,11 +4,11 @@ use bevy::{asset::LoadedFolder, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_rapier3d::geometry::Sensor;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
+use shader_core::shaders::neon_glow::NeonGlowMaterial;
 
 use crate::model_display::components::DisplayModel;
 use crate::model_display::systems::display_model;
 use crate::resources::BuildToolMode;
-use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::ui::window_follow_mouse;
 
 use super::components::*;

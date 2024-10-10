@@ -2,14 +2,14 @@ use bevy::prelude::*;
 use bevy_mod_outline::{OutlineBundle, OutlineVolume};
 use bevy_mod_picking::{focus::PickingInteraction, prelude::{PickSelection, Pickable}, PickableBundle};
 use bevy_rapier3d::{geometry::Sensor, plugin::RapierContext};
-use bevy_serialization_extras::prelude::colliders::ColliderFlag;
+use bevy_serialization_extras::prelude::{colliders::ColliderFlag, link::StructureFlag};
+use shader_core::shaders::neon_glow::NeonGlowMaterial;
 use transform_gizmo_bevy::GizmoTarget;
 
 use crate::{
     attaching::components::AttachCandidate,
     raycast_utils::resources::{CursorRayHits, MouseOverWindow},
     resources::BuildToolMode,
-    shaders::neon_glow::NeonGlowMaterial,
     ui::Edited,
 };
 
@@ -52,29 +52,35 @@ pub fn attach_placer(
     mut commands: Commands,
     mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mouse_over_window: Res<MouseOverWindow>,
+    hits: Res<CursorRayHits>,
+    robots: Query<&StructureFlag>,
 ) {
     if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
         for (_, handle, mesh, trans, ..) in placers.iter() {
             println!("placing placer..");
-            commands.spawn((
-                MaterialMeshBundle {
-                    mesh: mesh.clone(),
-                    material: handle.clone(),
-                    transform: *trans,
-                    ..default()
-                },
-                Edited,
-                AttachCandidate,
-                ColliderFlag::Convex,
-                Sensor,
-                Pickable::default(),
-                PickSelection {
-                    is_selected: true
-                },
-                GizmoTarget::default(),
-                Name::new("Attach Candidate"),
-            ));
-            tool_mode.set(BuildToolMode::EditerMode);
+            if let Some((robot, ..)) = hits.first_with(&robots) {
+                println!("clicked robot, switching to attach mode.");
+                commands.spawn((
+                    MaterialMeshBundle {
+                        mesh: mesh.clone(),
+                        material: handle.clone(),
+                        transform: *trans,
+                        ..default()
+                    },
+                    Edited,
+                    AttachCandidate {attempt_target: Some(robot) },
+                    ColliderFlag::Convex,
+                    Sensor,
+                    Pickable::default(),
+                    PickSelection {
+                        is_selected: true
+                    },
+                    GizmoTarget::default(),
+                    Name::new("Attach Candidate"),
+                ));
+                tool_mode.set(BuildToolMode::EditerMode);
+            }
+
         }
     }
     if keys.just_pressed(KeyCode::Escape) {
@@ -94,13 +100,12 @@ pub fn move_placer_to_cursor(
 
     // }
     if *tool_mode == BuildToolMode::PlacerMode {
-        if let Some((.., hit)) = cursor_hits.first_without_mut(&mut placers) {
-            for mut trans in placers.iter_mut() {
-                //println!("moving placer to cursor");
-                let hit_pos = hit.position();
-                //println!("moving placer to cursor {:#?}", hit_pos);
-                trans.translation = hit_pos;
-            }
+        let Some((.., hit)) = cursor_hits.first_without_mut(&mut placers) else {return;};
+        for mut trans in placers.iter_mut() {
+            //println!("moving placer to cursor");
+            let hit_pos = hit.position();
+            //println!("moving placer to cursor {:#?}", hit_pos);
+            trans.translation = hit_pos;
         }
     }
 }

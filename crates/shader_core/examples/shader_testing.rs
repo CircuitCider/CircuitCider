@@ -7,7 +7,9 @@ use bevy::{
         renderer::RenderDevice,
     },
 };
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraRestrained};
+use bevy_ui_extras::UiExtrasDebug;
+use shader_core::{plugins::ShaderDebugPlugin, shaders::{neon_glow::NeonGlowMaterial, plugins::CustomShadersPlugin}};
 
 fn main() {
     App::new()
@@ -16,7 +18,14 @@ fn main() {
             watch_for_changes_override: Some(true),
             ..default()
         }))
-        .add_plugins(WorldInspectorPlugin::new())
+        .add_plugins(CameraExtrasPlugin {
+            cursor_grabbed_by_default: false,
+            keybinds_override: None,
+            movement_settings_override: None
+        })
+        .add_plugins(UiExtrasDebug::default())
+        .add_plugins(ShaderDebugPlugin)
+        .add_plugins(CustomShadersPlugin)
         .add_systems(Startup, setup)
         //.add_systems(Startup, display_mesh_bindgroup_info)
         .run();
@@ -33,6 +42,7 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut neon_glow: ResMut<Assets<NeonGlowMaterial>>,
 ) {
     // circular base
     commands.spawn(PbrBundle {
@@ -51,7 +61,7 @@ fn setup(
             //     }
 
             // ),
-            material: materials.add(Color::LinearRgba(LinearRgba::BLUE)),
+            material: neon_glow.add(LinearRgba::BLUE),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
         },
@@ -67,8 +77,16 @@ fn setup(
         ..default()
     });
     // camera
-    commands.spawn(Camera3dBundle {
+    commands.spawn(
+        (
+        Camera3dBundle {
         transform: Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
-    });
+    },
+    CameraController {
+        restrained: CameraRestrained(false),
+        camera_mode: bevy_camera_extras::CameraMode::Free
+    }
+    )
+);
 }

@@ -6,5 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = {version = "0.14", features = ["dynamic_linking"]}
-bevy-inspector-egui = "0.25"
+bevy = {version = "0.14", features = ["dynamic_linking", "file_watcher"]}
+bevy_ui_extras = "0.12"
+bevy_camera_extras = "0.14"
+bevy_egui = "0.29"
+egui = "0.28"
+egui_tiles = "0.9"
+egui_extras = "0.28"
+derive_more = {version = "0.99", default-features = false, features = ["from", "into"]}
+naga = {version = "22.1", features = ["wgsl-out", "wgsl-in"]}

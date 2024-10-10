@@ -1,7 +1,7 @@
 use bevy::prelude::*;
+use shader_core::shaders::neon_glow::NeonGlowMaterial;
 
 use crate::resources::BuildToolMode;
-use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::states::RobotEditorState;
 use crate::systems::intersection_colors_for;
 

@@ -3,18 +3,17 @@
 
 use bevy::{prelude::*};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use robot_editor::{
-    model_display::{
-        plugins::{ModelDisplayerPlugin},
+use bevy_ui_extras::UiExtrasDebug;
+use robot_editor::model_display::{
+        plugins::ModelDisplayerPlugin,
         systems::display_model,
-    },
-    shaders::{neon_glow::NeonGlowMaterial, plugins::CustomShadersPlugin},
-};
+    };
+use shader_core::shaders::{neon_glow::NeonGlowMaterial, plugins::CustomShadersPlugin};
 
 pub fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins(WorldInspectorPlugin::default())
+        .add_plugins(UiExtrasDebug::default())
         .add_plugins(CustomShadersPlugin)
         .add_plugins(ModelDisplayerPlugin)
         .add_systems(Startup, display_model_test)

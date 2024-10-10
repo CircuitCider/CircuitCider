@@ -21,12 +21,12 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
     out.clip_position = mesh_position_local_to_clip(
         get_world_from_local(vertex.instance_index),
-        vec4<f32>(vertex.position, 1.0),
+        vec4<f32>(vertex.position * 2, 1.0),
     );
     return out;
 }
 
 @fragment
 fn fragment() -> @location(0) vec4<f32> {
-    return material.color;
+    return material.color * 2;
 }

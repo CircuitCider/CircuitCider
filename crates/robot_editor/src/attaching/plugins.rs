@@ -1,6 +1,6 @@
 use bevy::prelude::*;
+use shader_core::shaders::neon_glow::NeonGlowMaterial;
 
-use crate::shaders::neon_glow::NeonGlowMaterial;
 use crate::systems::intersection_colors_for;
 
 use super::components::AttachCandidate;

@@ -33,7 +33,7 @@ use raycast_utils::plugins::CursorRayHitsPlugin;
 use raycast_utils::resources::MouseOverWindow;
 use resources::ImageHandles;
 use resources::RobotControls;
-use shaders::plugins::CustomShadersPlugin;
+use shader_core::shaders::plugins::CustomShadersPlugin;
 use states::RobotEditorState;
 use systems::configure_skybox_texture;
 use transform_gizmo_bevy::enum_set;
@@ -75,7 +75,7 @@ impl Plugin for RobotEditorPlugin {
 
         // PickingRobotEditorPlugin
         .add_plugins(RobotEditorCameraPlugin)
-        .add_plugins(CursorRayHitsPlugin {debug_mode: true})
+        .add_plugins(CursorRayHitsPlugin {debug_mode: false})
         .register_type::<PickingInteraction>()
         .add_plugins(
             (

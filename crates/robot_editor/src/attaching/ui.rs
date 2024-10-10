@@ -12,13 +12,18 @@ use super::components::AttachCandidate;
 pub fn attach_candidate_edit_ui(
     rapier_context: Res<RapierContext>,
     mut primary_window: Query<(&Window, &mut EguiContext), With<PrimaryWindow>>,
-    attach_candidates: Query<(Entity, &mut Transform, &ColliderFlag, &AttachCandidate)>,
+    attach_candidates: Query<(Entity, &mut Transform, &ColliderFlag, &mut AttachCandidate)>,
     keys: Res<ButtonInput<KeyCode>>,
+    named: Query<&Name>,
 ) {
     //don't render this ui if there is nothing its focusing on.
     if attach_candidates.iter().len() <= 0 {
         return;
     }
+    let Ok((part, part_trans, part_collider, part_target)) = attach_candidates.get_single() else {
+        warn!("multiple attachers not supported. aborting");
+        return
+    };
 
     let valid_button_color = Color32::GREEN;
     let invalid_button_color = Color32::RED;
@@ -57,6 +62,13 @@ pub fn attach_candidate_edit_ui(
             {
                 println!("attaching candidate")
             }
+            let target_name = match part_target.attempt_target {
+                Some(target) => {
+                    named.get(target).map_or("???", |name| name.as_str())
+                },
+                None => "None",
+            };
+            ui.label(format!("Target: {:#}", target_name));
             ui.horizontal(|ui| {
                 ui.label(format!("translation: "));
                 for (_, trans, ..) in attach_candidates.iter() {
