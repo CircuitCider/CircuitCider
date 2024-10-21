@@ -13,9 +13,9 @@ use super::components::*;
 //     }
 // }
 
-// const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
-// const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
-// const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+// const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
+// const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
+// const PRESSED_BUTTON: Color = Color::srgb(0.35, 0.75, 0.35);
 
 pub fn despawn_start_menu(
     mut commands: Commands,
@@ -150,7 +150,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
 
                 ..default()
             },
-            background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+            background_color: Color::srgb(0.15, 0.15, 0.15).into(),
             z_index: ZIndex::Global(-1),
             ..default()
         },
@@ -168,7 +168,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                     margin: UiRect::all(Val::Percent(0.45)),
                     ..default()
                 },
-                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                background_color: Color::srgb(0.15, 0.15, 0.15).into(),
                 border_color: Color::BLACK.into(),
                 ..default()
             },
@@ -182,7 +182,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                     TextStyle {
                         font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
                         font_size: 60.0,
-                        color: Color::rgb(0.9, 0.9, 0.9),
+                        color: Color::srgb(0.9, 0.9, 0.9),
                         ..default()
                     },
                 )
@@ -232,7 +232,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                     position_type: PositionType::Absolute,
                     ..default()
                 },
-                background_color: Color::rgb(0.15, 0.15, 0.15).into(),
+                background_color: Color::srgb(0.15, 0.15, 0.15).into(),
                 ..default()
             },
             Name::new("Button Nodes"),
@@ -253,7 +253,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                             ..default()
                         },
                         border_color: Color::BLACK.into(),
-                        background_color: Color::rgb_u8(88, 117, 79).into(),
+                        background_color: Color::srgb_u8(88, 117, 79).into(),
                         ..default()
                     },
                     StartArenaWidget,
@@ -264,7 +264,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                         TextStyle {
                             font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
                             font_size: (40.0),
-                            color: Color::rgb(0.9, 0.9, 0.9),
+                            color: Color::srgb(0.9, 0.9, 0.9),
                         },
                     )
                     .with_style(Style {
@@ -293,7 +293,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                             ..default()
                         },
                         border_color: Color::BLACK.into(),
-                        background_color: Color::rgb_u8(58, 78, 108).into(),
+                        background_color: Color::srgb_u8(58, 78, 108).into(),
                         ..default()
                     },
                     StartEditorWidget,
@@ -304,7 +304,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                         TextStyle {
                             font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
                             font_size: (40.0),
-                            color: Color::rgb(0.9, 0.9, 0.9),
+                            color: Color::srgb(0.9, 0.9, 0.9),
                         },
                     )
                     .with_style(Style {
@@ -333,7 +333,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                             ..default()
                         },
                         border_color: Color::BLACK.into(),
-                        background_color: Color::rgb_u8(148, 52, 52).into(),
+                        background_color: Color::srgb_u8(148, 52, 52).into(),
                         ..default()
                     },
                     ExitAppWidget,
@@ -344,7 +344,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                         TextStyle {
                             font: asset_server.load("root://TauroCondensed-eZrGB.ttf"),
                             font_size: (40.0),
-                            color: Color::rgb(0.9, 0.9, 0.9),
+                            color: Color::srgb(0.9, 0.9, 0.9),
                         },
                     )
                     .with_style(Style {
