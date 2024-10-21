@@ -187,7 +187,7 @@ pub fn setup_editor_area(
                 Vec3::new(0.0, 1.0, 0.0),
                 Vec2::new(50.0, 50.0),
             )),
-            material: materials.add(Color::rgb(0.3, 0.5, 0.3)),
+            material: materials.add(Color::srgb(0.3, 0.5, 0.3)),
             transform: Transform::from_xyz(0.0, -1.0, 0.0),
             ..default()
         },
