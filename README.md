@@ -1,9 +1,9 @@
 <a name="readme-top"></a>
 
-[![Stargazers][stars-shield]][stars-url]
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Issues][issues-shield]][issues-url]
+[![Stars](https://img.shields.io/github/stars/CircuitCider/CircuitCider?style=for-the-badge)](https://github.com/CircuitCider/CircuitCider/stargazers)
+[![Contributors](https://img.shields.io/github/contributors/CircuitCider/CircuitCider?style=for-the-badge&color=bright-green)](https://github.com/CircuitCider/CircuitCider/graphs/contributors)
+[![Forks](https://img.shields.io/github/forks/CircuitCider/CircuitCider?style=for-the-badge)](https://github.com/CircuitCider/CircuitCider/network/members)
+[![Issues](https://img.shields.io/github/issues/CircuitCider/CircuitCider?style=for-the-badge&color=bright-green)](https://github.com/CircuitCider/CircuitCider/issues)
 
 
 <!-- PROJECT LOGO -->
