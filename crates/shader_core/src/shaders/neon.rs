@@ -13,30 +13,32 @@ use bevy::{
 pub const NEON_GLOW_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(13953800272683943019);
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-pub struct NeonGlowMaterial {
+pub struct NeonMaterial {
     #[uniform(0)]
     pub color: LinearRgba,
 }
 
-impl From<LinearRgba> for NeonGlowMaterial {
+impl From<LinearRgba> for NeonMaterial {
     fn from(color: LinearRgba) -> Self {
-        NeonGlowMaterial { color }
+        NeonMaterial { color }
     }
 }
 
-impl From<NeonGlowMaterial> for LinearRgba {
-    fn from(value: NeonGlowMaterial) -> Self {
+impl From<NeonMaterial> for LinearRgba {
+    fn from(value: NeonMaterial) -> Self {
         value.color
     }
 }
 
-impl Material for NeonGlowMaterial {
+impl Material for NeonMaterial {
     fn vertex_shader() -> ShaderRef {
-        NEON_GLOW_SHADER_HANDLE.into()
+        "shaders/neon.wgsl".into()
+        //NEON_GLOW_SHADER_HANDLE.into()
     }
 
     fn fragment_shader() -> ShaderRef {
-        NEON_GLOW_SHADER_HANDLE.into()
+        "shaders/neon.wgsl".into()
+        //NEON_GLOW_SHADER_HANDLE.into()
     }
 
     fn alpha_mode(&self) -> AlphaMode {

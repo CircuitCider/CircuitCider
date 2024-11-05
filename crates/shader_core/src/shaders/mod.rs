@@ -1,2 +1,3 @@
-pub mod neon_glow;
+pub mod neon;
 pub mod plugins;
+pub mod glow;

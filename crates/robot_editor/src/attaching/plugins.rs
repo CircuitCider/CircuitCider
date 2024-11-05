@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use shader_core::shaders::neon_glow::NeonGlowMaterial;
+use shader_core::shaders::neon::NeonMaterial;
 
 use crate::systems::intersection_colors_for;
 
@@ -12,7 +12,7 @@ impl Plugin for AttachingToolingPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            intersection_colors_for::<AttachCandidate, NeonGlowMaterial>,
+            intersection_colors_for::<AttachCandidate, NeonMaterial>,
         )
         .add_systems(Update, attach_candidate_edit_ui)
         .add_systems(Update, delete_attach_candidates);

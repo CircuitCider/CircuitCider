@@ -9,7 +9,7 @@ use std::f32::consts::PI;
 //use bevy_mod_raycast::RaycastSource;
 //use bevy_window::PrimaryWindow;
 
-use crate::shaders::neon_glow::NeonGlowMaterial;
+use crate::shaders::neon_glow::NeonMaterial;
 use crate::ui::{get_first_hit_with, BuildToolMode};
 
 use super::components::*;
@@ -64,7 +64,7 @@ pub fn widget_spawn_for_selected (
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut gizmo_material: ResMut<Assets<NeonGlowMaterial>>,
+    mut gizmo_material: ResMut<Assets<NeonMaterial>>,
 
 ) {
     //spawn transform widgets on selected entities
@@ -90,7 +90,7 @@ pub fn widget_spawn_for_selected (
         (
                 MaterialMeshBundle {
                     mesh: cube_mesh.clone(),
-                    material: gizmo_material.add(NeonGlowMaterial::from(Color::hsl(120.0, s, l))),
+                    material: gizmo_material.add(NeonMaterial::from(Color::hsl(120.0, s, l))),
                     transform: Transform::from_translation(Vec3::new(0.0,dist,0.0)),
                     ..default()
                 },
@@ -104,7 +104,7 @@ pub fn widget_spawn_for_selected (
             (
                 MaterialMeshBundle {
                     mesh: cube_mesh.clone(),
-                    material: gizmo_material.add(NeonGlowMaterial::from(Color::hsl(120.0, s, l))),
+                    material: gizmo_material.add(NeonMaterial::from(Color::hsl(120.0, s, l))),
                     transform: Transform::from_translation(Vec3::new(0.0,-dist,0.0)),
                     ..default()
                 },

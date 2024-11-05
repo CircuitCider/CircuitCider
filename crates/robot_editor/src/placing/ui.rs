@@ -4,7 +4,7 @@ use bevy::{asset::LoadedFolder, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_rapier3d::geometry::Sensor;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
-use shader_core::shaders::neon_glow::NeonGlowMaterial;
+use shader_core::shaders::neon::NeonMaterial;
 
 use crate::model_display::components::DisplayModel;
 use crate::model_display::systems::display_model;
@@ -68,7 +68,7 @@ pub fn placer_spawner_ui(
     folders: Res<Assets<LoadedFolder>>,
     model_folder: Res<ModelFolder>,
     mut tool_mode: ResMut<NextState<BuildToolMode>>,
-    mut placer_materials: ResMut<Assets<NeonGlowMaterial>>,
+    mut placer_materials: ResMut<Assets<NeonMaterial>>,
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     display_models: Query<(Entity, &Handle<Mesh>), With<DisplayModel>>,
 
@@ -98,7 +98,7 @@ pub fn placer_spawner_ui(
                         commands.spawn((
                             MaterialMeshBundle {
                                 mesh: mesh_handle.clone(),
-                                material: placer_materials.add(NeonGlowMaterial {
+                                material: placer_materials.add(NeonMaterial {
                                     color: Color::Srgba(Srgba::RED).into(),
                                 }),
                                 ..default()

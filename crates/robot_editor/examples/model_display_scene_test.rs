@@ -8,7 +8,7 @@ use robot_editor::model_display::{
         plugins::ModelDisplayerPlugin,
         systems::display_model,
     };
-use shader_core::shaders::{neon_glow::NeonGlowMaterial, plugins::CustomShadersPlugin};
+use shader_core::shaders::{neon::NeonMaterial, plugins::CustomShadersPlugin};
 
 pub fn main() {
     App::new()
@@ -23,7 +23,7 @@ pub fn main() {
 pub fn display_model_test(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut neon_materials: ResMut<Assets<NeonGlowMaterial>>,
+    mut neon_materials: ResMut<Assets<NeonMaterial>>,
 ) {
     let mesh_handle = meshes.add(Cuboid::new(1.0, 1.0, 1.0).mesh());
     display_model(&mut commands, &mut neon_materials, mesh_handle);

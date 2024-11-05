@@ -1,6 +1,6 @@
 
 use bevy::{prelude::*, render::view::RenderLayers};
-use shader_core::shaders::neon_glow::NeonGlowMaterial;
+use shader_core::shaders::neon::NeonMaterial;
 
 use super::{components::*, plugins::DISPLAY_MODEL_TRANSLATION};
 
@@ -72,7 +72,7 @@ pub fn manage_display_platform_visibility(
 /// helper function for displaying display models
 pub fn display_model<'a>(
     commands: &'a mut Commands,
-    neon_materials: &'a mut ResMut<Assets<NeonGlowMaterial>>,
+    neon_materials: &'a mut ResMut<Assets<NeonMaterial>>,
     //meshes: &'a mut ResMut<Assets<Mesh>>,
     mesh: Handle<Mesh>,
 ) {

@@ -3,7 +3,7 @@ use bevy_mod_outline::{OutlineBundle, OutlineVolume};
 use bevy_mod_picking::{focus::PickingInteraction, prelude::{PickSelection, Pickable}, PickableBundle};
 use bevy_rapier3d::{geometry::Sensor, plugin::RapierContext};
 use bevy_serialization_extras::prelude::{colliders::ColliderFlag, link::StructureFlag};
-use shader_core::shaders::neon_glow::NeonGlowMaterial;
+use shader_core::shaders::neon::NeonMaterial;
 use transform_gizmo_bevy::GizmoTarget;
 
 use crate::{
@@ -39,10 +39,10 @@ pub fn attach_placer(
     //mut raycast: Raycast,
     //cursor_ray: Res<CursorRay>,
     rapier_context: Res<RapierContext>,
-    neon_materials: ResMut<Assets<NeonGlowMaterial>>,
+    neon_materials: ResMut<Assets<NeonMaterial>>,
     placers: Query<(
         Entity,
-        &Handle<NeonGlowMaterial>,
+        &Handle<NeonMaterial>,
         &Handle<Mesh>,
         &Transform,
         &Placer,

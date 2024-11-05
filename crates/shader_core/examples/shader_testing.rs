@@ -4,12 +4,12 @@ use bevy::{
     pbr::MeshLayouts,
     prelude::*,
     render::{
-        renderer::RenderDevice,
+        render_resource::ShaderRef, renderer::RenderDevice
     },
 };
 use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraRestrained};
 use bevy_ui_extras::UiExtrasDebug;
-use shader_core::{plugins::ShaderDebugPlugin, shaders::{neon_glow::NeonGlowMaterial, plugins::CustomShadersPlugin}};
+use shader_core::{plugins::ShaderDebugPlugin, shaders::{neon::NeonMaterial, plugins::CustomShadersPlugin}};
 
 fn main() {
     App::new()
@@ -42,7 +42,7 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut neon_glow: ResMut<Assets<NeonGlowMaterial>>,
+    mut neon_glow_materials: ResMut<Assets<NeonMaterial>>,
 ) {
     // circular base
     commands.spawn(PbrBundle {
@@ -55,13 +55,9 @@ fn setup(
     commands.spawn((
         MaterialMeshBundle {
             mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-            // material: fresnel_mats.add(
-            //     NormalVisualizerMaterial {
-            //         selection: Vec4::new(0.0, 0.0, 0.0, 1.0)
-            //     }
-
-            // ),
-            material: neon_glow.add(LinearRgba::BLUE),
+            material: neon_glow_materials.add(NeonMaterial {
+                color: LinearRgba::BLUE
+            }),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
         },

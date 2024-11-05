@@ -9,7 +9,7 @@ use crate::raycast_utils::systems::*;
 use crate::resources::BuildToolMode;
 use crate::selection_behaviour::components::Grabbed;
 
-use self::neon_glow::NeonGlowMaterial;
+use self::neon_glow::NeonMaterial;
 
 use super::components::{Ring, TransformWidget, TransformWidgetMarker, Tug, Widget};
 use crate::components::*;
@@ -29,7 +29,7 @@ pub fn spawn_gizmo_when_needed(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut gizmo_material: ResMut<Assets<NeonGlowMaterial>>,
+    mut gizmo_material: ResMut<Assets<NeonMaterial>>,
     tool_mode: Res<BuildToolMode>,
 ) {
     //spawn transform widgets on selected entities if there is no transform gizmo in the world
@@ -71,7 +71,7 @@ pub fn spawn_gizmo_when_needed(
             .spawn((
                 MaterialMeshBundle {
                     mesh: cube_y_mesh.clone(),
-                    material: gizmo_material.add(NeonGlowMaterial::from(Color::hsl(120.0, s, l))),
+                    material: gizmo_material.add(NeonMaterial::from(Color::hsl(120.0, s, l))),
                     transform: Transform::from_translation(Vec3::new(0.0, dist, 0.0)),
                     ..default()
                 },
@@ -85,7 +85,7 @@ pub fn spawn_gizmo_when_needed(
             .spawn((
                 MaterialMeshBundle {
                     mesh: cube_y_mesh.clone(),
-                    material: gizmo_material.add(NeonGlowMaterial::from(Color::hsl(120.0, s, l))),
+                    material: gizmo_material.add(NeonMaterial::from(Color::hsl(120.0, s, l))),
                     transform: Transform::from_translation(Vec3::new(0.0, -dist, 0.0)),
                     ..default()
                 },

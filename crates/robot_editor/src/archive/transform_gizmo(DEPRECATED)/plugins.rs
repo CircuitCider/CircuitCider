@@ -1,6 +1,6 @@
 use bevy::{asset::load_internal_asset, prelude::*};
 
-use crate::shaders::neon_glow::NeonGlowMaterial;
+use crate::shaders::neon_glow::NeonMaterial;
 
 use super::systems::*;
 //use bevy_component_extras::components::*;
