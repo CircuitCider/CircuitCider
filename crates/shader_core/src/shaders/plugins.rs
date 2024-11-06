@@ -12,13 +12,7 @@ pub struct CustomShadersPlugin;
 impl Plugin for CustomShadersPlugin {
     fn build(&self, app: &mut App) {
         // load shaders
-        // load_internal_asset!(
-        //     app,
-        //     neon::NEON_GLOW_SHADER_HANDLE,
-        //     "../../assets/shaders/neon.wgsl",
-        //     Shader::from_wgsl
-        // );
-        app.register_type::<GlowMaterial>();
+        app.register_asset_reflect::<GlowMaterial>();
         app.add_plugins(MaterialPlugin::<NeonMaterial>::default());
         app.add_plugins(MaterialPlugin::<GlowMaterial>::default());
     }

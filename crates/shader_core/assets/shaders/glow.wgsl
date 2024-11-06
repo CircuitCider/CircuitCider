@@ -7,11 +7,11 @@ struct Vertex {
 
 @group(0) @binding(0) var<uniform> view: View;
 
-struct HeatPercent {
+struct GlowMaterial {
     percent: f32
 };
 
-@group(0) @binding(0) var<uniform> heat: HeatPercent;
+@group(2) @binding(0) var<uniform> glow: GlowMaterial;
 // @group(0) @binding(0)
 // var<uniform> settings: Settings;
 
@@ -81,7 +81,7 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 @fragment
 fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     var white = vec4(1.0, 1.0, 1.0, 1.0);
-    var color = vec4(heat.percent, 0.0, 0.0, 1.0);
+    var color = vec4(glow.percent, 0.0, 0.0, 1.0);
 
     return color;
 }

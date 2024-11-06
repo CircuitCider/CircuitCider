@@ -30,6 +30,7 @@ fn main() {
         //.add_systems(Startup, display_mesh_bindgroup_info)
         .run();
 }
+
 /// print relevant information about mesh_bindgroups
 pub fn display_mesh_bindgroup_info(render_device: Res<RenderDevice>) {
     println!("bind group layout for mesh:");
@@ -42,7 +43,6 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut neon_materials: ResMut<Assets<NeonMaterial>>,
     mut glow_materials: ResMut<Assets<GlowMaterial>>,
 ) {
     // circular base
