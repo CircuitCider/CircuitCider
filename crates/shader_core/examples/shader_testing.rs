@@ -9,7 +9,7 @@ use bevy::{
 };
 use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraRestrained};
 use bevy_ui_extras::UiExtrasDebug;
-use shader_core::{plugins::ShaderDebugPlugin, shaders::{neon::NeonMaterial, plugins::CustomShadersPlugin}};
+use shader_core::{plugins::ShaderDebugPlugin, shaders::{glow::GlowMaterial, neon::NeonMaterial, plugins::CustomShadersPlugin}};
 
 fn main() {
     App::new()
@@ -24,7 +24,7 @@ fn main() {
             movement_settings_override: None
         })
         .add_plugins(UiExtrasDebug::default())
-        .add_plugins(ShaderDebugPlugin)
+        //.add_plugins(ShaderDebugPlugin)
         .add_plugins(CustomShadersPlugin)
         .add_systems(Startup, setup)
         //.add_systems(Startup, display_mesh_bindgroup_info)
@@ -42,7 +42,8 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut neon_glow_materials: ResMut<Assets<NeonMaterial>>,
+    mut neon_materials: ResMut<Assets<NeonMaterial>>,
+    mut glow_materials: ResMut<Assets<GlowMaterial>>,
 ) {
     // circular base
     commands.spawn(PbrBundle {
@@ -55,9 +56,7 @@ fn setup(
     commands.spawn((
         MaterialMeshBundle {
             mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-            material: neon_glow_materials.add(NeonMaterial {
-                color: LinearRgba::BLUE
-            }),
+            material: glow_materials.add(GlowMaterial {heat: 0.0}),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
         },

@@ -9,6 +9,7 @@ use bevy::{
         },
     },
 };
+const SHADER_PATH: &str = "shaders/neon.wgsl";
 
 pub const NEON_GLOW_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(13953800272683943019);
 
@@ -32,12 +33,12 @@ impl From<NeonMaterial> for LinearRgba {
 
 impl Material for NeonMaterial {
     fn vertex_shader() -> ShaderRef {
-        "shaders/neon.wgsl".into()
+        SHADER_PATH.into()
         //NEON_GLOW_SHADER_HANDLE.into()
     }
 
     fn fragment_shader() -> ShaderRef {
-        "shaders/neon.wgsl".into()
+        SHADER_PATH.into()
         //NEON_GLOW_SHADER_HANDLE.into()
     }
 
