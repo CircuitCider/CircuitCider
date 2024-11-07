@@ -10,7 +10,9 @@ use bevy::{
     },
 };
 
-const SHADER_PATH: &str = "shaders/glow.wgsl";
+
+
+const SHADER_PATH: &str = "root://shaders/glow.wgsl";
 
 #[derive(Asset, Reflect, AsBindGroup, Debug, Clone, Default)]
 #[reflect(Default, Debug)]

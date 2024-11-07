@@ -1,6 +1,7 @@
 pub mod plugins;
 
 pub const ROOT: &str = "root";
+pub const SHADERS: &str = "shaders";
 
 /// Location where the app is being located from. I.E: a subcrate or from main.
 pub enum ExecLocation {

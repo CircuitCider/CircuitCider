@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 bevy = {version = "0.14", features = ["dynamic_linking", "file_watcher"]}
+app_core = {path = "../app_core", version = "*"}
 bevy_ui_extras = "0.12"
 bevy_camera_extras = "0.14"
 bevy_egui = "0.29"

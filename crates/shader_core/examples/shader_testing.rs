@@ -1,23 +1,25 @@
 //! A simple 3D scene with light shining over a cube sitting on a plane.
 
+use app_core::plugins::AppSourcesPlugin;
 use bevy::{
-    pbr::MeshLayouts,
-    prelude::*,
-    render::{
+    color::palettes::css::LIME, pbr::{wireframe::{Wireframe, WireframeColor, WireframePlugin}, MeshLayouts}, prelude::*, render::{
         render_resource::ShaderRef, renderer::RenderDevice
-    },
+    }
 };
 use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraRestrained};
 use bevy_ui_extras::UiExtrasDebug;
-use shader_core::{plugins::ShaderDebugPlugin, shaders::{glow::GlowMaterial, neon::NeonMaterial, plugins::CustomShadersPlugin}};
+use shader_core::{plugins::ShaderDebugPlugin, shaders::{flow_wireframe::FlowWireframeMaterial, glow::GlowMaterial, neon::NeonMaterial, plugins::CustomShadersPlugin}};
 
 fn main() {
     App::new()
+        .add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(DefaultPlugins.set(AssetPlugin {
             // Tell the asset server to watch for asset changes on disk:
             watch_for_changes_override: Some(true),
             ..default()
         }))
+        .add_plugins(WireframePlugin)
+        
         .add_plugins(CameraExtrasPlugin {
             cursor_grabbed_by_default: false,
             keybinds_override: None,
@@ -44,6 +46,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut glow_materials: ResMut<Assets<GlowMaterial>>,
+    mut flowing_wireframe_mat: ResMut<Assets<FlowWireframeMaterial>>,
 ) {
     // circular base
     commands.spawn(PbrBundle {
@@ -61,6 +64,16 @@ fn setup(
             ..default()
         },
         Name::new("Cube"),
+        flowing_wireframe_mat.add(FlowWireframeMaterial {
+            color: LinearRgba::WHITE
+        })
+        // FlowWireframeMaterial {
+        //     color: LinearRgba::WHITE
+        // },
+        // Wireframe,
+        // // This lets you configure the wireframe color of this entity.
+        // // If not set, this will use the color in `WireframeConfig`
+        // WireframeColor { color: LIME.into() },
     ));
     // light
     commands.spawn(PointLightBundle {
