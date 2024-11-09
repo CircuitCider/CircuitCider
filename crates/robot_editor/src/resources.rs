@@ -35,7 +35,7 @@ pub struct RobotControls {
     pub backward_key: KeyCode,
 
     pub freeze_key: KeyCode,
-    pub unfreeze_key: KeyCode,
+    //pub unfreeze_key: KeyCode,
 }
 
 impl Default for RobotControls {
@@ -47,7 +47,7 @@ impl Default for RobotControls {
             forward_key: KeyCode::ArrowUp,
             backward_key: KeyCode::ArrowDown,
             freeze_key: KeyCode::KeyP,
-            unfreeze_key: KeyCode::KeyO,
+            //unfreeze_key: KeyCode::KeyO,
         }
     }
 }

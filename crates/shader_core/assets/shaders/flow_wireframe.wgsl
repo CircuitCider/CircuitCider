@@ -1,5 +1,13 @@
 // #import bevy_pbr::forward_io::VertexOutput
 
+struct Globals {
+    time: f32,
+    delta_time: f32,
+    frame_count: u32
+}
+@group(0) @binding(0)
+var<uniform> globals: Globals;
+
 struct WireframeMaterial {
     color: vec4<f32>,
 };
@@ -27,29 +35,14 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     
     color = vec4(in.color.xyz, 1.0);
     
-    if in.color.y < 0.4 {
-        
-        //if in.color.y > 0.5 {
-        color = black;
-
-        //}
-        //if in.color.y > 1.0 {
-        //}
-    }
-    if in.color.y > 0.5 {
+    if sin(globals.delta_time) > 1.0 {
         color = black;
     }
-    // if in.color.y < 1.0 {
+    // if in.color.y < 0.4 {
     //     color = black;
     // }
-    // if in.color.x > 1.0 {
-    //     color = vec4(1.0, 0.0, 0.0, 1.0);
-    // }
-    // else if in.color.y > 1.0 {
-    //     color = vec4(0.0, 1.0, 0.0, 1.0);
-    // }
-    // else if in.color.z > 1.0 {
-    //     color = vec4(0.0, 0.0, 1.0, 1.0);
+    // if in.color.y > 0.5 {
+    //     color = black;
     // }
     return color;
 }

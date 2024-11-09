@@ -12,7 +12,7 @@ use shader_core::{plugins::ShaderDebugPlugin, shaders::{flow_wireframe::FlowWire
 
 fn main() {
     App::new()
-        .add_plugins(AppSourcesPlugin::CRATE)
+        //.add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(DefaultPlugins.set(AssetPlugin {
             // Tell the asset server to watch for asset changes on disk:
             watch_for_changes_override: Some(true),
