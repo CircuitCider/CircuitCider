@@ -1,6 +1,6 @@
 use app_core::{plugins::AppSourcesPlugin};
 use bevy::{
-    prelude::*,
+    pbr::wireframe::WireframePlugin, prelude::*
 };
 use bevy_mod_raycast::cursor::CursorRayPlugin;
 use bevy_rapier3d::{
@@ -23,6 +23,9 @@ pub fn main() {
             assets_folder_local_path: "../../assets".to_owned(),
         })
         .add_plugins(DefaultPlugins.set(bevy_mod_raycast::low_latency_window_plugin()))
+        .add_plugins(WireframePlugin)
+
+        
         .insert_state(RobotEditorState::Active)
         // robot editor
         .add_plugins(RobotEditorPlugin)
@@ -39,7 +42,7 @@ pub fn main() {
         .add_plugins(UrdfSerializationPlugin)
         // // physics
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-        //.add_plugins(RapierDebugRenderPlugin::default())
+        // .add_plugins(RapierDebugRenderPlugin::default())
 
         .add_systems(Startup, setup_editor_area)
         .run();

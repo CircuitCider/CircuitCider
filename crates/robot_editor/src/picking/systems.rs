@@ -1,11 +1,15 @@
-use bevy::{input::keyboard::KeyboardInput, prelude::*};
+use bevy::{input::keyboard::KeyboardInput, math::bounding::{IntersectsVolume, RayCast3d}, pbr::wireframe::Wireframe, prelude::*};
 use bevy_mod_outline::{OutlineBundle, OutlineVolume};
 use bevy_mod_picking::{
     focus::PickingInteraction, highlight::PickHighlight, picking_core::{Pickable, PickingPluginsSettings},
     selection::PickSelection, PickableBundle,
 };
+use bevy_mod_raycast::prelude::{Raycast, RaycastSettings};
 use bevy_serialization_extras::prelude::{link::StructureFlag, rigidbodies::RigidBodyFlag};
+use shader_core::shaders::flow_wireframe::FlowWireframeMaterial;
 use transform_gizmo_bevy::GizmoTarget;
+
+use crate::{assembling::components::AssemblingTarget, attaching::components::AttachCandidate, raycast_utils::systems::{DONT_EXIT_EARLY, EXIT_EARLY}, resources::BuildToolMode};
 
 pub fn toggle_picking_enabled(
     gizmo_targets: Query<&GizmoTarget>,
@@ -18,6 +22,8 @@ pub fn toggle_picking_enabled(
         .all(|target| !target.is_focused() && !target.is_active());
 }
 
+
+
 pub fn update_picking(
     mut commands: Commands,
     mut keys: Res<ButtonInput<KeyCode>>,
@@ -26,30 +32,40 @@ pub fn update_picking(
         Option<&StructureFlag>,
         &PickSelection,
     ), Changed<PickSelection>>,
-    mut rigid_bodies: Query<&mut RigidBodyFlag>,
-    mut outlines: Query<&mut OutlineVolume>,
+    mut structures: Query<&StructureFlag>,
+    // mut rigid_bodies: Query<&mut RigidBodyFlag>,
+    // mut outlines: Query<&mut OutlineVolume>,
+    // mut tool_mode: ResMut<NextState<BuildToolMode>>,
+    // mut assembling_target_structure: Query<(&StructureFlag, &AssemblingTarget)>
+
 ) {
     // Continuously update entities based on their picking state
 
-    for (e, _, selectable) in &mut targets {
+    for (e, structure, selectable) in &mut targets {
         if selectable.is_selected {
             let mut entity_cmd = commands.entity(e);
 
             entity_cmd.insert(GizmoTarget::default());
-            
-            let _ = rigid_bodies.get_mut(e).map(|mut rigid_body| *rigid_body = RigidBodyFlag::Fixed);
-            let _ = outlines.get_mut(e).map(|mut outline| outline.visible = true);
 
             if keys.pressed(KeyCode::ShiftLeft) {
-                
+                entity_cmd.insert(AssemblingTarget);
+            } else {
+                if let Some(structure) = structure {
+                    // if structures.iter().any(|n|n.name == structure.name) {
+                    //     entity_cmd.insert(AttachCandidate)
+                    // }
+                }
             }
         } else {
             let mut entity_cmd = commands.entity(e);
 
             entity_cmd.remove::<GizmoTarget>();
-            
-            let _ = rigid_bodies.get_mut(e).map(|mut rigid_body| *rigid_body = RigidBodyFlag::Dynamic);
-            let _ = outlines.get_mut(e).map(|mut outline| outline.visible = false);
+            // entity_cmd.remove::<AssemblingTarget>();
+            // let _ = rigid_bodies.get_mut(e).map(|mut rigid_body| *rigid_body = RigidBodyFlag::Dynamic);
+            // if let Ok(mut outline) = outlines.get_mut(e) {
+            //     outline.visible = false;
+                
+            // }            
         }
     }
 

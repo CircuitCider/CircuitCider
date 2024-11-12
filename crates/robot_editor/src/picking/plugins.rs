@@ -5,6 +5,8 @@ use bevy_mod_picking::{
 };
 use transform_gizmo_bevy::GizmoTarget;
 
+use crate::resources::BuildToolMode;
+
 use super::systems::{make_models_pickable, toggle_picking_enabled, update_picking};
 
 /// picking plugin for this project.
@@ -28,6 +30,7 @@ impl Plugin for PickingPlugin {
                 click_nothing_deselect_all: true,
                 ..default()
             })
+            // .add_systems(OnEnter(BuildToolMode), systems)
             .add_systems(PreUpdate, toggle_picking_enabled)
             .add_systems(Update, update_picking)
             .add_systems(Update, make_models_pickable)

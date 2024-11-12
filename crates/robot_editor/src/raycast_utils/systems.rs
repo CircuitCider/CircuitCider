@@ -15,6 +15,12 @@ pub const DONT_EXIT_EARLY: RaycastSettings = RaycastSettings {
     early_exit_test: &|_| false,
 };
 
+pub const EXIT_EARLY: RaycastSettings = RaycastSettings {
+    visibility: RaycastVisibility::Ignore,
+    filter: &|_| true,
+    early_exit_test: &|_| false,
+};
+
 pub fn update_raycast_sources(
     mut raycasts: Query<(&mut RaycastSource, &Transform)>,
     mut raycast: Raycast,

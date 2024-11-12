@@ -6,13 +6,18 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = {version = "0.14", features = ["file_watcher"]}
+bevy = "0.14"
+#bevy = {version = "0.14", features = ["file_watcher"]}
 app_core = {path = "../app_core", version = "*"}
-bevy_ui_extras = "0.13"
+
+
+derive_more = {version = "0.99", default-features = false, features = ["from", "into"]}
+
+[dev-dependencies]
+bevy_ui_extras = "0.14"
 bevy_camera_extras = "0.14"
 bevy_egui = "0.30"
 egui = "0.29"
-egui_tiles = "0.10"
+# egui_tiles = "0.10"
 egui_extras = "0.29"
-derive_more = {version = "0.99", default-features = false, features = ["from", "into"]}
-naga = {version = "22.1", features = ["wgsl-out", "wgsl-in"]}
+# naga = {version = "22.1", features = ["wgsl-out", "wgsl-in"]}

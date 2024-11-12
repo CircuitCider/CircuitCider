@@ -3,6 +3,7 @@ use bevy::window::PrimaryWindow;
 use bevy::{prelude::*};
 use bevy_mod_raycast::cursor::CursorRay;
 use bevy_mod_raycast::prelude::ray_from_screenspace;
+use bevy_ui_extras::DebugModeRegister;
 
 use super::resources::*;
 use super::systems::*;
@@ -24,6 +25,7 @@ impl Plugin for CursorRayHitsPlugin {
     fn build(&self, app: &mut App) {
         app
         .add_plugins(CustomCursorRayPlugin)
+        .add_plugins(DebugModeRegister::<RayCastDebugMode>::default())
         .init_resource::<MouseOverWindow>()
         .init_resource::<CursorRayHits>()
         .register_type::<CursorRayHits>()

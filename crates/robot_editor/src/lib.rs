@@ -10,6 +10,7 @@ pub mod resources;
 pub mod states;
 pub mod systems;
 pub mod ui;
+pub mod assembling;
 
 pub mod prelude {
     pub use crate::*;

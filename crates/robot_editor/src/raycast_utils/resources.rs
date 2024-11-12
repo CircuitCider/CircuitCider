@@ -96,7 +96,7 @@ impl RaycastSource {
 }
 
 /// weather shot rays should be gizmo rendered.
-#[derive(Resource, Deref, DerefMut, Reflect)]
+#[derive(Resource, Deref, DerefMut, Reflect, Default)]
 pub struct RayCastDebugMode(pub bool);
 
 impl CursorRayHits {

@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
 use app_core::ROOT;
+use assembling::plugins::AssemblingPlugin;
 use attaching::plugins::AttachingToolingPlugin;
 use bevy::core_pipeline::Skybox;
 use bevy::prelude::*;
@@ -75,7 +76,7 @@ impl Plugin for RobotEditorPlugin {
 
         // PickingRobotEditorPlugin
         .add_plugins(RobotEditorCameraPlugin)
-        .add_plugins(CursorRayHitsPlugin {debug_mode: false})
+        .add_plugins(CursorRayHitsPlugin {debug_mode: true})
         .register_type::<PickingInteraction>()
         .add_plugins(
             (
@@ -97,6 +98,7 @@ impl Plugin for RobotEditorPlugin {
             (
             PlacingToolingPlugin,
             AttachingToolingPlugin,
+            AssemblingPlugin,
             )
         )
 
