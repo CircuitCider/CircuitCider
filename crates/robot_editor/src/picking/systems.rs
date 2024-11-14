@@ -51,9 +51,11 @@ pub fn update_picking(
                 entity_cmd.insert(AssemblingTarget);
             } else {
                 if let Some(structure) = structure {
-                    // if structures.iter().any(|n|n.name == structure.name) {
-                    //     entity_cmd.insert(AttachCandidate)
-                    // }
+                    if structures.iter().any(|n|n.name == structure.name) {
+                        entity_cmd.insert(AttachCandidate {
+                            attempt_target: Some(e)
+                        });
+                    }
                 }
             }
         } else {

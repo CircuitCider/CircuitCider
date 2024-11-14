@@ -4,7 +4,7 @@ pub mod neon;
 pub mod plugins;
 pub mod glow;
 pub mod flow_wireframe;
-// pub mod outline;
+pub mod grid;
 
 pub enum ShaderLoadSettings {
     /// Shader path is statically checked but it cannot be hot-reloaded

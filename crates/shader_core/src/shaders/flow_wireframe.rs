@@ -1,4 +1,4 @@
-use bevy::{pbr::{MaterialPipeline, MaterialPipelineKey}, prelude::*, render::{extract_component::ExtractComponentPlugin, mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, PolygonMode, RenderPipeline, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError}}};
+use bevy::{pbr::{MaterialPipeline, MaterialPipelineKey}, prelude::*, render::{extract_component::ExtractComponentPlugin, mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, CompareFunction, PolygonMode, RenderPipeline, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError}}};
 
 
 const SHADER_PATH: &str = "root://shaders/flow_wireframe.wgsl";
@@ -36,7 +36,8 @@ impl Material for FlowWireframeMaterial {
     ) -> Result<(), SpecializedMeshPipelineError> {
         descriptor.primitive.polygon_mode = PolygonMode::Line;
         if let Some(depth_stencil) = descriptor.depth_stencil.as_mut() {
-            depth_stencil.bias.slope_scale = 1.0;
+            //depth_stencil.bias.slope_scale = 1.0;
+            depth_stencil.depth_compare = CompareFunction::Never
         }
         Ok(())
     }

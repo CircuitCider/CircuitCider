@@ -7,12 +7,12 @@ use bevy::{
     }
 };
 use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraRestrained};
-use bevy_ui_extras::UiExtrasDebug;
-use shader_core::{plugins::ShaderDebugPlugin, shaders::{flow_wireframe::FlowWireframeMaterial, glow::GlowMaterial, neon::NeonMaterial, plugins::CustomShadersPlugin}};
+// use bevy_ui_extras::UiExtrasDebug;
+use shader_core::{plugins::ShaderDebugPlugin, shaders::{flow_wireframe::FlowWireframeMaterial, glow::GlowMaterial, grid::GridMaterial, neon::NeonMaterial, plugins::CustomShadersPlugin}};
 
 fn main() {
     App::new()
-        //.add_plugins(AppSourcesPlugin::CRATE)
+        .add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(DefaultPlugins.set(AssetPlugin {
             // Tell the asset server to watch for asset changes on disk:
             watch_for_changes_override: Some(true),
@@ -25,7 +25,7 @@ fn main() {
             keybinds_override: None,
             movement_settings_override: None
         })
-        .add_plugins(UiExtrasDebug::default())
+        // .add_plugins(UiExtrasDebug::default())
         //.add_plugins(ShaderDebugPlugin)
         .add_plugins(CustomShadersPlugin)
         .add_systems(Startup, setup)
@@ -47,6 +47,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut glow_materials: ResMut<Assets<GlowMaterial>>,
     mut flowing_wireframe_mat: ResMut<Assets<FlowWireframeMaterial>>,
+    mut grid_mat: ResMut<Assets<GridMaterial>>,
 ) {
     // circular base
     commands.spawn(PbrBundle {
@@ -64,9 +65,10 @@ fn setup(
             ..default()
         },
         Name::new("Cube"),
-        flowing_wireframe_mat.add(FlowWireframeMaterial {
-            color: LinearRgba::WHITE
-        })
+        // flowing_wireframe_mat.add(FlowWireframeMaterial {
+        //     color: LinearRgba::WHITE
+        // })
+        grid_mat.add(GridMaterial {})
         // FlowWireframeMaterial {
         //     color: LinearRgba::WHITE
         // },

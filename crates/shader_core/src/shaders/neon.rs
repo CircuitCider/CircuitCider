@@ -19,6 +19,14 @@ pub struct NeonMaterial {
     pub color: LinearRgba,
 }
 
+impl Default for NeonMaterial {
+    fn default() -> Self {
+        Self {
+            color: LinearRgba::WHITE
+        }
+    }
+}
+
 impl From<LinearRgba> for NeonMaterial {
     fn from(color: LinearRgba) -> Self {
         NeonMaterial { color }

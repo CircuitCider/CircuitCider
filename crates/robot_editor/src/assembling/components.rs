@@ -4,7 +4,7 @@ use bevy_mod_raycast::prelude::Raycast;
 use bevy_rapier3d::rapier::prelude::RigidBody;
 use bevy_serialization_extras::prelude::{link::StructureFlag, rigidbodies::RigidBodyFlag};
 
-use crate::raycast_utils::systems::EXIT_EARLY;
+use crate::{raycast_utils::systems::EXIT_EARLY, ERROR_COLOR, NO_OUTLINE};
 
 // #[derive(Resource, Default)]
 // pub struct AssemblingTarget {
@@ -14,7 +14,6 @@ use crate::raycast_utils::systems::EXIT_EARLY;
 
 
 const ASSEMBLING_COLOR: Color = Color::LinearRgba(LinearRgba::BLUE);
-const ERROR_COLOR: Color = Color::LinearRgba(LinearRgba::new(128.0, 0.0, 128.0, 1.0));
 
 const ASSEMBLING_OUTLINE: OutlineVolume = OutlineVolume {
     visible: true,
@@ -22,11 +21,6 @@ const ASSEMBLING_OUTLINE: OutlineVolume = OutlineVolume {
     colour: ASSEMBLING_COLOR
 };
 
-const NO_OUTLINE: OutlineVolume = OutlineVolume {
-    visible: false, 
-    width: 1.0,
-    colour: ERROR_COLOR
-};
 
 #[derive(Default, Debug)]
 pub struct AssemblingTarget;

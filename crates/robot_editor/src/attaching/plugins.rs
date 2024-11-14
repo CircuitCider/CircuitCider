@@ -15,6 +15,7 @@ impl Plugin for AttachingToolingPlugin {
             intersection_colors_for::<AttachCandidate, NeonMaterial>,
         )
         .add_systems(Update, attach_candidate_edit_ui)
-        .add_systems(Update, delete_attach_candidates);
+        // .add_systems(Update, delete_attach_candidates);
+        ;
     }
 }

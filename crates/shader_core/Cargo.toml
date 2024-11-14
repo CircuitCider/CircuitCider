@@ -14,10 +14,10 @@ app_core = {path = "../app_core", version = "*"}
 derive_more = {version = "0.99", default-features = false, features = ["from", "into"]}
 
 [dev-dependencies]
-bevy_ui_extras = "0.14"
+# bevy_ui_extras = "0.14"
 bevy_camera_extras = "0.14"
-bevy_egui = "0.30"
-egui = "0.29"
+# bevy_egui = "0.30"
+# egui = "0.29"
 # egui_tiles = "0.10"
-egui_extras = "0.29"
+# egui_extras = "0.29"
 # naga = {version = "22.1", features = ["wgsl-out", "wgsl-in"]}
