@@ -9,6 +9,7 @@ pub struct AssemblingPlugin;
 impl Plugin for AssemblingPlugin {
     fn build(&self, app: &mut App) {
         app
+        .register_type::<AssemblingTarget>()
         // .init_resource::<AssemblingTarget>()
         .add_systems(Update, assembler_ui)
         // .add_systems(Update, transition_to_assembler)

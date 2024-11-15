@@ -11,6 +11,7 @@ use bevy_serialization_extras::prelude::{
 };
 use bevy_toon_shader::{ToonShaderMainCamera, ToonShaderMaterial, ToonShaderSun};
 use components::Wheel;
+use raycast_utils::resources::{CursorRayHits, MouseOverWindow};
 use resources::ImageHandles;
 
 use super::*;
@@ -40,6 +41,42 @@ pub fn intersection_colors_for<T: Component, U: Material>(
         }
     }
 }
+
+/// moves entities of type `<T>` to cursor
+pub fn move_to_cursor<T: Component + Targeter + Spacing>(
+    cursor_hits: Res<CursorRayHits>,
+    // tool_mode: ResMut<State<BuildToolMode>>,
+    mut movables: Query<(Entity, &T)>,
+    mut transforms: Query<&mut Transform>
+    // mouse_over_window: Res<MouseOverWindow>,
+) {
+    for (movable, t) in movables.iter() {
+        let Ok(mut movable_trans) = transforms.get_mut(movable) else {return;};
+
+        // keep move restricted to "attached" targets if move has target, otherwise, allow un-restricted movement of movables.
+        let hit_pos = if let Some(target) = t.targets() {
+            let Some((.., hit)) = cursor_hits.hit(&target) else {return;};
+            hit.position()
+        } else {
+            let Some((e, hit, ..)) = cursor_hits.first_without(&movables) else {return;};
+            hit.position()
+        };
+        
+        let offset = match T::spacing() {
+            SpacingKind::Uplift(n) => Vec3::new(0.0, n, 0.0),
+            SpacingKind::None => Vec3::new(0.0, 0.0, 0.0),
+        };
+
+        movable_trans.translation = hit_pos + offset;
+    }
+    // let Some((.., hit)) = cursor_hits.first_with(&mut placers) else {return;};
+    // for mut trans in placers.iter_mut() {
+    //     let hit_pos = hit.position();
+    //     trans.translation = hit_pos;
+    // }
+}
+
+// pub fn attach_at_point<T: Component + 
 
 pub fn configure_skybox_texture(
     image_handles: Res<ImageHandles>,

@@ -40,6 +40,7 @@ pub fn attach_placer(
     //cursor_ray: Res<CursorRay>,
     rapier_context: Res<RapierContext>,
     neon_materials: ResMut<Assets<NeonMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     placers: Query<(
         Entity,
         &Handle<NeonMaterial>,
@@ -57,7 +58,6 @@ pub fn attach_placer(
 ) {
     if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
         for (_, handle, mesh, trans, ..) in placers.iter() {
-            println!("placing placer..");
             if let Some((robot, ..)) = hits.first_with(&robots) {
                 println!("clicked robot, switching to attach mode.");
                 commands.spawn((
@@ -79,6 +79,27 @@ pub fn attach_placer(
                     Name::new("Attach Candidate"),
                 ));
                 tool_mode.set(BuildToolMode::EditerMode);
+            } 
+            else {
+                println!("placing placer..");
+                commands.spawn((
+                    PbrBundle {
+                        mesh: mesh.clone(),
+                        material: materials.add(Color::WHITE),
+                        transform: *trans,
+                        ..default()
+                    },
+                    Edited,
+                    ColliderFlag::Convex,
+                    Sensor,
+                    Pickable::default(),
+                    PickSelection {
+                        is_selected: true
+                    },
+                    GizmoTarget::default(),
+                    Name::new("Attach Candidate"),
+                ));
+                tool_mode.set(BuildToolMode::EditerMode);
             }
 
         }
@@ -90,22 +111,4 @@ pub fn attach_placer(
     }
 }
 
-pub fn move_placer_to_cursor(
-    cursor_hits: Res<CursorRayHits>,
-    tool_mode: ResMut<State<BuildToolMode>>,
-    mut placers: Query<&mut Transform, With<Placer>>,
-    mouse_over_window: Res<MouseOverWindow>,
-) {
-    // if let Some(mouse_pos) = **cursor_ray {
 
-    // }
-    if *tool_mode == BuildToolMode::PlacerMode {
-        let Some((.., hit)) = cursor_hits.first_without_mut(&mut placers) else {return;};
-        for mut trans in placers.iter_mut() {
-            //println!("moving placer to cursor");
-            let hit_pos = hit.position();
-            //println!("moving placer to cursor {:#?}", hit_pos);
-            trans.translation = hit_pos;
-        }
-    }
-}

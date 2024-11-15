@@ -156,4 +156,11 @@ impl CursorRayHits {
 
         Some((first_hit.0, first_hit.1.clone()))
     }
+    /// checks to see if the given entity was hit, returns None if not.
+    pub fn hit(
+        &self,
+        entity: &Entity,
+    ) -> Option<&(Entity, IntersectionData)> {
+        self.iter().find(|(e, ..)| e == entity)
+    }
 }

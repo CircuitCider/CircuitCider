@@ -13,7 +13,7 @@ const SHADER_PATH: &str = "root://shaders/neon.wgsl";
 
 pub const NEON_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(13953800272683943019);
 
-#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+#[derive(Asset, AsBindGroup, Debug, Clone, Reflect)]
 pub struct NeonMaterial {
     #[uniform(0)]
     pub color: LinearRgba,

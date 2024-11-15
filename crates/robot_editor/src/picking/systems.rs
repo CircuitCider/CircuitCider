@@ -5,7 +5,7 @@ use bevy_mod_picking::{
     selection::PickSelection, PickableBundle,
 };
 use bevy_mod_raycast::prelude::{Raycast, RaycastSettings};
-use bevy_serialization_extras::prelude::{link::StructureFlag, rigidbodies::RigidBodyFlag};
+use bevy_serialization_extras::prelude::{link::{JointFlag, StructureFlag}, rigidbodies::RigidBodyFlag};
 use shader_core::shaders::flow_wireframe::FlowWireframeMaterial;
 use transform_gizmo_bevy::GizmoTarget;
 
@@ -32,7 +32,8 @@ pub fn update_picking(
         Option<&StructureFlag>,
         &PickSelection,
     ), Changed<PickSelection>>,
-    mut structures: Query<&StructureFlag>,
+    mut structures: Query<(Entity, &StructureFlag)>,
+    joints: Query<&JointFlag>,
     // mut rigid_bodies: Query<&mut RigidBodyFlag>,
     // mut outlines: Query<&mut OutlineVolume>,
     // mut tool_mode: ResMut<NextState<BuildToolMode>>,
@@ -45,18 +46,25 @@ pub fn update_picking(
         if selectable.is_selected {
             let mut entity_cmd = commands.entity(e);
 
-            entity_cmd.insert(GizmoTarget::default());
+            // entity_cmd.insert(GizmoTarget::default());
 
             if keys.pressed(KeyCode::ShiftLeft) {
                 entity_cmd.insert(AssemblingTarget);
             } else {
-                if let Some(structure) = structure {
-                    if structures.iter().any(|n|n.name == structure.name) {
-                        entity_cmd.insert(AttachCandidate {
-                            attempt_target: Some(e)
-                        });
-                    }
+                if let Ok(joint) = joints.get(e) {
+                    entity_cmd.insert(AttachCandidate {
+                        attempt_target: joint.parent_id
+                    });
                 }
+                // if let Some(structure) = structure {
+                    
+                //     //if structures.iter().find(|(e_target, n)| n.name == structure.name)
+                //     // if structures.iter().any(||n.name == structure.name) {
+                //     //     entity_cmd.insert(AttachCandidate {
+                //     //         attempt_target: Some(e)
+                //     //     });
+                //     // }
+                // }
             }
         } else {
             let mut entity_cmd = commands.entity(e);

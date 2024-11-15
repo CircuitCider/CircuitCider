@@ -1,13 +1,30 @@
 use bevy::prelude::*;
 use strum_macros::Display;
 
+use crate::{Spacing, Targeter};
+
 /// entity used to place other similar entities.
-#[derive(Component, Default, Display)]
+#[derive(Component, Default, Display, Reflect)]
+#[reflect(Component)]
 pub enum Placer {
     #[default]
     Hull,
     Wheel,
 }
+
+impl Targeter for Placer {
+    fn targets(&self) -> Option<Entity> {
+        None
+    }
+}
+
+impl Spacing for Placer {
+    fn spacing() -> crate::SpacingKind {
+        crate::SpacingKind::Uplift(0.01)
+    }
+}
+
+
 
 impl Placer {
     /// infer placer type from path

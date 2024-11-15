@@ -4,7 +4,7 @@ use bevy_mod_raycast::prelude::Raycast;
 use bevy_rapier3d::rapier::prelude::RigidBody;
 use bevy_serialization_extras::prelude::{link::StructureFlag, rigidbodies::RigidBodyFlag};
 
-use crate::{raycast_utils::systems::EXIT_EARLY, ERROR_COLOR, NO_OUTLINE};
+use crate::{attaching::{self, components::AttachCandidate}, raycast_utils::systems::EXIT_EARLY, ERROR_COLOR, NO_OUTLINE};
 
 // #[derive(Resource, Default)]
 // pub struct AssemblingTarget {
@@ -22,7 +22,7 @@ const ASSEMBLING_OUTLINE: OutlineVolume = OutlineVolume {
 };
 
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Reflect)]
 pub struct AssemblingTarget;
 
 impl Component for AssemblingTarget {

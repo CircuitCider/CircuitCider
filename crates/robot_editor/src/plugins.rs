@@ -25,6 +25,7 @@ use bevy_toon_shader::ToonShaderMainCamera;
 use bevy_toon_shader::ToonShaderPlugin;
 use bevy_toon_shader::ToonShaderSun;
 use camera_controls::plugins::RobotEditorCameraPlugin;
+use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
 use picking::plugins::PickingPlugin;
 use placing::plugins::CachePrefabsPlugin;
@@ -62,6 +63,7 @@ pub struct RobotEditorPlugin;
 impl Plugin for RobotEditorPlugin {
     fn build(&self, app: &mut App) {
         app
+        .register_type::<Wheel>()
         // load shaders
         .add_plugins(CustomShadersPlugin)
         .add_plugins(ToonShaderPlugin)

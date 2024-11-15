@@ -18,6 +18,7 @@ const SHADER_PATH: &str = "root://shaders/flow_wireframe.wgsl";
 
 
 #[derive(Default, AsBindGroup, Debug, Clone, Asset, Reflect, Component)]
+#[reflect(Default, Debug)]
 pub struct FlowWireframeMaterial {
     #[uniform(0)]
     pub color: LinearRgba,

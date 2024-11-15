@@ -15,6 +15,7 @@ pub fn attach_candidate_edit_ui(
     attach_candidates: Query<(Entity, &mut Transform, &ColliderFlag, &mut AttachCandidate)>,
     keys: Res<ButtonInput<KeyCode>>,
     named: Query<&Name>,
+    mut commands: Commands,
 ) {
     //don't render this ui if there is nothing its focusing on.
     if attach_candidates.iter().len() <= 0 {
@@ -60,7 +61,9 @@ pub fn attach_candidate_edit_ui(
                 .button(RichText::new("Confirm").color(valid_button_color))
                 .clicked()
             {
-                println!("attaching candidate")
+                println!("attaching candidate");
+                commands.entity(part).remove::<AttachCandidate>();
+                
             }
             let target_name = match part_target.attempt_target {
                 Some(target) => {

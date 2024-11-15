@@ -1,4 +1,4 @@
-use bevy::color::{Color, LinearRgba};
+use bevy::{color::{Color, LinearRgba}, prelude::Entity};
 use bevy_mod_outline::OutlineVolume;
 
 pub mod attaching;
@@ -19,6 +19,21 @@ pub mod prelude {
     pub use crate::*;
 }
 
+/// marks component as targeting something. Used for generic systems.
+pub trait Targeter {
+    /// what this component targets
+    fn targets(&self) -> Option<Entity>;
+}
+
+pub enum SpacingKind {
+    Uplift(f32),
+    None,
+}
+
+/// spacing for moving to mouse
+pub trait Spacing {
+    fn spacing() -> SpacingKind;
+}
 
 const ERROR_COLOR: Color = Color::LinearRgba(LinearRgba::new(128.0, 0.0, 128.0, 1.0));
 

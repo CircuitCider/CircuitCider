@@ -14,6 +14,7 @@ impl Plugin for CustomShadersPlugin {
 
         // load shaders
         app
+        .register_asset_reflect::<NeonMaterial>()
         .register_asset_reflect::<GlowMaterial>()
         .register_asset_reflect::<FlowWireframeMaterial>()
         .add_plugins(MaterialPlugin::<FlowWireframeMaterial>::default())
