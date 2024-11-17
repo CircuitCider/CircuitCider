@@ -10,6 +10,10 @@ pub fn assembler_ui(
     mut assembling_target: Query<(Entity, &AssemblingTarget)>,
     //mut commands: Commands,
 ) {
+    //don't render this ui if there is nothing its focusing on.
+    if assembling_target.iter().len() <= 0 {
+        return;
+    }
     let Ok(mut context) = primary_window.get_single_mut() else {return;};
     // let Some(target) = assembling_target.target else {return;};
 

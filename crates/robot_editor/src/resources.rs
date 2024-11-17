@@ -15,7 +15,7 @@ pub enum BuildToolMode {
 
 #[derive(AssetCollection, Resource)]
 pub struct ImageHandles {
-    #[asset(path = "images/skybox.png")]
+    #[asset(path = "root://images/skybox.png")]
     pub skybox: Handle<Image>,
 }
 

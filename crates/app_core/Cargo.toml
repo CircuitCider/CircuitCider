@@ -8,4 +8,6 @@ description = "core stuff other crates rely on that doesn't justify its own crat
 [dependencies]
 bevy_asset = "0.14"
 bevy_app = "0.14"
+# bevy_ui_extras = "0.15.0"
 bevy_obj = "0.14"
+# bevy_serialization_extras = "0.6.0"

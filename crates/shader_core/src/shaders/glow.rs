@@ -12,8 +12,8 @@ use bevy::{
 
 
 
-// const SHADER_PATH: &str = "root://shaders/glow.wgsl";
-const SHADER_PATH: &str = "../../../assets/shaders/glow.wgsl";
+const SHADER_PATH: &str = "root://shaders/glow.wgsl";
+// const SHADER_PATH: &str = "../../../assets/shaders/glow.wgsl";
 
 
 #[derive(Asset, Reflect, AsBindGroup, Debug, Clone, Default)]

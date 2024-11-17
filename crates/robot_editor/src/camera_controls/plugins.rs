@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_camera_extras::*;
-use bevy_ui_extras::visualize_entities_with_component;
 
 use crate::raycast_utils::resources::CursorRayHits;
 

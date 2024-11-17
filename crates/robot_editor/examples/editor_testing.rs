@@ -22,9 +22,8 @@ pub fn main() {
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "../../assets".to_owned(),
         })
-        .add_plugins(DefaultPlugins.set(bevy_mod_raycast::low_latency_window_plugin()))
-        .add_plugins(WireframePlugin)
-
+        .add_plugins(DefaultPlugins)
+        //.add_plugins(DefaultPlugins.set(bevy_mod_raycast::low_latency_window_plugin()))
         
         .insert_state(RobotEditorState::Active)
         // robot editor
@@ -33,17 +32,5 @@ pub fn main() {
             ui_style: UiStyle::BlackGlass,
             ..default()
         })
-
-        .add_plugins(SerializationPlugin)
-        .add_plugins(DeserializeAssetFrom::<GeometryFlag, Mesh>::default())
-        .add_plugins(DeserializeAssetFrom::<GeometryFile, Mesh>::default())
-
-        .add_plugins(SerializationPhysicsPlugin)
-        .add_plugins(UrdfSerializationPlugin)
-        // // physics
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-        // .add_plugins(RapierDebugRenderPlugin::default())
-
-        .add_systems(Startup, setup_editor_area)
         .run();
 }

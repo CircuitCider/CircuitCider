@@ -4,7 +4,7 @@ use crate::{
 use bevy::{asset::LoadState, render::render_resource::{TextureViewDescriptor, TextureViewDimension}};
 pub use bevy::prelude::*;
 //use bevy_camera_extras::Watched;
-use bevy_rapier3d::plugin::RapierContext;
+use bevy_rapier3d::{plugin::RapierContext, prelude::Collider};
 use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
     rigidbodies::RigidBodyFlag,
@@ -20,6 +20,7 @@ use super::*;
 pub fn intersection_colors_for<T: Component, U: Material>(
     rapier_context: Res<RapierContext>,
     thing_query: Query<(Entity, &Handle<U>), With<T>>,
+    buttons: ResMut<ButtonInput<KeyCode>>,
     mut materials: ResMut<Assets<U>>,
 ) where
     U: From<LinearRgba>,
@@ -45,12 +46,39 @@ pub fn intersection_colors_for<T: Component, U: Material>(
 /// moves entities of type `<T>` to cursor
 pub fn move_to_cursor<T: Component + Targeter + Spacing>(
     cursor_hits: Res<CursorRayHits>,
+    // rapier_context: Res<RapierContext>,
     // tool_mode: ResMut<State<BuildToolMode>>,
     mut movables: Query<(Entity, &T)>,
     mut transforms: Query<&mut Transform>
     // mouse_over_window: Res<MouseOverWindow>,
 ) {
     for (movable, t) in movables.iter() {
+        // let displacement = rapier_context
+        // .contact_pairs_with(e)
+        // .map(|n|)
+        // let intersections_total_push = rapier_context
+        // .intersection_pairs_with(movable)
+        // .map(|n| {
+        //     println!("{:#?}", n.raw.has_any_active_contact);
+        //     let manifolds =    &n.raw.manifolds;
+        //     let points = manifolds.iter()
+        //     .map(|n| n.local_n1)
+        //     // .map(|n| Vec3::new(n.x, n.y, n.z))
+        //     .collect::<Vec<_>>()
+        //     ;
+        //     points
+        // })
+        // // .fold(
+        // //     Vec3::new(0.0, 0.0, 0.0), |acc, n| acc + n
+        // //     .iter()
+        // //     .fold(Vec3::new(0.0, 0.0, 0.0), |acc, n| acc + *n)
+        // // )
+        // .collect::<Vec<_>>()
+        // ;
+        // println!("total push-out: {:#?}", intersections_total_push);
+        // for pair in rapier_context.contact_pairs_with(movable) {
+        //     pair.find_deepest_contact()
+        // }
         let Ok(mut movable_trans) = transforms.get_mut(movable) else {return;};
 
         // keep move restricted to "attached" targets if move has target, otherwise, allow un-restricted movement of movables.
@@ -62,12 +90,15 @@ pub fn move_to_cursor<T: Component + Targeter + Spacing>(
             hit.position()
         };
         
+        
         let offset = match T::spacing() {
             SpacingKind::Uplift(n) => Vec3::new(0.0, n, 0.0),
             SpacingKind::None => Vec3::new(0.0, 0.0, 0.0),
         };
 
         movable_trans.translation = hit_pos + offset;
+    
+        // if 
     }
     // let Some((.., hit)) = cursor_hits.first_with(&mut placers) else {return;};
     // for mut trans in placers.iter_mut() {

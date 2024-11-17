@@ -186,7 +186,7 @@ pub fn display_mesh_info(
                                 }
                             }
                         });
-                    })
+                    });
                     
 
                     //});

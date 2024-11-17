@@ -9,15 +9,15 @@ description = "(mostly) stabalized ui features. "
 robot_editor = {path = "../robot_editor", version = "0.1"}
 app_core = {path = "../app_core", version = "0.1"}
 
-bevy = {version = "0.14", features = ["dynamic_linking"]}
-bevy-inspector-egui = "0.25"
-bevy_egui = "0.28"
-egui = "0.28"
-bevy_serialization_extras = "0.5.0"
-bevy_serialization_urdf = "0.3"
-bevy_camera_extras = "0.12"
+bevy = {workspace = true, features = ["dynamic_linking"]}
+bevy-inspector-egui = {workspace = true}
+bevy_egui = {workspace = true}
+egui = {workspace = true}
+bevy_serialization_extras = {workspace = true}
+bevy_serialization_urdf = {workspace = true}
+bevy_camera_extras = {workspace = true}
 #bevy_component_extras = "*"
-bevy_ui_extras = "0.10.0"
-bevy_rapier3d = "0.27"
-strum = "0.26"
-strum_macros = "0.26"
+bevy_ui_extras = {workspace = true}
+bevy_rapier3d = {workspace = true}
+strum = {workspace = true}
+strum_macros = {workspace = true}

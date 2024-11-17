@@ -4,6 +4,7 @@ use app_core::ROOT;
 use assembling::plugins::AssemblingPlugin;
 use attaching::plugins::AttachingToolingPlugin;
 use bevy::core_pipeline::Skybox;
+use bevy::pbr::wireframe::WireframePlugin;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 use bevy_asset_loader::asset_collection::AssetCollectionApp;
@@ -15,12 +16,20 @@ use bevy_mod_picking::backends::raycast::RaycastPickable;
 use bevy_mod_picking::debug::DebugPickingMode;
 use bevy_mod_picking::focus::PickingInteraction;
 use bevy_mod_raycast::prelude::RaycastSource;
+use bevy_rapier3d::plugin::NoUserData;
+use bevy_rapier3d::plugin::RapierPhysicsPlugin;
 //use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
+use bevy_serialization_extras::prelude::mesh::GeometryFile;
+use bevy_serialization_extras::prelude::mesh::GeometryFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
+use bevy_serialization_extras::prelude::DeserializeAssetFrom;
 use bevy_serialization_extras::prelude::PhysicsBundle;
+use bevy_serialization_extras::prelude::SerializationPhysicsPlugin;
+use bevy_serialization_extras::prelude::SerializationPlugin;
 use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
+use bevy_serialization_urdf::plugin::UrdfSerializationPlugin;
 use bevy_toon_shader::ToonShaderMainCamera;
 use bevy_toon_shader::ToonShaderPlugin;
 use bevy_toon_shader::ToonShaderSun;
@@ -63,6 +72,7 @@ pub struct RobotEditorPlugin;
 impl Plugin for RobotEditorPlugin {
     fn build(&self, app: &mut App) {
         app
+        .add_plugins(WireframePlugin)
         .register_type::<Wheel>()
         // load shaders
         .add_plugins(CustomShadersPlugin)
@@ -78,15 +88,23 @@ impl Plugin for RobotEditorPlugin {
 
         // PickingRobotEditorPlugin
         .add_plugins(RobotEditorCameraPlugin)
-        .add_plugins(CursorRayHitsPlugin {debug_mode: true})
+        .add_plugins(CursorRayHitsPlugin {debug_mode: false})
         .register_type::<PickingInteraction>()
         .add_plugins(
             (
             TransformGizmoPlugin,
             PickingPlugin,
-
             )
         )
+
+        // Serialization
+        .add_plugins(SerializationPlugin)
+        .add_plugins(DeserializeAssetFrom::<GeometryFlag, Mesh>::default())
+        .add_plugins(DeserializeAssetFrom::<GeometryFile, Mesh>::default())
+
+        .add_plugins(SerializationPhysicsPlugin)
+        .add_plugins(UrdfSerializationPlugin)
+        
         .insert_resource(GizmoOptions {
             gizmo_modes: enum_set!(GizmoMode::RotateX | GizmoMode::RotateY | GizmoMode::RotateZ |GizmoMode::TranslateX | GizmoMode::TranslateY | GizmoMode::TranslateZ),
             gizmo_orientation: GizmoOrientation::Global,
@@ -103,6 +121,7 @@ impl Plugin for RobotEditorPlugin {
             AssemblingPlugin,
             )
         )
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
 
         .add_plugins(ModelDisplayerPlugin)
 
@@ -118,14 +137,14 @@ impl Plugin for RobotEditorPlugin {
         .add_systems(Update, set_robot_to_toon_shader)
         .add_systems(Startup, spawn_toon_shader_cam)
         //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
-        //.add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
+        .add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
 
         
         ;
     }
 }
 
-pub fn setup_editor_area(
+fn setup_editor_area(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,

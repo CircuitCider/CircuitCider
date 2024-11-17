@@ -12,9 +12,9 @@ use bevy::{
 
 
 
-// const SHADER_PATH: &str = "root://shaders/grid.wgsl";
+const SHADER_PATH: &str = "root://shaders/grid.wgsl";
 // const SHADER_PATH: &str = "../../../assets/shaders/grid.wgsl";
-const SHADER_PATH: &str = "shaders/grid.wgsl";
+// const SHADER_PATH: &str = "shaders/grid.wgsl";
 
 
 #[derive(Asset, Reflect, AsBindGroup, Debug, Clone, Default)]

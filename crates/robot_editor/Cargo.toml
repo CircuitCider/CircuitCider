@@ -8,25 +8,24 @@ edition = "2021"
 [dependencies]
 app_core = {path = "../app_core", version = "0.1"}
 shader_core = {path = "../shader_core", version = "0.1"}
-bevy = {version = "0.14", features = ["dynamic_linking"]}
-bevy-inspector-egui = "0.27"
-bevy_egui = "0.30"
-egui = "0.29"
+bevy = {workspace = true, features = ["dynamic_linking"]}
+bevy-inspector-egui = {workspace = true}
+bevy_egui = {workspace = true}
+egui = {workspace = true}
 
-bevy_serialization_extras = "0.6.0"
-bevy_serialization_urdf = "0.4"
-bevy_mod_outline = "0.8"
-transform-gizmo-bevy = "0.4"
-bevy_mod_picking = {version = "0.20", features = ["backend_egui", "backend_raycast"]}
-bevy_camera_extras = "0.14"
-bevy_mod_raycast = "0.18.0"
-bevy_obj = "0.14"
-bevy_ui_extras = "0.15.0"
-bevy_rapier3d = "0.27"
-strum = "0.26"
-strum_macros = "0.26"
-bevy_asset_loader = "0.21"
-bevy_toon_shader = {git = "https://github.com/rydb/bevy_toon_shader", rev = "1b96d3e"}
+bevy_serialization_extras = {workspace = true}
+bevy_serialization_urdf = {workspace = true}
+bevy_mod_outline = {workspace = true}
+transform-gizmo-bevy = {workspace = true}
+bevy_mod_picking = {workspace = true, features = ["backend_egui", "backend_raycast"]}
+bevy_camera_extras = {workspace = true}
+bevy_mod_raycast = {workspace = true}
+bevy_ui_extras = {workspace = true}
+bevy_rapier3d = {workspace = true}
+strum = {workspace = true}
+strum_macros = {workspace = true}
+bevy_asset_loader = {workspace = true}
+bevy_toon_shader = {workspace = true, rev = "1b96d3e"}
 #async-trait = "*"
 
 # parrallize compile

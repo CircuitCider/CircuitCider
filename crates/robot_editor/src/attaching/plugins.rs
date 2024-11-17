@@ -13,7 +13,7 @@ impl Plugin for AttachingToolingPlugin {
     fn build(&self, app: &mut App) {
         app
         .register_type::<AttachCandidate>()
-        .add_systems(Update,intersection_colors_for::<AttachCandidate, NeonMaterial>)
+        // .add_systems(Update,intersection_colors_for::<AttachCandidate, NeonMaterial>)
         .add_systems(Update, move_to_cursor::<AttachCandidate>)
         .add_systems(Update, attach_candidate_edit_ui)
         // .add_systems(Update, delete_attach_candidates);

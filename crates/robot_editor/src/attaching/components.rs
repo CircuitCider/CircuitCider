@@ -1,5 +1,6 @@
 use bevy::{ecs::component::{ComponentHooks, StorageType}, prelude::*};
 use bevy_mod_outline::OutlineVolume;
+use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_extras::prelude::rigidbodies::RigidBodyFlag;
 use shader_core::shaders::neon::NeonMaterial;
 
@@ -43,6 +44,8 @@ impl Component for AttachCandidate {
             
             world.commands().add(move |mut world: &mut World| {
                 
+                world.commands().entity(e).insert(Sensor {});
+
                 // since there can only be 1 focus, remove other attacher flags.
                 let other_attachers = world.query_filtered::<Entity, With<AttachCandidate>>().iter(&world).collect::<Vec<_>>();
                 for other_attacher in other_attachers {
