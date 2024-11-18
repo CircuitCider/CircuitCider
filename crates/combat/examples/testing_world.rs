@@ -2,12 +2,13 @@
 
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use combat::{components::Health, ui::health_ui};
+use combat::{components::Health, ui::health_ui, weapons::plugins::CollisionPlugin};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(WorldInspectorPlugin::default())
+        .add_plugins(CollisionPlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, health_ui)
         .run();
@@ -35,6 +36,7 @@ fn setup(
             ..default()
         },
         Health::default(),
+        Name::new("Player"),
     ));
     // light
     commands.spawn(PointLightBundle {
