@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
-use crate::components::{Health, Bullet, CollisionDamage};
+use crate::components::{Health, Bullet, CollisionDamage, Velocity};
 
 pub fn apply_collision_damage(
   collision_damage_query: Query<(Entity, &CollisionDamage)>,
@@ -23,5 +23,10 @@ pub fn apply_collision_damage(
                 commands.entity(collider).despawn_recursive();
             }
         }
+    }
+}
+pub fn update_position(mut query: Query<(&Velocity, &mut Transform)>, time: Res<Time>) {
+    for (velocity, mut transform) in query.iter_mut() {
+        transform.translation += velocity.value * time.delta_seconds();
     }
 }
