@@ -1,0 +1,12 @@
+[package]
+name = "app_source"
+version = "0.1.0"
+edition = "2021"
+description = "crate for asset sourcing project asset paths."
+
+[dependencies]
+bevy_asset = {workspace = true}
+bevy_app = {workspace = true}
+# bevy_ui_extras = "0.15.0"
+bevy_obj = {workspace = true}
+# bevy_serialization_extras = "0.6.0"

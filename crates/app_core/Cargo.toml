@@ -6,8 +6,8 @@ description = "core stuff other crates rely on that doesn't justify its own crat
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy_asset = "0.14"
-bevy_app = "0.14"
+bevy_asset = {workspace = true}
+bevy_app = {workspace = true}
 # bevy_ui_extras = "0.15.0"
-bevy_obj = "0.14"
+bevy_obj = {workspace = true}
 # bevy_serialization_extras = "0.6.0"

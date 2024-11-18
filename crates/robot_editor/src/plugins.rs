@@ -150,49 +150,65 @@ fn setup_editor_area(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
     images: Res<ImageHandles>,
-    cameras: Query<(Entity, &Camera, Option<&Name>), With<CameraMode>>,
+    mut cameras: Query<(Entity, &mut CameraMode, Option<&mut Name>), With<Camera>>
 ) {
     println!("setting up editor...");
-    match cameras.get_single() {
-        Ok(_) => {},
-        Err(_) => {
-            warn!("multiple cameras with controlers not supported. Despawning extra cameras and spawning new replacement camera");
-            for (e, _, name) in cameras.iter() {
-                let name = name.map(|n| n.to_string()).unwrap_or(format!("{:#}", e));
-                println!("despawning: {:#}", name);
-                commands.entity(e).despawn_recursive();
+    
+    let cam = match cameras.get_single_mut() {
+        Ok(cam) => Some(cam),
+        Err(err) => {
+            match err {
+                bevy::ecs::query::QuerySingleError::NoEntities(err) => {
+                    warn!("No camera found. Creating new one: Actual error: {:#}", err);
+                    None
+                    // (commands.spawn_empty().id(), CameraMode::Free, None)
+                },
+                bevy::ecs::query::QuerySingleError::MultipleEntities(err) => {
+                    warn!("multiple cameras found. Aborting setup {:#}", err);
+                    return;
+                },
             }
-
-            commands.spawn((
-                Camera3dBundle {
-                    transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-                    camera: Camera {
-                        order: 2, 
-                        ..default()
-                    },
-                    ..Default::default()
-                    
-                },
-                CameraController {
-                    camera_mode: CameraMode::Free,
-                    restrained: CameraRestrained(false), // attach_to: None,
-                                                        // camera_mode: bevy_camera_extras::CameraMode::ThirdPerson(CameraDistanceOffset::default())
-                },
-                ToonShaderMainCamera,
-                GizmoCamera,
-                RaycastPickable,
-                CursorRayCam, // Set this camera as a raycaster using the mouse cursor
-
-                Name::new("editor cam"),
-                //bevy_transform_gizmo::GizmoPickSource::default(),
-                RenderLayers::layer(0),
-                Skybox {
-                    image: images.skybox.clone(),
-                    brightness: 1000.0
-                }
-            ));
+        }
+    };
+    let cam = match cam {
+        Some((e, mut mode, name)) => {
+            *mode = CameraMode::Free;
+            e
         },
-    }
+        None => {
+            commands.spawn_empty()
+            .insert(
+                (
+                CameraMode::Free,
+                Name::new("editor cam"),
+            ))
+            .id()
+        }
+    };
+
+    commands.entity(cam).insert((
+        Camera3dBundle {
+            transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            camera: Camera {
+                order: 2, 
+                ..default()
+            },
+            ..Default::default()
+            
+        },
+        CameraRestrained(false),
+        ToonShaderMainCamera,
+        GizmoCamera,
+        RaycastPickable,
+        CursorRayCam, // Set this camera as a raycaster using the mouse cursor
+
+        Name::new("editor cam"),
+        RenderLayers::layer(0),
+        Skybox {
+            image: images.skybox.clone(),
+            brightness: 1000.0
+        }
+    ));
 
     // robot
     urdf_load_requests.requests.push_front(AssetSpawnRequest {

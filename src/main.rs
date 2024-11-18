@@ -29,8 +29,7 @@ fn main() {
         })        
         .add_plugins(StartMenuPlugin)
         .add_plugins(RobotEditorPlugin)
-        // physics
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        
         // setup systems
         .add_systems(Startup, setup_camera)
         .run();
