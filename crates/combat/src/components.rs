@@ -17,3 +17,9 @@ impl Default for Health {
         }
     }
 }
+
+#[derive(Component)]
+pub struct CollisionDamage(pub f32);
+
+#[derive(Component)]
+pub struct Bullet;
