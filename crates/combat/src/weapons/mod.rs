@@ -1,2 +1,2 @@
-mod collisions;
+mod collision;
 pub mod plugins;

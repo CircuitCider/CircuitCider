@@ -1,6 +1,4 @@
-use bevy::{
-    ecs::component::Component,
-};
+use bevy::prelude::*;
 
 /// Health points.
 #[derive(Component)]
