@@ -17,6 +17,6 @@ fn load_assets(
     asset_server: Res<AssetServer>,
 ) {
     *scene_assets = SceneAssets {
-        pistol: asset_server.load("robot_gun.glb#Scene0"),
+        pistol: asset_server.load("models/robot_gun.glb#Scene0"),
     }
 }
