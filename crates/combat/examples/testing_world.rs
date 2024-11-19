@@ -2,15 +2,21 @@
 
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use combat::{components::{Health, Pistol}, ui::health_ui, weapons::plugins::CollisionPlugin, weapon_attacks::plugins::BulletPlugin, asset_loader::AssetLoaderPlugin};
-
+use combat::{components::{Health, Pistol}, ui::health_ui, weapons::plugins::CollisionPlugin, weapon_attacks::plugins::BulletPlugin,};
+use bevy_rapier3d::{
+    plugin::{NoUserData, RapierPhysicsPlugin},
+    render::RapierDebugRenderPlugin,
+};
+// asset_loader::{AssetLoaderPlugin, SceneAssets}
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(WorldInspectorPlugin::default())
         .add_plugins(CollisionPlugin)
         .add_plugins(BulletPlugin)
-        .add_plugins(AssetLoaderPlugin)
+        // .add_plugins(AssetLoaderPlugin)
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugins(RapierDebugRenderPlugin::default())
         .add_systems(Startup, setup)
         .add_systems(Update, health_ui)
         .run();
@@ -21,6 +27,7 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    // scene_assets: Res<SceneAssets>,
 ) {
     // circular base
     commands.spawn(PbrBundle {
@@ -33,8 +40,8 @@ fn setup(
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-            material: materials.add(Color::srgb_u8(124, 144, 255)),
-            transform: Transform::from_xyz(0.0, 0.5, 0.0),
+            material: materials.add(Color::srgb(255.0, 0.0, 0.0)),
+            transform: Transform::from_xyz(0.0,0.5,0.0),
             ..default()
         },
         Health::default(),
