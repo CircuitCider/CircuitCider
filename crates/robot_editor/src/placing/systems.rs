@@ -9,11 +9,11 @@ use transform_gizmo_bevy::GizmoTarget;
 use crate::{
     attaching::components::AttachCandidate,
     raycast_utils::resources::{CursorRayHits, MouseOverWindow},
-    resources::BuildToolMode,
+    resources::{BuildToolMode, ModelFolder},
     ui::Edited,
 };
 
-use super::{components::Placer, resources::ModelFolder};
+use super::components::Placer;
 
 pub fn cache_initial_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(ModelFolder(
@@ -38,8 +38,8 @@ pub fn delete_placers(
 pub fn attach_placer(
     //mut raycast: Raycast,
     //cursor_ray: Res<CursorRay>,
-    rapier_context: Res<RapierContext>,
-    neon_materials: ResMut<Assets<NeonMaterial>>,
+    // rapier_context: Res<RapierContext>,
+    // neon_materials: ResMut<Assets<NeonMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     placers: Query<(
         Entity,
@@ -96,7 +96,7 @@ pub fn attach_placer(
                     PickSelection {
                         is_selected: true
                     },
-                    GizmoTarget::default(),
+                    // GizmoTarget::default(),
                     Name::new("Attach Candidate"),
                 ));
                 tool_mode.set(BuildToolMode::EditerMode);

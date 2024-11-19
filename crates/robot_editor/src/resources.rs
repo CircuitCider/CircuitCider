@@ -1,5 +1,6 @@
-use bevy::{asset::{AssetServer, Assets, Handle, LoadState}, ecs::system::Resource, prelude::{Image, KeyCode, NextState, Res, ResMut, States}, reflect::Reflect, render::render_resource::{TextureViewDescriptor, TextureViewDimension}, utils::default};
+use bevy::{asset::{AssetServer, Assets, Handle, LoadState}, ecs::system::Resource, prelude::{Deref, DerefMut, Image, KeyCode, NextState, Res, ResMut, States}, reflect::Reflect, render::render_resource::{TextureViewDescriptor, TextureViewDimension}, utils::default};
 use bevy_asset_loader::asset_collection::AssetCollection;
+use egui::Ui;
 use strum_macros::{Display, EnumIter};
 
 #[derive(Hash, States, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display, Default)]
@@ -11,6 +12,27 @@ pub enum BuildToolMode {
     EditerMode,
     #[default]
     None
+}
+
+use bevy::{asset::LoadedFolder, prelude::*};
+
+#[derive(Resource, Default, Deref)]
+pub struct ModelFolder(pub Handle<LoadedFolder>);
+
+
+// #[derive(Resource)]
+// pub struct BuildMenuTarget(pub BuildMenuTargets);
+
+// #[derive(Resource, Default, Deref, DerefMut)]
+// pub struct BuildMenuUi(pub Option<Ui>);
+
+/// spawnable being focused on by build menu
+#[derive(Resource, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub enum BuildMenuTarget {
+    #[default]
+    Hulls,
+    Weapons,
+    Wheels,
 }
 
 #[derive(AssetCollection, Resource)]

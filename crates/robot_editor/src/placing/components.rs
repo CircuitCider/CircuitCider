@@ -3,6 +3,7 @@ use strum_macros::Display;
 
 use crate::{Spacing, Targeter};
 
+
 /// entity used to place other similar entities.
 #[derive(Component, Default, Display, Reflect)]
 #[reflect(Component)]
@@ -23,8 +24,6 @@ impl Spacing for Placer {
         crate::SpacingKind::Uplift(0.01)
     }
 }
-
-
 
 impl Placer {
     /// infer placer type from path

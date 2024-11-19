@@ -16,6 +16,20 @@ use resources::ImageHandles;
 
 use super::*;
 
+///util for standard movement for components with given [`T`] component
+pub fn build_tool_control_util_for<T: Component>(
+    mut attachers: Query<&mut Transform, With<T>>,
+    keys: Res<ButtonInput<KeyCode>>
+) {
+    for mut attacher in attachers.iter_mut() {
+        if keys.pressed(KeyCode::KeyQ) {
+            attacher.rotate_y(0.1);
+        }
+        if keys.pressed(KeyCode::KeyE) {
+            attacher.rotate_y(-0.1);
+        }
+    }
+}
 /// find models with given component, and change their material based on if it has any intersections or not.
 pub fn intersection_colors_for<T: Component, U: Material>(
     rapier_context: Res<RapierContext>,

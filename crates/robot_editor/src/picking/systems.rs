@@ -50,12 +50,17 @@ pub fn update_picking(
 
             if keys.pressed(KeyCode::ShiftLeft) {
                 entity_cmd.insert(AssemblingTarget);
+            } 
+            else if let Ok(joint) = joints.get(e) {
+                //if let Ok(joint) = joints.get(e) {
+                entity_cmd.insert(AttachCandidate {
+                    attempt_target: joint.parent_id
+                });
             } else {
-                if let Ok(joint) = joints.get(e) {
-                    entity_cmd.insert(AttachCandidate {
-                        attempt_target: joint.parent_id
-                    });
-                }
+                entity_cmd.insert(GizmoTarget::default());
+            }
+
+                //}
                 // if let Some(structure) = structure {
                     
                 //     //if structures.iter().find(|(e_target, n)| n.name == structure.name)
@@ -65,7 +70,6 @@ pub fn update_picking(
                 //     //     });
                 //     // }
                 // }
-            }
         } else {
             let mut entity_cmd = commands.entity(e);
 

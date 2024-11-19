@@ -42,6 +42,7 @@ use placing::plugins::PlacingToolingPlugin;
 use raycast_utils::plugins::CursorRayCam;
 use raycast_utils::plugins::CursorRayHitsPlugin;
 use raycast_utils::resources::MouseOverWindow;
+use resources::BuildMenuTarget;
 use resources::ImageHandles;
 use resources::RobotControls;
 use shader_core::shaders::plugins::CustomShadersPlugin;
@@ -113,6 +114,7 @@ impl Plugin for RobotEditorPlugin {
         .insert_resource(DebugPickingMode::Normal)
         .insert_resource(RobotControls::default())
         .register_type::<RobotControls>()        
+        .insert_resource(BuildMenuTarget::default())
         // build tools
         .add_plugins(
             (
@@ -136,8 +138,11 @@ impl Plugin for RobotEditorPlugin {
         .add_systems(Update, bind_left_and_right_wheel)
         .add_systems(Update, set_robot_to_toon_shader)
         .add_systems(Startup, spawn_toon_shader_cam)
+        //.add_systems(Update, build_menu_ui)
         //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
         .add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
+        .add_systems(Update, build_menu_ui.run_if(in_state(RobotEditorState::Active)));
+
 
         
         ;

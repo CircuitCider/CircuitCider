@@ -3,21 +3,31 @@ use bevy::prelude::*;
 use super::components::*;
 use crate::resources::*;
 
-/// gets rid of placers if current mode is not placermode
-// pub fn delete_attach_candidates(
-//     tool_mode: ResMut<State<BuildToolMode>>,
-//     placers: Query<Entity, With<AttachCandidate>>,
-//     mut commands: Commands,
-// ) {
-//     if *tool_mode != BuildToolMode::EditerMode {
-//         for e in placers.iter() {
-//             commands.entity(e).despawn()
-//         }
-//     }
-// }
+// /// gets rid of placers if current mode is not placermode
+// // pub fn delete_attach_candidates(
+// //     tool_mode: ResMut<State<BuildToolMode>>,
+// //     placers: Query<Entity, With<AttachCandidate>>,
+// //     mut commands: Commands,
+// // ) {
+// //     if *tool_mode != BuildToolMode::EditerMode {
+// //         for e in placers.iter() {
+// //             commands.entity(e).despawn()
+// //         }
+// //     }
+// // }
 
-/// manages gizmos associated with attacher
-pub fn manage_attacher_position() {}
+/// attach candidate if its been clicked on something
+pub fn confirm_attachment(
+    candidates: Query<(Entity, &AttachCandidate)>,
+    mut commands: Commands,
+) {
+    for (e, candidate) in candidates.iter() {
+        
+    }
+}
 
-/// confirms attacher target for attacher
-pub fn confirm_attacher_target() {}
+// /// manages gizmos associated with attacher
+// pub fn manage_attacher_position() {}
+
+// /// confirms attacher target for attacher
+// pub fn confirm_attacher_target() {}
