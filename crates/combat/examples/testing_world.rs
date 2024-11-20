@@ -1,14 +1,23 @@
 //! A simple 3D scene with light shining over a cube sitting on a plane.
 
-use bevy::prelude::*;
+use bevy::{prelude::*, scene};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use combat::{components::Health, ui::health_ui, weapons::plugins::CollisionPlugin};
+use combat::{components::{Health, Pistol}, ui::health_ui, weapons::plugins::CollisionPlugin, weapon_attacks::plugins::BulletPlugin, despawn::DespawnPlugin, asset_loader::{AssetLoaderPlugin, SceneAssets}};
+use bevy_rapier3d::{
+    plugin::{NoUserData, RapierPhysicsPlugin},
+    render::RapierDebugRenderPlugin,
+};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(WorldInspectorPlugin::default())
         .add_plugins(CollisionPlugin)
+        .add_plugins(BulletPlugin)
+        .add_plugins(DespawnPlugin)
+        .add_plugins(AssetLoaderPlugin)
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        // .add_plugins(RapierDebugRenderPlugin::default())
         .add_systems(Startup, setup)
         .add_systems(Update, health_ui)
         .run();
@@ -19,6 +28,7 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    scene_assets: Res<SceneAssets>,
 ) {
     // circular base
     commands.spawn(PbrBundle {
@@ -29,13 +39,13 @@ fn setup(
     });
     // cube
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-            material: materials.add(Color::srgb_u8(124, 144, 255)),
+        SceneBundle {
+            scene: scene_assets.pistol.clone(),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
         },
         Health::default(),
+        Pistol,
         Name::new("Player"),
     ));
     // light
