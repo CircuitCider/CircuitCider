@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::{Collider, Sensor};
-use crate::components::{Health, Pistol, Bullet, Velocity, CollisionDamage};
+use crate::components::{Health, Pistol, Bullet, Velocity, CollisionDamage, SpawnTimer};
 
 pub fn fire_bullet(
     mut commands: Commands,
@@ -8,7 +8,13 @@ pub fn fire_bullet(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut spawn_timer: ResMut<SpawnTimer>,
+    time: Res<Time>,
 ) {
+    spawn_timer.timer.tick(time.delta());
+    if !spawn_timer.timer.just_finished() {
+        return;
+    }
     let Ok(transform) = query.get_single() else {
         return;
     };
