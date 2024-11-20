@@ -30,3 +30,10 @@ pub fn update_position(mut query: Query<(&Velocity, &mut Transform)>, time: Res<
         transform.translation += velocity.value * time.delta_seconds();
     }
 }
+pub fn update_velocity(mut query: Query<&mut Velocity>, time: Res<Time>)
+{
+    for mut velocity in query.iter_mut() {
+        velocity.value += 0.0 * time.delta_seconds();
+    }
+}
+

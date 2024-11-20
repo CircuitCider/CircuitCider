@@ -18,7 +18,7 @@ pub fn fire_bullet(
     let Ok(transform) = query.get_single() else {
         return;
     };
-    if keyboard_input.pressed(KeyCode::KeyF) {
+    if keyboard_input.pressed(KeyCode::KeyF) { //change this key to whatever for firing
         commands.spawn((
             PbrBundle {
                 mesh: meshes.add(Cuboid::new(0.1, 0.1, 0.1)),
