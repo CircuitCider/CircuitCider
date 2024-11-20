@@ -9,16 +9,12 @@ use transform_gizmo_bevy::GizmoTarget;
 use crate::{
     attaching::components::AttachCandidate,
     raycast_utils::resources::{CursorRayHits, MouseOverWindow},
-    resources::{BuildToolMode, ModelFolder},
+    resources::{BuildToolMode, HullsFolder},
 };
 
 use super::components::Placer;
 
-pub fn cache_initial_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(ModelFolder(
-        asset_server.load_folder("root://editor_model_parts"),
-    ));
-}
+
 
 /// gets rid of placers if current mode is not placermode
 pub fn delete_placers(

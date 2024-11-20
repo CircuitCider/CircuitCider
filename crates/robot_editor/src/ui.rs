@@ -1,6 +1,6 @@
 
 use crate::{
-    load_assets_in, model_display::{components::DisplayModel, systems::display_model}, placing::components::Placer, raycast_utils::resources::MouseOverWindow, resources::{BuildMenuTarget, BuildToolMode, ModelFolder}
+    components::Wheel, load_assets_in, model_display::{components::DisplayModel, systems::display_model}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, raycast_utils::resources::MouseOverWindow, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
 };
 use bevy::{
     asset::LoadedFolder, prelude::*, window::PrimaryWindow
@@ -9,109 +9,139 @@ use bevy_egui::EguiContext;
 use bevy_mod_picking::{focus::PickingInteraction, prelude::{PickSelection, Pickable}};
 use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
-use egui::{Align2, Sense, UiBuilder};
+use egui::{Align2, Color32, RichText, Sense, UiBuilder};
 use shader_core::shaders::neon::NeonMaterial;
 use strum::IntoEnumIterator;
-
+use combat::components::Pistol;
 
 
 /// list all placeable models
 pub fn build_menu_ui(
     folders: Res<Assets<LoadedFolder>>,
-    model_folder: Res<ModelFolder>,
+    hulls_folder: Res<HullsFolder>,
+    weapons_folder: Res<WeaponsFolder>,
+    wheels_folder: Res<WheelsFolder>,
     mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mut placer_materials: ResMut<Assets<NeonMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     display_models: Query<(Entity, &Handle<Mesh>), With<DisplayModel>>,
-    build_menu_taget: ResMut<BuildMenuTarget>,
+    mut build_menu_target: ResMut<BuildMenuTarget>,
     mut commands: Commands,
 ) {
     let mut model_hovered = false;
 
-    for mut context in primary_window.iter_mut() {
-        let ui_name = "build menu";
-        egui::SidePanel::left(ui_name).show(context.get_mut(), |ui| {
-            ui.heading(ui_name);
+    let Ok(mut context) = primary_window.get_single_mut()
+    .inspect_err(|err| println!("issue spawning build menu: {:#}", err)) else {
+        return;
+    };
 
-
-
-            let Some(handles) = load_assets_in::<Mesh>(&folders, &model_folder.0) else {
-                ui.label("could not load folder...");
-                return;
-            };
-            for mesh_handle in handles {
-                //let mesh = meshes.get(mesh_handle.clone()).expect("not loaded");
-                if let Some(path) = mesh_handle.path() {
-                    let str_path = path.path().to_str().unwrap();
-
-                    let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
-                    let spawn_button = ui.button(model_name.clone()).interact(Sense::click_and_drag());
-
-                    if spawn_button.drag_started(){
-                        println!("spawning model");
-                        //TODO! put raycasting code here
-                        commands.spawn((
-                            MaterialMeshBundle {
-                                mesh: mesh_handle.clone(),
-                                material: materials.add(Color::WHITE),
-                                // material: placer_materials.add(NeonMaterial {
-                                //     color: Color::Srgba(Srgba::RED).into()
-                                // }),
-                                ..default()
-                            },
-                            ColliderFlag::Convex,
-                            Sensor,
-                            Pickable::default(),
-                            PickingInteraction::default(),
-                            PickSelection {
-                                is_selected: false
-                            },
-                            //GizmoTarget::default(),
-                            Name::new(model_name),
-                            Placer::from_path(str_path),
-                            // MaterialMeshBundle {
-                            //     mesh: mesh_handle.clone(),
-                            //     material: placer_materials.add(NeonMaterial {
-                            //         color: Color::Srgba(Srgba::RED).into(),
-                            //     }),
-                            //     ..default()
-                            // },
-                            // Placer::from_path(str_path),
-                            // ColliderFlag::Convex,
-                            // Sensor,
-                            // Name::new(model_name.clone()),
-                        ));
-                        tool_mode.set(BuildToolMode::PlacerMode)
-                    }
-                    //spawn display model for hovered over spawnables
-
-                    if spawn_button.contains_pointer() {
-                        model_hovered = true;
-                        ui.label("show display model here!");
-                        for (e, display_handle) in display_models.iter() {
-                            if mesh_handle.path() != display_handle.path() {
-                                commands.entity(e).despawn()
-                            }
-                        }
-                        if display_models.iter().len() < 1 {
-                            display_model(&mut commands, &mut placer_materials, mesh_handle)
-                        }
-                    }
+    let ui_name = "build menu";
+    egui::SidePanel::left(ui_name).show(context.get_mut(), |ui| {
+        ui.heading(ui_name);
+        ui.horizontal(|ui| {
+            for item in BuildMenuTarget::iter() {
+                let color = match *build_menu_target == item {
+                    true => Color32::WHITE,
+                    false => Color32::GRAY,
+                };
+                if ui.button(RichText::new(item.to_string()).color(color)).clicked() {
+                    *build_menu_target = item
                 }
             }
-            if model_hovered == false {
-                for (e, ..) in display_models.iter() {
-                    commands.entity(e).despawn()
-                }
-            }
-            //println!("model hover status: {:#?}", model_hovered);
 
-            // } else {
-            //     ui.label("could not load folder...");
-            // }
         });
-    }
+        let model_king = build_menu_target.clone();
+        let Some(handles) = (match model_king {
+            BuildMenuTarget::Hulls => load_assets_in::<Mesh>(&folders, &hulls_folder.0),
+            BuildMenuTarget::Weapons => load_assets_in::<Mesh>(&folders, &weapons_folder.0),
+            BuildMenuTarget::Wheels => load_assets_in::<Mesh>(&folders, &wheels_folder.0),
+        }) else {
+            ui.label("could not load folder..");
+            return;
+        };
+
+        // let Some(handles) = load_assets_in::<Mesh>(&folders, &hulls_folder.0) else {
+        //     ui.label("could not load folder...");
+        //     return;
+        // };
+        for mesh_handle in handles {
+            //let mesh = meshes.get(mesh_handle.clone()).expect("not loaded");
+            if let Some(path) = mesh_handle.path() {
+                let str_path = path.path().to_str().unwrap();
+
+                let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
+                let spawn_button = ui.button(model_name.clone()).interact(Sense::click_and_drag());
+
+                if spawn_button.drag_started(){
+                    println!("spawning model");
+                    //TODO! put raycasting code here
+                    let mut model = commands.spawn((
+                        MaterialMeshBundle {
+                            mesh: mesh_handle.clone(),
+                            material: materials.add(Color::WHITE),
+                            // material: placer_materials.add(NeonMaterial {
+                            //     color: Color::Srgba(Srgba::RED).into()
+                            // }),
+                            ..default()
+                        },
+                        ColliderFlag::Convex,
+                        Sensor,
+                        Pickable::default(),
+                        PickingInteraction::default(),
+                        PickSelection {
+                            is_selected: false
+                        },
+                        //GizmoTarget::default(),
+                        Name::new(model_name),
+                        Placer::from_path(str_path),
+                        // MaterialMeshBundle {
+                        //     mesh: mesh_handle.clone(),
+                        //     material: placer_materials.add(NeonMaterial {
+                        //         color: Color::Srgba(Srgba::RED).into(),
+                        //     }),
+                        //     ..default()
+                        // },
+                        // Placer::from_path(str_path),
+                        // ColliderFlag::Convex,
+                        // Sensor,
+                        // Name::new(model_name.clone()),
+                    ));
+                    match model_king {
+                        BuildMenuTarget::Hulls => {},
+                        BuildMenuTarget::Weapons => {model.insert(Pistol);},
+                        //TODO: Wheel should NOT have "left-right" quality. This should be user defined/face defined/relativistic to other wheels.
+                        BuildMenuTarget::Wheels => {model.insert(Wheel::Right);},
+                    }
+                    tool_mode.set(BuildToolMode::PlacerMode)
+                }
+                //spawn display model for hovered over spawnables
+
+                if spawn_button.contains_pointer() {
+                    model_hovered = true;
+                    ui.label("show display model here!");
+                    for (e, display_handle) in display_models.iter() {
+                        if mesh_handle.path() != display_handle.path() {
+                            commands.entity(e).despawn()
+                        }
+                    }
+                    if display_models.iter().len() < 1 {
+                        display_model(&mut commands, &mut placer_materials, mesh_handle)
+                    }
+                }
+            }
+        }
+        if model_hovered == false {
+            for (e, ..) in display_models.iter() {
+                commands.entity(e).despawn()
+            }
+        }
+        //println!("model hover status: {:#?}", model_hovered);
+
+        // } else {
+        //     ui.label("could not load folder...");
+        // }
+    });
     //}
 }
 

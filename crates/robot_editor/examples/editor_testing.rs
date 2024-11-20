@@ -14,6 +14,7 @@ use bevy_serialization_urdf::{
     plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
 };
 use bevy_ui_extras::*;
+use combat::weapon_attacks::plugins::CombatPlugin;
 use robot_editor::{model_display::components::DisplayModel, plugins::*, resources::RobotControls, states::RobotEditorState};
 
 pub fn main() {
@@ -22,6 +23,7 @@ pub fn main() {
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "../../assets".to_owned(),
         })
+        .add_plugins(CombatPlugin)
         .add_plugins(DefaultPlugins)
         //.add_plugins(DefaultPlugins.set(bevy_mod_raycast::low_latency_window_plugin()))
         

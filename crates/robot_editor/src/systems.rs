@@ -215,16 +215,16 @@ pub fn control_robot(
         }
     }
 
-    // if keys.pressed(controls.freeze_key) {
-    //     for mut rigidbody in rigid_body_flag.iter_mut() {
-    //         *rigidbody = RigidBodyFlag::Fixed;
-    //     }
-    // }
-    // if keys.pressed(controls.unfreeze_key) {
-    //     for mut rigidbody in rigid_body_flag.iter_mut() {
-    //         *rigidbody = RigidBodyFlag::Dynamic;
-    //     }
-    // }
+    if keys.pressed(controls.freeze_key) {
+        for mut rigidbody in rigid_body_flag.iter_mut() {
+            *rigidbody = RigidBodyFlag::Fixed;
+        }
+    }
+    if keys.pressed(controls.unfreeze_key) {
+        for mut rigidbody in rigid_body_flag.iter_mut() {
+            *rigidbody = RigidBodyFlag::Dynamic;
+        }
+    }
 }
 
 pub fn freeze_spawned_robots(

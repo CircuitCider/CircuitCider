@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 use super::fire_shot::*;
-use crate::components::SpawnTimer;
+use crate::{components::{CollisionDamage, SpawnTimer}, weapons::plugins::CollisionPlugin};
+
+
+
 
 pub struct BulletPlugin;
 pub const SPAWN_TIME_SECONDS: f32 = 0.1;
@@ -11,5 +14,18 @@ impl Plugin for BulletPlugin {
             timer: Timer::from_seconds(SPAWN_TIME_SECONDS, TimerMode:: Repeating)
         })
             .add_systems(Update, fire_bullet);
+    }
+}
+
+
+/// plugin for all combat functionality
+pub struct CombatPlugin;
+
+impl Plugin for CombatPlugin {
+    fn build(&self, app: &mut App) {
+        app
+        .add_plugins(BulletPlugin)
+        .add_plugins(CollisionPlugin)
+        ;
     }
 }

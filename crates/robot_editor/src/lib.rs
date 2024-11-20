@@ -2,6 +2,7 @@ use std::any::TypeId;
 
 use bevy::{asset::LoadedFolder, prelude::*};
 use bevy_mod_outline::OutlineVolume;
+use resources::{HullsFolder, WeaponsFolder, WheelsFolder};
 
 pub mod attaching;
 pub mod camera_controls;
@@ -72,3 +73,17 @@ pub fn load_assets_in<T: Asset>(
     }
 }
 
+pub fn cache_initial_folders(mut commands: Commands, asset_server: Res<AssetServer>) {
+    // commands.insert_resource(HullsFolder(
+    //     asset_server.load_folder("root://editor_model_parts"),
+    // ));
+    commands.insert_resource(HullsFolder(
+        asset_server.load_folder("root://models/hulls"),
+    ));
+    commands.insert_resource(WheelsFolder(
+        asset_server.load_folder("root://models/wheels"),
+    ));
+    commands.insert_resource(WeaponsFolder(
+        asset_server.load_folder("root://models/weapons"),
+    ));
+}

@@ -37,14 +37,16 @@ use camera_controls::plugins::RobotEditorCameraPlugin;
 use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
 use picking::plugins::PickingPlugin;
-use placing::plugins::CachePrefabsPlugin;
 use placing::plugins::PlacingToolingPlugin;
 use raycast_utils::plugins::CursorRayCam;
 use raycast_utils::plugins::CursorRayHitsPlugin;
 use raycast_utils::resources::MouseOverWindow;
 use resources::BuildMenuTarget;
+use resources::BuildToolMode;
 use resources::ImageHandles;
 use resources::RobotControls;
+use resources::WeaponsFolder;
+use resources::WheelsFolder;
 use shader_core::shaders::plugins::CustomShadersPlugin;
 use states::RobotEditorState;
 use systems::configure_skybox_texture;
@@ -146,6 +148,23 @@ impl Plugin for RobotEditorPlugin {
 
         
         ;
+    }
+}
+
+pub struct CachePrefabsPlugin;
+
+impl Plugin for CachePrefabsPlugin {
+    fn build(&self, app: &mut App) {
+        app
+        .init_state::<BuildToolMode>()
+            //.init_resource::<DisplayModelImage>()
+            .insert_resource(HullsFolder::default())
+            .insert_resource(WeaponsFolder::default())
+            .insert_resource(WheelsFolder::default())
+            .add_systems(Startup, cache_initial_folders)
+            //.add_systems(Update, select_build_tool)
+            
+            ;
     }
 }
 

@@ -17,8 +17,13 @@ pub enum BuildToolMode {
 use bevy::{asset::LoadedFolder, prelude::*};
 
 #[derive(Resource, Default, Deref)]
-pub struct ModelFolder(pub Handle<LoadedFolder>);
+pub struct HullsFolder(pub Handle<LoadedFolder>);
 
+#[derive(Resource, Default, Deref)]
+pub struct WheelsFolder(pub Handle<LoadedFolder>);
+
+#[derive(Resource, Default, Deref)]
+pub struct WeaponsFolder(pub Handle<LoadedFolder>);
 
 // #[derive(Resource)]
 // pub struct BuildMenuTarget(pub BuildMenuTargets);
@@ -27,7 +32,7 @@ pub struct ModelFolder(pub Handle<LoadedFolder>);
 // pub struct BuildMenuUi(pub Option<Ui>);
 
 /// spawnable being focused on by build menu
-#[derive(Resource, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Resource, Clone, Default, PartialEq, Eq, PartialOrd, Ord, EnumIter, Display)]
 pub enum BuildMenuTarget {
     #[default]
     Hulls,
@@ -57,7 +62,7 @@ pub struct RobotControls {
     pub backward_key: KeyCode,
 
     pub freeze_key: KeyCode,
-    //pub unfreeze_key: KeyCode,
+    pub unfreeze_key: KeyCode,
 }
 
 impl Default for RobotControls {
@@ -69,7 +74,7 @@ impl Default for RobotControls {
             forward_key: KeyCode::ArrowUp,
             backward_key: KeyCode::ArrowDown,
             freeze_key: KeyCode::KeyP,
-            //unfreeze_key: KeyCode::KeyO,
+            unfreeze_key: KeyCode::KeyO,
         }
     }
 }

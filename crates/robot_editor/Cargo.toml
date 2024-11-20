@@ -6,13 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-app_core = {path = "../app_core", version = "0.1"}
-shader_core = {path = "../shader_core", version = "0.1"}
+app_core = {workspace = true}
+shader_core = {workspace = true}
 bevy = {workspace = true, features = ["dynamic_linking"]}
 bevy-inspector-egui = {workspace = true}
 bevy_egui = {workspace = true}
 egui = {workspace = true}
 
+combat = {workspace = true}
 bevy_serialization_extras = {workspace = true}
 bevy_serialization_urdf = {workspace = true}
 bevy_mod_outline = {workspace = true}

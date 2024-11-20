@@ -28,8 +28,8 @@ bevy = "0.14"
 bevy-inspector-egui = "0.27"
 bevy_egui = "0.30"
 egui = "0.29"
-bevy_serialization_extras = "0.6.0"
-bevy_serialization_urdf = "0.4"
+bevy_serialization_extras = "0.7.0"
+bevy_serialization_urdf = "0.5"
 bevy_camera_extras = "0.14"
 bevy_ui_extras = "0.15.0"
 bevy_rapier3d = "0.27"
@@ -49,7 +49,8 @@ egui_extras = "0.29"
 robot_editor = {path = "./crates/robot_editor", version = "0.1"}
 app_core = {path = "./crates/app_core", version = "0.1"}
 ui_core = {path = "./crates/ui_core", version = "0.1"}
-
+shader_core = {path = "./crates/shader_core", version = "0.1"}
+combat = {path = "./crates/combat", version = "0.1"}
 
 [workspace]
 members = [

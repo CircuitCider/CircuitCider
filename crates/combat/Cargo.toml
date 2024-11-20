@@ -10,3 +10,5 @@ bevy = {workspace = true, features = ["dynamic_linking"]}
 bevy-inspector-egui = {workspace = true}
 egui = {workspace = true}
 bevy_rapier3d = {workspace = true}
+app_core = {workspace = true}
+bevy_obj = {workspace = true}

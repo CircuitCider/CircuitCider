@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use shader_core::shaders::neon::NeonMaterial;
 
 use crate::resources::BuildToolMode;
-use crate::resources::ModelFolder;
+use crate::resources::HullsFolder;
 use crate::states::RobotEditorState;
 use crate::systems::build_tool_control_util_for;
 use crate::systems::intersection_colors_for;
@@ -13,20 +13,7 @@ use super::resources::*;
 use super::systems::*;
 use super::ui::*;
 
-pub struct CachePrefabsPlugin;
 
-impl Plugin for CachePrefabsPlugin {
-    fn build(&self, app: &mut App) {
-        app
-        .init_state::<BuildToolMode>()
-            //.init_resource::<DisplayModelImage>()
-            .insert_resource(ModelFolder::default())
-            .add_systems(Startup, cache_initial_folders)
-            //.add_systems(Update, select_build_tool)
-            
-            ;
-    }
-}
 
 /// stuff required to run individual tools of robot editor
 pub struct PlacingToolingPlugin;
