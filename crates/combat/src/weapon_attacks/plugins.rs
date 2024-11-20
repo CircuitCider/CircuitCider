@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use super::fire_shot::*;
+use crate::components::SpawnTimer;
 
 pub struct BulletPlugin;
 pub const SPAWN_TIME_SECONDS: f32 = 0.1;

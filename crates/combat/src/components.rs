@@ -37,3 +37,8 @@ impl Velocity {
 
 #[derive(Component)]
 pub struct Pistol;
+
+#[derive(Resource)]
+pub struct SpawnTimer {
+    pub timer: Timer,
+}

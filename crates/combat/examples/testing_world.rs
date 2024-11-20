@@ -1,6 +1,6 @@
 //! A simple 3D scene with light shining over a cube sitting on a plane.
 
-use bevy::{prelude::*, scene};
+use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use combat::{components::{Health, Pistol}, ui::health_ui, weapons::plugins::CollisionPlugin, weapon_attacks::plugins::BulletPlugin, despawn::DespawnPlugin, asset_loader::{AssetLoaderPlugin, SceneAssets}};
 use bevy_rapier3d::{
@@ -17,7 +17,7 @@ fn main() {
         .add_plugins(DespawnPlugin)
         .add_plugins(AssetLoaderPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-        // .add_plugins(RapierDebugRenderPlugin::default())
+        .add_plugins(RapierDebugRenderPlugin::default())
         .add_systems(Startup, setup)
         .add_systems(Update, health_ui)
         .run();
