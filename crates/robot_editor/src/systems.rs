@@ -97,7 +97,7 @@ pub fn move_to_cursor<T: Component + Targeter + Spacing>(
 
         // keep move restricted to "attached" targets if move has target, otherwise, allow un-restricted movement of movables.
         let hit_pos = if let Some(target) = t.targets() {
-            let Some((.., hit)) = cursor_hits.hit(&target) else {return;};
+            let Some((.., hit)) = cursor_hits.first_hit(&target) else {return;};
             hit.position()
         } else {
             let Some((e, hit, ..)) = cursor_hits.first_without(&movables) else {return;};

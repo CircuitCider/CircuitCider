@@ -9,7 +9,8 @@ use bevy_serialization_extras::prelude::{link::{JointFlag, StructureFlag}, rigid
 use shader_core::shaders::flow_wireframe::FlowWireframeMaterial;
 use transform_gizmo_bevy::GizmoTarget;
 
-use crate::{assembling::components::AssemblingTarget, attaching::components::AttachCandidate, raycast_utils::systems::{DONT_EXIT_EARLY, EXIT_EARLY}, resources::BuildToolMode};
+use crate::{assembling::components::AssemblingTarget, attaching::components::AttachCandidate, placing::components::Placer, raycast_utils::{resources::CursorRayHits, systems::{DONT_EXIT_EARLY, EXIT_EARLY}}, resources::BuildToolMode};
+
 
 pub fn toggle_picking_enabled(
     gizmo_targets: Query<&GizmoTarget>,
@@ -23,11 +24,40 @@ pub fn toggle_picking_enabled(
 }
 
 
+/// effects on things that are iteracted with
+pub fn picking_interaction_effects(
+    interactables: Query<(
+        Entity,
+        Option<&StructureFlag>,
+        &PickingInteraction
+    ), Changed<PickingInteraction>>,
+    //hovered: Query<&Hovered>,
+    mut commands: Commands,
+    hits: ResMut<CursorRayHits>,
+    mouse: Res<ButtonInput<MouseButton>>,
+) {
 
-pub fn update_picking(
+    let Some((_, _, (e, structure, interaction))) = hits.first_with(&interactables)  else {return;};
+    
+    
+    if interaction == &PickingInteraction::Pressed && mouse.just_pressed(MouseButton::Left) {
+        let structure_exists = structure.map(|_| true).unwrap_or(false);
+
+        if structure_exists  == false{
+            //TODO: This is not correct, this will only work for hulls. 
+            commands.entity(e).insert(Placer::Hull);
+        }
+    }
+    // if interaction == &PickingInteraction::Hovered {
+        
+    // }
+}
+
+/// effects on things that are clicked on
+pub fn picking_click_effects(
     mut commands: Commands,
     mut keys: Res<ButtonInput<KeyCode>>,
-    mut targets: Query<(
+    mut clickables: Query<(
         Entity,
         Option<&StructureFlag>,
         &PickSelection,
@@ -42,7 +72,8 @@ pub fn update_picking(
 ) {
     // Continuously update entities based on their picking state
 
-    for (e, structure, selectable) in &mut targets {
+    for (e, structure, selectable) in &mut clickables {
+
         if selectable.is_selected {
             let mut entity_cmd = commands.entity(e);
 

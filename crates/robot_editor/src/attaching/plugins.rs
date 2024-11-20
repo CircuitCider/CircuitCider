@@ -18,6 +18,8 @@ impl Plugin for AttachingToolingPlugin {
         .add_systems(Update, move_to_cursor::<AttachCandidate>)
         .add_systems(Update, attach_candidate_edit_ui)
         .add_systems(Update, build_tool_control_util_for::<AttachCandidate>)
+        .add_systems(Update, switch_to_attach_from_placer)
+        .add_systems(Update, confirm_attachment)
         // .add_systems(Update, delete_attach_candidates);
         ;
     }

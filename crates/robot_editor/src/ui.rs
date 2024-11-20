@@ -6,9 +6,10 @@ use bevy::{
     asset::LoadedFolder, prelude::*, window::PrimaryWindow
 };
 use bevy_egui::EguiContext;
+use bevy_mod_picking::{focus::PickingInteraction, prelude::{PickSelection, Pickable}};
 use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
-use egui::{Align2, UiBuilder};
+use egui::{Align2, Sense, UiBuilder};
 use shader_core::shaders::neon::NeonMaterial;
 use strum::IntoEnumIterator;
 
@@ -20,6 +21,7 @@ pub fn build_menu_ui(
     model_folder: Res<ModelFolder>,
     mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mut placer_materials: ResMut<Assets<NeonMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     display_models: Query<(Entity, &Handle<Mesh>), With<DisplayModel>>,
     build_menu_taget: ResMut<BuildMenuTarget>,
@@ -44,28 +46,47 @@ pub fn build_menu_ui(
                     let str_path = path.path().to_str().unwrap();
 
                     let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
-                    let spawn_button = ui.button(model_name.clone());
+                    let spawn_button = ui.button(model_name.clone()).interact(Sense::click_and_drag());
 
-                    if spawn_button.clicked() {
+                    if spawn_button.drag_started(){
+                        println!("spawning model");
                         //TODO! put raycasting code here
                         commands.spawn((
                             MaterialMeshBundle {
                                 mesh: mesh_handle.clone(),
-                                material: placer_materials.add(NeonMaterial {
-                                    color: Color::Srgba(Srgba::RED).into(),
-                                }),
+                                material: materials.add(Color::WHITE),
+                                // material: placer_materials.add(NeonMaterial {
+                                //     color: Color::Srgba(Srgba::RED).into()
+                                // }),
                                 ..default()
                             },
-                            Placer::from_path(str_path),
                             ColliderFlag::Convex,
                             Sensor,
-                            Name::new(model_name.clone()),
+                            Pickable::default(),
+                            PickingInteraction::default(),
+                            PickSelection {
+                                is_selected: false
+                            },
+                            //GizmoTarget::default(),
+                            Name::new(model_name),
+                            Placer::from_path(str_path),
+                            // MaterialMeshBundle {
+                            //     mesh: mesh_handle.clone(),
+                            //     material: placer_materials.add(NeonMaterial {
+                            //         color: Color::Srgba(Srgba::RED).into(),
+                            //     }),
+                            //     ..default()
+                            // },
+                            // Placer::from_path(str_path),
+                            // ColliderFlag::Convex,
+                            // Sensor,
+                            // Name::new(model_name.clone()),
                         ));
                         tool_mode.set(BuildToolMode::PlacerMode)
                     }
                     //spawn display model for hovered over spawnables
 
-                    if spawn_button.hovered() {
+                    if spawn_button.contains_pointer() {
                         model_hovered = true;
                         ui.label("show display model here!");
                         for (e, display_handle) in display_models.iter() {
@@ -182,8 +203,8 @@ pub fn check_if_mouse_over_ui(
     //**mouse_over_window = false
 }
 
-#[derive(Component, Default)]
-pub struct Edited;
+// #[derive(Component, Default)]
+// pub struct Edited;
 
 // /// editor mode for editing attached
 // pub fn editor_mode_ui

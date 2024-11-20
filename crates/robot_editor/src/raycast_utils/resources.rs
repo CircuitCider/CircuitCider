@@ -157,10 +157,48 @@ impl CursorRayHits {
         Some((first_hit.0, first_hit.1.clone()))
     }
     /// checks to see if the given entity was hit, returns None if not.
-    pub fn hit(
+    pub fn first_hit(
         &self,
         entity: &Entity,
     ) -> Option<&(Entity, IntersectionData)> {
         self.iter().find(|(e, ..)| e == entity)
+    }
+    /// gets the first hit after the given entity, returns if there is none.
+    pub fn first_hit_after(
+        &self,
+        entity: &Entity
+    ) -> Option<(&Entity, &IntersectionData)> { 
+
+        for (i, (current, current_hit)) in self.iter().enumerate()
+        //overflow protection
+        .skip(0) {
+            if i == 0 {
+                continue
+            }
+            if let Some((previous, hit)) = self.get(i - 1) {
+                if previous == entity {
+                    return Some((current, current_hit))
+                }
+            }
+        }
+        None
+        // let hit = self.iter().enumerate()
+        // .find(|( i, _)| {
+        //     // subtracting unassigned types can cause underflow. this stops that panic
+        //     // trying to compare &usize and &usize makes mold crash, so this needs a copy ;(
+        //     if *i != 0 {
+        //         false
+        //     } else {
+        //         if let Some((e, _)) = self.iter().nth(i - 1) {
+        //             e == entity
+        //         } else {
+        //             false
+        //         }
+        //     }
+
+        //     }
+        // )
+        // .map(|(_, (e, hit))| (e, hit));
+        // hit
     }
 }

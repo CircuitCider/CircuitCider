@@ -10,7 +10,6 @@ use crate::{
     attaching::components::AttachCandidate,
     raycast_utils::resources::{CursorRayHits, MouseOverWindow},
     resources::{BuildToolMode, ModelFolder},
-    ui::Edited,
 };
 
 use super::components::Placer;
@@ -26,81 +25,45 @@ pub fn delete_placers(
     tool_mode: ResMut<State<BuildToolMode>>,
     placers: Query<Entity, With<Placer>>,
     mut commands: Commands,
+    keys: Res<ButtonInput<MouseButton>>,
 ) {
-    if **tool_mode != BuildToolMode::PlacerMode {
+    let mut despawn = false;
+    // if **tool_mode != BuildToolMode::PlacerMode {
+    //     despawn = true;
+    // }
+    if keys.pressed(MouseButton::Right) {
+        despawn = true;
+    }
+    if despawn == true {
         for e in placers.iter() {
             commands.entity(e).despawn()
-        }
+        }    
     }
 }
 
 /// checks for any intersection between the placer and other meshes
 pub fn attach_placer(
-    //mut raycast: Raycast,
-    //cursor_ray: Res<CursorRay>,
-    // rapier_context: Res<RapierContext>,
-    // neon_materials: ResMut<Assets<NeonMaterial>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
     placers: Query<(
         Entity,
-        &Handle<NeonMaterial>,
-        &Handle<Mesh>,
-        &Transform,
         &Placer,
     )>,
     mouse: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
-    mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mouse_over_window: Res<MouseOverWindow>,
     hits: Res<CursorRayHits>,
     robots: Query<&StructureFlag>,
 ) {
-    if mouse.just_pressed(MouseButton::Left) && **mouse_over_window == false {
-        for (_, handle, mesh, trans, ..) in placers.iter() {
-            if let Some((robot, ..)) = hits.first_with(&robots) {
-                println!("clicked robot, switching to attach mode.");
-                commands.spawn((
-                    MaterialMeshBundle {
-                        mesh: mesh.clone(),
-                        material: handle.clone(),
-                        transform: *trans,
-                        ..default()
-                    },
-                    Edited,
-                    AttachCandidate {attempt_target: Some(robot) },
-                    ColliderFlag::Convex,
-                    Sensor,
-                    Pickable::default(),
-                    PickSelection {
-                        is_selected: true
-                    },
-                    GizmoTarget::default(),
-                    Name::new("Attach Candidate"),
-                ));
-                tool_mode.set(BuildToolMode::EditerMode);
+    if mouse.just_released(MouseButton::Left) && **mouse_over_window == false {
+        for (e, _) in placers.iter() {
+            if let Some((target, ..)) = hits.first_with(&robots) {
+                commands.entity(e).insert(
+                    AttachCandidate {
+                        attempt_target: Some(target)
+                    }
+                );
             } 
-            else {
-                println!("placing placer..");
-                commands.spawn((
-                    PbrBundle {
-                        mesh: mesh.clone(),
-                        material: materials.add(Color::WHITE),
-                        transform: *trans,
-                        ..default()
-                    },
-                    Edited,
-                    ColliderFlag::Convex,
-                    Sensor,
-                    Pickable::default(),
-                    PickSelection {
-                        is_selected: true
-                    },
-                    // GizmoTarget::default(),
-                    Name::new("Attach Candidate"),
-                ));
-                tool_mode.set(BuildToolMode::EditerMode);
-            }
+            commands.entity(e).remove::<Placer>();
 
         }
     }

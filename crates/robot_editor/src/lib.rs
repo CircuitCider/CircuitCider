@@ -17,6 +17,11 @@ pub mod systems;
 pub mod ui;
 pub mod assembling;
 
+// #[derive(Bundle)]
+// pub struct Placable {
+//     mesh
+// }
+
 pub mod prelude {
     pub use crate::*;
 }
