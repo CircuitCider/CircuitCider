@@ -25,11 +25,11 @@ pub struct Arrow3D {
 }
 
 impl From<Arrow3D> for Mesh {
-    fn from(value: Arrow3D) -> Self {
-        let cylinder = Cylinder::new(value.shaft_radius, value.shaft_length);
+    fn from(_value: Arrow3D) -> Self {
+        // let cylinder = Cylinder::new(value.shaft_radius, value.shaft_length);
         let cylinder_info = Mesh::from(Cylinder::default());
 
-        let topol = cylinder_info.attribute(Mesh::ATTRIBUTE_POSITION).unwrap();
+        // let topol = cylinder_info.attribute(Mesh::ATTRIBUTE_POSITION).unwrap();
 
         //println!("topology info is {:#?}", topol);
 

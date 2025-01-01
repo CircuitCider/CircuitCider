@@ -1,4 +1,4 @@
-use bevy::{pbr::{MaterialPipeline, MaterialPipelineKey}, prelude::*, render::{extract_component::ExtractComponentPlugin, mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, CompareFunction, PolygonMode, RenderPipeline, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError}}};
+use bevy::{pbr::{MaterialPipeline, MaterialPipelineKey}, prelude::*, render::{mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, CompareFunction, PolygonMode, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError}}};
 
 
 const SHADER_PATH: &str = "root://shaders/flow_wireframe.wgsl";

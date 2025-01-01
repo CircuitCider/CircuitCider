@@ -15,6 +15,7 @@ use bevy_rapier3d::{
 };
 use bevy_serialization_urdf::plugin::AssetSourcesUrdfPlugin;
 use bevy_ui_extras::{UiExtrasDebug, UiStyle};
+use combat::weapon_attacks::plugins::CombatPlugin;
 use robot_editor::plugins::RobotEditorPlugin;
 use ui_core::plugins::StartMenuPlugin;
 
@@ -30,6 +31,8 @@ fn main() {
             ..default()
         })        
         .add_plugins(StartMenuPlugin)
+        .add_plugins(CombatPlugin)
+
         .add_plugins(RobotEditorPlugin)
         
         // setup systems

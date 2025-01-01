@@ -6,11 +6,7 @@ use std::any::TypeId;
 
 use bevy::asset::LoadedFolder;
 use bevy::prelude::*;
-use bevy::{
-    ecs::system::Resource,
-    prelude::{Deref, DerefMut},
-    window::PrimaryWindow,
-};
+use bevy::ecs::system::Resource;
 
 use derive_more::From;
 use resources::{ShadersFolder, WgslCache};

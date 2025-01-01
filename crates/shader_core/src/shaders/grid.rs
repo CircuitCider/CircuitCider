@@ -1,11 +1,10 @@
 use bevy::{
     pbr::{MaterialPipeline, MaterialPipelineKey},
     prelude::*,
-    reflect::TypePath,
     render::{
-        mesh::{MeshVertexBufferLayoutRef, PrimitiveTopology},
+        mesh::MeshVertexBufferLayoutRef,
         render_resource::{
-            AsBindGroup, Face, FrontFace, PolygonMode, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError
+            AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError
         },
     },
 };

@@ -6,7 +6,7 @@ use bevy::{
         render_resource::ShaderRef, renderer::RenderDevice
     }
 };
-use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraRestrained};
+use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraMode, CameraRestrained};
 // use bevy_ui_extras::UiExtrasDebug;
 use shader_core::{plugins::ShaderDebugPlugin, shaders::{flow_wireframe::FlowWireframeMaterial, glow::GlowMaterial, grid::GridMaterial, neon::NeonMaterial, plugins::CustomShadersPlugin}};
 
@@ -50,53 +50,62 @@ fn setup(
     mut grid_mat: ResMut<Assets<GridMaterial>>,
 ) {
     // circular base
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Circle::new(4.0)),
-        material: materials.add(Color::WHITE),
-        transform: Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
-        ..default()
-    });
+    commands.spawn(
+        (
+            Mesh3d(meshes.add(Circle::new(4.0))),
+            MeshMaterial3d(materials.add(Color::WHITE)),
+            Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
+        )
+    );
     // cube
-    commands.spawn((
-        MaterialMeshBundle {
-            mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-            material: glow_materials.add(GlowMaterial {heat: 0.0}),
-            transform: Transform::from_xyz(0.0, 0.5, 0.0),
-            ..default()
-        },
-        Name::new("Cube"),
-        // flowing_wireframe_mat.add(FlowWireframeMaterial {
-        //     color: LinearRgba::WHITE
-        // })
-        grid_mat.add(GridMaterial {})
-        // FlowWireframeMaterial {
-        //     color: LinearRgba::WHITE
-        // },
-        // Wireframe,
-        // // This lets you configure the wireframe color of this entity.
-        // // If not set, this will use the color in `WireframeConfig`
-        // WireframeColor { color: LIME.into() },
-    ));
+    commands.spawn(
+        (
+            Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
+            MeshMaterial3d(glow_materials.add(GlowMaterial {heat: 0.0})),
+            Transform::from_xyz(0.0, 0.5, 0.0),
+            Name::new("Cube"),
+
+        )
+    );
+    // commands.spawn((
+    //     MaterialMeshBundle {
+    //         mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+    //         material: glow_materials.add(GlowMaterial {heat: 0.0}),
+    //         transform: Transform::from_xyz(0.0, 0.5, 0.0),
+    //         ..default()
+    //     },
+    //     Name::new("Cube"),
+    //     // flowing_wireframe_mat.add(FlowWireframeMaterial {
+    //     //     color: LinearRgba::WHITE
+    //     // })
+    //     grid_mat.add(GridMaterial {})
+    //     // FlowWireframeMaterial {
+    //     //     color: LinearRgba::WHITE
+    //     // },
+    //     // Wireframe,
+    //     // // This lets you configure the wireframe color of this entity.
+    //     // // If not set, this will use the color in `WireframeConfig`
+    //     // WireframeColor { color: LIME.into() },
+    // ));
     // light
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
-            shadows_enabled: true,
-            ..default()
-        },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0),
-        ..default()
-    });
+    commands.spawn(
+        (
+            PointLight {
+                shadows_enabled: true,
+                ..default()
+            },
+            Transform::from_xyz(4.0, 8.0, 4.0)
+        )
+    );
     // camera
     commands.spawn(
         (
-        Camera3dBundle {
-        transform: Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    },
-    CameraController {
-        restrained: CameraRestrained(false),
-        camera_mode: bevy_camera_extras::CameraMode::Free
-    }
-    )
-);
+            Camera3d::default(),
+            CameraController {
+                restrained: CameraRestrained(false),
+                camera_mode: CameraMode::Free
+            },
+            Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y)
+        )
+    );
 }

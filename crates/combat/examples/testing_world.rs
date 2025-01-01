@@ -2,9 +2,9 @@
 
 use app_core::plugins::AppSourcesPlugin;
 use bevy::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_obj::ObjPlugin;
-use combat::{components::{Health, Pistol}, ui::health_ui, weapons::plugins::CollisionPlugin, weapon_attacks::plugins::BulletPlugin, despawn::DespawnPlugin, asset_loader::{AssetLoaderPlugin, SceneAssets}};
+use bevy_ui_extras::{states::DebugMenuState, UiExtrasDebug};
+use combat::{components::{Health, Pistol}, ui::health_ui, weapons::plugins::CollisionPlugin, weapon_attacks::plugins::BulletPlugin, despawn::DespawnPlugin};
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
@@ -15,7 +15,11 @@ fn main() {
     .add_plugins(AppSourcesPlugin::CRATE)
     .add_plugins(DefaultPlugins)
     .add_plugins(ObjPlugin)
-    .add_plugins(WorldInspectorPlugin::default())
+    //.add_plugins(WorldInspectorPlugin::default())
+    .add_plugins(UiExtrasDebug {
+        menu_mode: DebugMenuState::Open,
+        ..default()
+    })
     .add_plugins(CollisionPlugin)
     .add_plugins(BulletPlugin)
     .add_plugins(DespawnPlugin)
@@ -38,20 +42,18 @@ fn setup(
     let mesh: Handle<Mesh> = asset_server.load("root://models/weapons/pistol.obj");
 
     // circular base
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Circle::new(4.0)),
-        material: materials.add(Color::WHITE),
-        transform: Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
-        ..default()
-    });
+    commands.spawn(
+        (
+            Mesh3d(meshes.add(Circle::new(4.0))),
+            MeshMaterial3d(materials.add(Color::WHITE)),
+            Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
+        )
+    );
     // cube
     commands.spawn((
-        PbrBundle {
-            mesh,
-            transform: Transform::from_xyz(0.0, 0.5, 0.0),
-            material: materials.add(Color::WHITE),
-            ..default()
-        },
+        Mesh3d(mesh),
+        Transform::from_xyz(0.0, 0.5, 0.0),
+        MeshMaterial3d(materials.add(Color::WHITE)),
         // SceneBundle {
         //     scene: scene_assets.pistol.clone(),
         //     transform: Transform::from_xyz(0.0, 0.5, 0.0),
@@ -62,17 +64,20 @@ fn setup(
         Name::new("Player"),
     ));
     // light
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
-            shadows_enabled: true,
-            ..default()
-        },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0),
-        ..default()
-    });
+    commands.spawn(
+        (
+            PointLight {
+                shadows_enabled: true,
+                ..default()
+            },
+            Transform::from_xyz(4.0, 8.0, 4.0),
+        )
+    );
     // camera
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
+    commands.spawn(
+        (
+            Camera3d::default(),
+            Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
+        )
+    );
 }

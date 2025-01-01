@@ -1,4 +1,3 @@
-use std::path::Path;
 
 pub mod neon;
 pub mod plugins;
