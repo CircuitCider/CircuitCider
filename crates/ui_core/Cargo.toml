@@ -14,9 +14,7 @@ bevy-inspector-egui = {workspace = true}
 bevy_egui = {workspace = true}
 egui = {workspace = true}
 bevy_serialization_extras = {workspace = true}
-bevy_serialization_urdf = {workspace = true}
 bevy_camera_extras = {workspace = true}
-#bevy_component_extras = "*"
 bevy_ui_extras = {workspace = true}
 bevy_rapier3d = {workspace = true}
 strum = {workspace = true}

@@ -11,7 +11,7 @@ bevy = {workspace = true}
 app_core = {workspace = true}
 
 
-derive_more = {workspace = true, default-features = false, features = ["from", "into"]}
+derive_more = {workspace = true, features = ["from", "into"]}
 
 [dev-dependencies]
 bevy_camera_extras = {workspace = true}

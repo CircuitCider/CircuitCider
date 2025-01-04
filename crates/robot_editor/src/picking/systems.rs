@@ -1,27 +1,24 @@
-use bevy::{input::keyboard::KeyboardInput, math::bounding::{IntersectsVolume, RayCast3d}, pbr::wireframe::Wireframe, prelude::*};
-use bevy_mod_outline::{OutlineBundle, OutlineVolume};
-use bevy_mod_picking::{
-    focus::PickingInteraction, highlight::PickHighlight, picking_core::{Pickable, PickingPluginsSettings},
-    selection::PickSelection, PickableBundle,
-};
-use bevy_mod_raycast::prelude::{Raycast, RaycastSettings};
-use bevy_serialization_extras::prelude::{link::{JointFlag, StructureFlag}, rigidbodies::RigidBodyFlag};
+use bevy::{input::keyboard::KeyboardInput, math::bounding::{IntersectsVolume, RayCast3d}, pbr::wireframe::Wireframe, picking::focus::PickingInteraction, prelude::*};
+use bevy_mod_outline::OutlineVolume;
+use bevy_serialization_extras::prelude::{JointFlag, StructureFlag};
 use shader_core::shaders::flow_wireframe::FlowWireframeMaterial;
 use transform_gizmo_bevy::GizmoTarget;
 
 use crate::{assembling::components::AssemblingTarget, attaching::components::AttachCandidate, placing::components::Placer, raycast_utils::{resources::CursorRayHits, systems::{DONT_EXIT_EARLY, EXIT_EARLY}}, resources::BuildToolMode};
 
+use super::PickSelection;
+
 
 pub fn toggle_picking_enabled(
     gizmo_targets: Query<&GizmoTarget>,
-    mut picking_settings: ResMut<PickingPluginsSettings>,
+    mut picking_settings: ResMut<PickingPlugin>,
 ) {
     // Picking is disabled when any of the gizmos is focused or active.
-
     picking_settings.is_enabled = gizmo_targets
         .iter()
         .all(|target| !target.is_focused() && !target.is_active());
 }
+
 
 
 /// effects on things that are iteracted with
@@ -171,23 +168,29 @@ pub fn picking_click_effects(
 
 pub fn make_models_pickable(
     mut commands: Commands,
-    models_query: Query<Entity, (With<StructureFlag>, Without<Pickable>)>,
+    models_query: Query<Entity, (With<StructureFlag>, Without<RayCastPickable>)>,
 ) {
     for e in models_query.iter() {
         commands.entity(e).insert((
-            PickableBundle {
-                pickable: Pickable::default(),
-                interaction: PickingInteraction::default(),
-                selection: PickSelection::default(),
-                highlight: PickHighlight::default(),
-            },
-            OutlineBundle {
-                outline: OutlineVolume {
-                    visible: false,
-                    colour: Color::Srgba(Srgba::GREEN),
-                    width: 2.0,
-                },
-                ..default()
+            // PickableBundle {
+            //     pickable: Pickable::default(),
+            //     interaction: PickingInteraction::default(),
+            //     selection: PickSelection::default(),
+            //     highlight: PickHighlight::default(),
+            // },
+            RayCastPickable,
+            // OutlineBundle {
+            //     outline: OutlineVolume {
+            //         visible: false,
+            //         colour: Color::Srgba(Srgba::GREEN),
+            //         width: 2.0,
+            //     },
+            //     ..default()
+            // },
+            OutlineVolume {
+                visible: false,
+                colour: Color::Srgba(Srgba::GREEN),
+                width: 2.0,
             },
         ));
     }

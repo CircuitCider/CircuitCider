@@ -61,10 +61,10 @@ impl Component for AttachCandidate {
                     world.commands().entity(e).insert(ATTACHING_OUTLINE);
                 }
                 // don't re-add neon material if its alrady there. its color is managed by intersection checks.
-                if world.get_mut::<Handle<NeonMaterial>>(e).is_none() {
+                if world.get_mut::<MeshMaterial3d<NeonMaterial>>(e).is_none() {
                     if let Some(handle) = world.get_resource_mut::<Assets<NeonMaterial>>()
                     .map(|mut neon_mats| neon_mats.add(NeonMaterial::default())) {
-                        world.commands().entity(e).insert(handle);
+                        world.commands().entity(e).insert(MeshMaterial3d(handle));
 
                     }
                 }
@@ -83,7 +83,7 @@ impl Component for AttachCandidate {
             } else {
                 world.commands().entity(e).insert(NO_OUTLINE);
             }
-            world.commands().entity(e).remove::<Handle<NeonMaterial>>();
+            world.commands().entity(e).remove::<MeshMaterial3d<NeonMaterial>>();
 
             if let Some(mut rigid_body)  = world.get_mut::<RigidBodyFlag>(e) {
                 *rigid_body = RigidBodyFlag::Dynamic

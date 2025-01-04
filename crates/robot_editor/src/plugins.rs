@@ -12,33 +12,24 @@ use bevy_camera_extras::CameraController;
 use bevy_camera_extras::CameraMode;
 use bevy_camera_extras::CameraRestrained;
 use bevy_camera_extras::ObservedBy;
-use bevy_mod_picking::backends::raycast::RaycastPickable;
-use bevy_mod_picking::debug::DebugPickingMode;
-use bevy_mod_picking::focus::PickingInteraction;
-use bevy_mod_raycast::prelude::RaycastSource;
 use bevy_rapier3d::plugin::NoUserData;
 use bevy_rapier3d::plugin::RapierPhysicsPlugin;
 //use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
-use bevy_serialization_extras::prelude::mesh::GeometryFile;
-use bevy_serialization_extras::prelude::mesh::GeometryFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
-use bevy_serialization_extras::prelude::DeserializeAssetFrom;
-use bevy_serialization_extras::prelude::PhysicsBundle;
+use bevy_serialization_extras::prelude::RigidBodyFlag;
+use bevy_serialization_extras::prelude::SerializationBasePlugin;
 use bevy_serialization_extras::prelude::SerializationPhysicsPlugin;
 use bevy_serialization_extras::prelude::SerializationPlugin;
-use bevy_serialization_urdf::loaders::urdf_loader::Urdf;
-use bevy_serialization_urdf::plugin::UrdfSerializationPlugin;
-use bevy_toon_shader::ToonShaderMainCamera;
-use bevy_toon_shader::ToonShaderPlugin;
-use bevy_toon_shader::ToonShaderSun;
+use bevy_serialization_extras::prelude::Urdf;
+use bevy_serialization_extras::prelude::UrdfSerializationPlugin;
 use camera_controls::plugins::RobotEditorCameraPlugin;
 use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
+use picking::plugins::CustomPickingPlugin;
 use picking::plugins::PickingPlugin;
 use placing::plugins::PlacingToolingPlugin;
-use raycast_utils::plugins::CursorRayCam;
 use raycast_utils::plugins::CursorRayHitsPlugin;
 use raycast_utils::resources::MouseOverWindow;
 use resources::BuildMenuTarget;
@@ -79,7 +70,8 @@ impl Plugin for RobotEditorPlugin {
         .register_type::<Wheel>()
         // load shaders
         .add_plugins(CustomShadersPlugin)
-        .add_plugins(ToonShaderPlugin)
+        //TODO: Add back
+        // .add_plugins(ToonShaderPlugin)
         .init_collection::<ImageHandles>()
 
         .add_systems(Update, configure_skybox_texture)
@@ -92,19 +84,16 @@ impl Plugin for RobotEditorPlugin {
         // PickingRobotEditorPlugin
         .add_plugins(RobotEditorCameraPlugin)
         .add_plugins(CursorRayHitsPlugin {debug_mode: false})
-        .register_type::<PickingInteraction>()
         .add_plugins(
             (
             TransformGizmoPlugin,
-            PickingPlugin,
+            CustomPickingPlugin
             )
         )
 
         // Serialization
         .add_plugins(SerializationPlugin)
-        .add_plugins(DeserializeAssetFrom::<GeometryFlag, Mesh>::default())
-        .add_plugins(DeserializeAssetFrom::<GeometryFile, Mesh>::default())
-
+        .add_plugins(SerializationBasePlugin)
         .add_plugins(SerializationPhysicsPlugin)
         .add_plugins(UrdfSerializationPlugin)
         
@@ -113,7 +102,6 @@ impl Plugin for RobotEditorPlugin {
             gizmo_orientation: GizmoOrientation::Global,
             ..default()
         })
-        .insert_resource(DebugPickingMode::Normal)
         .insert_resource(RobotControls::default())
         .register_type::<RobotControls>()        
         .insert_resource(BuildMenuTarget::default())
@@ -211,26 +199,30 @@ fn setup_editor_area(
     };
 
     commands.entity(cam).insert((
-        Camera3dBundle {
-            transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            camera: Camera {
-                order: 2, 
-                ..default()
-            },
-            ..Default::default()
+        // Camera3dBundle {
+        //     transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        //     camera: Camera {
+        //         order: 2, 
+        //         ..default()
+        //     },
+        //     ..Default::default()
             
-        },
+        // },
+        Camera3d::default(),
+        Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         CameraRestrained(false),
-        ToonShaderMainCamera,
+        // ToonShaderMainCamera,
         GizmoCamera,
-        RaycastPickable,
-        CursorRayCam, // Set this camera as a raycaster using the mouse cursor
+        // RaycastPickable,
+        // TODO: Add this back
+        // CursorRayCam, // Set this camera as a raycaster using the mouse cursor
 
         Name::new("editor cam"),
         RenderLayers::layer(0),
         Skybox {
             image: images.skybox.clone(),
-            brightness: 1000.0
+            brightness: 1000.0,
+            ..default()
         }
     ));
 
@@ -245,51 +237,46 @@ fn setup_editor_area(
 
     // plane
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Plane3d::new(
+        Mesh3d(meshes.add(Plane3d::new(
                 Vec3::new(0.0, 1.0, 0.0),
                 Vec2::new(50.0, 50.0),
-            )),
-            material: materials.add(Color::srgb(0.3, 0.5, 0.3)),
-            transform: Transform::from_xyz(0.0, -1.0, 0.0),
-            ..default()
-        },
-        PhysicsBundle::default(),
+                )
+            )
+        ),
+        MeshMaterial3d(materials.add(Color::srgb(0.3, 0.5, 0.3))),
+        RigidBodyFlag::Fixed,
         Name::new("Editor baseplate"),
     ));
-    // Sun
-    commands
-    .spawn((
-        DirectionalLightBundle {
-            directional_light: DirectionalLight {
-                shadows_enabled: true,
-                illuminance: 10_000.,
-                ..default()
-            },
-            transform: Transform {
-                translation: Vec3::new(2.0, 2.0, 2.0),
-                rotation: Quat::from_euler(EulerRot::XYZ, -PI / 4., PI / 6., 0.),
-                ..default()
-            },
-            ..default()
-        },
-        ToonShaderSun,
-        Name::new("Sun")
-    ));
+    // Sun(TODO: ADD BACK)
+    // commands
+    // .spawn((
+    //     DirectionalLightBundle {
+    //         directional_light: DirectionalLight {
+    //             shadows_enabled: true,
+    //             illuminance: 10_000.,
+    //             ..default()
+    //         },
+    //         transform: Transform {
+    //             translation: Vec3::new(2.0, 2.0, 2.0),
+    //             rotation: Quat::from_euler(EulerRot::XYZ, -PI / 4., PI / 6., 0.),
+    //             ..default()
+    //         },
+    //         ..default()
+    //     },
+    //     ToonShaderSun,
+    //     Name::new("Sun")
+    // ));
     // light
-    commands
-    .spawn((
-        PointLightBundle {
-            point_light: PointLight {
+    commands.spawn(
+        (
+            PointLight {
                 intensity: 1500.0,
                 shadows_enabled: true,
                 ..default()
             },
-            transform: Transform::from_xyz(4.0, 8.0, 4.0),
-            ..default()
-        },
-    )
-);
+            Transform::from_xyz(4.0, 8.0, 4.0),
+        )
+    );
 }
 
 pub fn set_robot_to_follow(

@@ -12,31 +12,24 @@ pub fn setup_display_area(
 ) {
     //camera
     commands.spawn((
-        Camera3dBundle {
-            camera: Camera {
-                order: 4,
-                //target: image_handle.clone().into(),
-                ..default()
-            },
-            transform: Transform::from_xyz(0.0, 2.5, 4.7)
-                .with_rotation(Quat::from_rotation_x(-0.5)),
+        Camera {
+            order: 4,
             ..default()
         },
+        Camera3d::default(),
+        Transform::from_xyz(0.0, 2.5, 4.7).with_rotation(Quat::from_rotation_x(-0.5)),
         RenderLayers::layer(1),
         Name::new("Display Camera"),
     ));
 
     // plane
     commands.spawn((
-        PbrBundle {
-            mesh: meshes.add(Plane3d::new(
-                Vec3::new(0.0, 1.0, 0.0),
-                Vec2::new(50.0, 50.0),
-            )),
-            material: materials.add(Color::WHITE),
-            transform: Transform::from_xyz(0.0, -47.2, -91.5),
-            ..default()
-        },
+        Mesh3d(meshes.add(Plane3d::new(
+            Vec3::new(0.0, 1.0, 0.0),
+            Vec2::new(50.0, 50.0),
+        ))),
+        MeshMaterial3d(materials.add(Color::WHITE)),
+        Transform::from_xyz(0.0, -47.2, -91.5),
         RenderLayers::layer(1),
         Name::new("Display Floor"),
         DisplayModelStaging,
@@ -49,7 +42,7 @@ pub fn rotate_display_model(
 ) {
     for mut trans in display_models.iter_mut() {
         //trans.rotate_x(1.0 * time.delta_seconds());
-        trans.rotate_y(0.55 * time.delta_seconds());
+        trans.rotate_y(0.55 * time.delta_secs());
     }
 }
 
@@ -78,13 +71,9 @@ pub fn display_model<'a>(
 ) {
     // Cube
     commands.spawn((
-        MaterialMeshBundle {
-            mesh: mesh,
-            transform: Transform::from_translation(DISPLAY_MODEL_TRANSLATION)
-                .with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, 0.7, 0.0)),
-            material: neon_materials.add(LinearRgba::BLUE),
-            ..default()
-        },
+        Mesh3d(mesh),
+        Transform::from_translation(DISPLAY_MODEL_TRANSLATION),
+        MeshMaterial3d(neon_materials.add(LinearRgba::BLUE)),
         RenderLayers::layer(1),
         Name::new("showcase model"),
         DisplayModel,

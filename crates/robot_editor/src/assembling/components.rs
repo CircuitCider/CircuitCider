@@ -1,6 +1,5 @@
 use bevy::{ecs::{component::{ComponentHooks, StorageType}, system::SystemState}, prelude::*};
 use bevy_mod_outline::OutlineVolume;
-use bevy_mod_raycast::prelude::Raycast;
 use bevy_rapier3d::rapier::prelude::RigidBody;
 use bevy_serialization_extras::prelude::{link::StructureFlag, rigidbodies::RigidBodyFlag};
 
@@ -45,7 +44,7 @@ impl Component for AssemblingTarget {
 
                 let mut state: SystemState<(
                     Query<&mut Transform>,
-                    Raycast,
+                    MeshRayCast,
                     Gizmos,
                   )> = SystemState::new(world);
                 let (

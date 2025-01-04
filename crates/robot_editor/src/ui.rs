@@ -6,7 +6,6 @@ use bevy::{
     asset::LoadedFolder, prelude::*, window::PrimaryWindow
 };
 use bevy_egui::EguiContext;
-use bevy_mod_picking::{focus::PickingInteraction, prelude::{PickSelection, Pickable}};
 use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 use egui::{Align2, Color32, RichText, Sense, UiBuilder};
@@ -25,7 +24,7 @@ pub fn build_menu_ui(
     mut placer_materials: ResMut<Assets<NeonMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
-    display_models: Query<(Entity, &Handle<Mesh>), With<DisplayModel>>,
+    display_models: Query<(Entity, &Mesh3d), With<DisplayModel>>,
     mut build_menu_target: ResMut<BuildMenuTarget>,
     mut commands: Commands,
 ) {
@@ -77,21 +76,11 @@ pub fn build_menu_ui(
                     println!("spawning model");
                     //TODO! put raycasting code here
                     let mut model = commands.spawn((
-                        MaterialMeshBundle {
-                            mesh: mesh_handle.clone(),
-                            material: materials.add(Color::WHITE),
-                            // material: placer_materials.add(NeonMaterial {
-                            //     color: Color::Srgba(Srgba::RED).into()
-                            // }),
-                            ..default()
-                        },
+                        Mesh3d(mesh_handle.clone()),
+                        MeshMaterial3d(materials.add(Color::WHITE)),
                         ColliderFlag::Convex,
                         Sensor,
-                        Pickable::default(),
-                        PickingInteraction::default(),
-                        PickSelection {
-                            is_selected: false
-                        },
+                        RayCastPickable::default(),
                         //GizmoTarget::default(),
                         Name::new(model_name),
                         Placer::from_path(str_path),
@@ -121,7 +110,7 @@ pub fn build_menu_ui(
                     model_hovered = true;
                     ui.label("show display model here!");
                     for (e, display_handle) in display_models.iter() {
-                        if mesh_handle.path() != display_handle.path() {
+                        if mesh_handle.path() != display_handle.0.path() {
                             commands.entity(e).despawn()
                         }
                     }

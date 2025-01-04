@@ -8,25 +8,22 @@ edition = "2021"
 [dependencies]
 app_core = {workspace = true}
 shader_core = {workspace = true}
-bevy = {workspace = true, features = ["dynamic_linking"]}
+bevy = {workspace = true}
 bevy-inspector-egui = {workspace = true}
 bevy_egui = {workspace = true}
 egui = {workspace = true}
 
 combat = {workspace = true}
 bevy_serialization_extras = {workspace = true}
-bevy_serialization_urdf = {workspace = true}
 bevy_mod_outline = {workspace = true}
 transform-gizmo-bevy = {workspace = true}
-bevy_mod_picking = {workspace = true, features = ["backend_egui", "backend_raycast"]}
 bevy_camera_extras = {workspace = true}
-bevy_mod_raycast = {workspace = true}
 bevy_ui_extras = {workspace = true}
 bevy_rapier3d = {workspace = true}
 strum = {workspace = true}
 strum_macros = {workspace = true}
 bevy_asset_loader = {workspace = true}
-bevy_toon_shader = {workspace = true, rev = "1b96d3e"}
+# bevy_toon_material = {workspace = true}
 #async-trait = "*"
 
 # parrallize compile

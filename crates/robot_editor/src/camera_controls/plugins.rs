@@ -3,6 +3,7 @@ use bevy_camera_extras::*;
 
 use crate::raycast_utils::resources::CursorRayHits;
 
+
 /// camera controls for robot editor camera
 pub struct RobotEditorCameraPlugin;
 
@@ -34,7 +35,7 @@ impl Plugin for RobotEditorCameraPlugin {
 ///click a target to focus camera on
 pub fn click_camera_focus_target(
     cursor_ray_hits: Res<CursorRayHits>,
-    mesh_query: Query<(Entity, &Handle<Mesh>)>,
+    mesh_query: Query<(Entity, &Mesh3d)>,
     observed_bodies: Query<&ObservedBy>,
     mouse: ResMut<ButtonInput<MouseButton>>,
     keys: ResMut<ButtonInput<KeyCode>>,

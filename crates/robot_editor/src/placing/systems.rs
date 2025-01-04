@@ -1,6 +1,4 @@
 use bevy::prelude::*;
-use bevy_mod_outline::{OutlineBundle, OutlineVolume};
-use bevy_mod_picking::{focus::PickingInteraction, prelude::{PickSelection, Pickable}, PickableBundle};
 use bevy_rapier3d::{geometry::Sensor, plugin::RapierContext};
 use bevy_serialization_extras::prelude::{colliders::ColliderFlag, link::StructureFlag};
 use shader_core::shaders::neon::NeonMaterial;
