@@ -1,6 +1,5 @@
 use bevy::{prelude::*, transform::commands};
 use bevy_mod_outline::OutlineVolume;
-use bevy_mod_raycast::prelude::Raycast;
 use bevy_serialization_extras::prelude::rigidbodies::RigidBodyFlag;
 
 use crate::raycast_utils::systems::EXIT_EARLY;

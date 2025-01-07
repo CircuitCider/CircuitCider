@@ -29,7 +29,7 @@ impl Component for AssemblingTarget {
 
     fn register_component_hooks(_hooks: &mut ComponentHooks) {
         _hooks.on_add(|mut world, e, _| {
-            world.commands().add(move |mut world: &mut World| {
+            world.commands().queue(move |mut world: &mut World| {
 
 
                 if let Some(mut outline) = world.get_mut::<OutlineVolume>(e) {
@@ -54,13 +54,14 @@ impl Component for AssemblingTarget {
                 ) = state.get_mut(&mut world);
                 
                 let Ok(mut trans) = transforms.get_mut(e) else {return;};
-                let ray = raycast.debug_cast_ray(
-                    Ray3d::new(trans.translation, Vec3::new(0.0, -1.0, 0.0)), &EXIT_EARLY, &mut gizmos);
+                //TODO: Re-make this a debug raycast if those get added back
+                let ray = raycast.cast_ray(
+                    Ray3d::new(trans.translation, Dir3::new_unchecked(Vec3::new(0.0, -1.0, 0.0))), &EXIT_EARLY);
 
 
                 if let Some((_, hit)) = ray.first() {
-                    println!("moving robot to {:#?}", hit.barycentric_coord());
-                    trans.translation.y = hit.barycentric_coord().y + 1.0;
+                    println!("moving robot to {:#?}", hit.barycentric_coords);
+                    trans.translation.y = hit.barycentric_coords.y + 1.0;
                 }
             });
 

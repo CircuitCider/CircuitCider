@@ -42,7 +42,7 @@ impl Component for AttachCandidate {
         _hooks.on_add(|mut world, e, _| {
             
             
-            world.commands().add(move |mut world: &mut World| {
+            world.commands().queue(move |mut world: &mut World| {
                 
                 world.commands().entity(e).insert(Sensor {});
 
