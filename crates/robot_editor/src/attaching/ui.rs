@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
-use bevy_rapier3d::{plugin::RapierContext};
+use bevy_rapier3d::plugin::RapierContext;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 use egui::{Color32, RichText};
 
@@ -64,7 +64,7 @@ pub fn attach_candidate_edit_ui(
     //         {
     //             println!("attaching candidate");
     //             commands.entity(part).remove::<AttachCandidate>();
-                
+
     //         }
     //         let target_name = match part_target.attempt_target {
     //             Some(target) => {

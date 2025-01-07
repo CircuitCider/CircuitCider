@@ -1,13 +1,9 @@
-
-
-use bevy::{
-    prelude::*,
-};
+use bevy::prelude::*;
 use bevy_camera_extras::*;
 
 use bevy_egui::EguiPlugin;
 
-use app_core::{plugins::AppSourcesPlugin};
+use app_core::plugins::AppSourcesPlugin;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
@@ -28,12 +24,10 @@ fn main() {
         .add_plugins(UiExtrasDebug {
             ui_style: UiStyle::BLACK_GLASS,
             ..default()
-        })        
+        })
         .add_plugins(StartMenuPlugin)
         .add_plugins(CombatPlugin)
-
         .add_plugins(RobotEditorPlugin)
-        
         // setup systems
         .add_systems(Startup, setup_camera)
         .run();

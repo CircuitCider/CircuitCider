@@ -1,4 +1,4 @@
-// //! crate for asset sourcing project asset paths. 
+// //! crate for asset sourcing project asset paths.
 
 // use bevy_app::prelude::*;
 // use bevy_asset::{
@@ -49,7 +49,6 @@
 
 // // impl Plugin for AppSetupPlugin {
 // //     fn build(&self, app: &mut App) {
-
 
 // //     }
 // // }

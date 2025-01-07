@@ -1,8 +1,9 @@
-use crate::{
-    resources::RobotControls,
-};
-use bevy::{asset::LoadState, render::render_resource::{TextureViewDescriptor, TextureViewDimension}};
+use crate::resources::RobotControls;
 pub use bevy::prelude::*;
+use bevy::{
+    asset::LoadState,
+    render::render_resource::{TextureViewDescriptor, TextureViewDimension},
+};
 //use bevy_camera_extras::Watched;
 use bevy_rapier3d::{plugin::RapierContext, prelude::Collider};
 use bevy_serialization_extras::prelude::{
@@ -18,7 +19,7 @@ use super::*;
 ///util for standard movement for components with given [`T`] component
 pub fn build_tool_control_util_for<T: Component>(
     mut attachers: Query<&mut Transform, With<T>>,
-    keys: Res<ButtonInput<KeyCode>>
+    keys: Res<ButtonInput<KeyCode>>,
 ) {
     for mut attacher in attachers.iter_mut() {
         if keys.pressed(KeyCode::KeyQ) {
@@ -63,22 +64,26 @@ pub fn move_to_cursor<T: Component + Targeter + Spacing>(
     // rapier_context: Res<RapierContext>,
     // tool_mode: ResMut<State<BuildToolMode>>,
     mut movables: Query<(Entity, &T)>,
-    mut transforms: Query<&mut Transform>
-    // mouse_over_window: Res<MouseOverWindow>,
+    mut transforms: Query<&mut Transform>, // mouse_over_window: Res<MouseOverWindow>,
 ) {
     for (movable, t) in movables.iter() {
-        let Ok(mut movable_trans) = transforms.get_mut(movable) else {return;};
+        let Ok(mut movable_trans) = transforms.get_mut(movable) else {
+            return;
+        };
 
         // keep move restricted to "attached" targets if move has target, otherwise, allow un-restricted movement of movables.
         let hit_pos = if let Some(target) = t.targets() {
-            let Some((.., hit)) = cursor_hits.first_hit(&target) else {return;};
+            let Some((.., hit)) = cursor_hits.first_hit(&target) else {
+                return;
+            };
             hit.point
         } else {
-            let Some((e, hit, ..)) = cursor_hits.first_without(&movables) else {return;};
+            let Some((e, hit, ..)) = cursor_hits.first_without(&movables) else {
+                return;
+            };
             hit.point
         };
-        
-        
+
         let offset = match T::spacing() {
             SpacingKind::Uplift(n) => Vec3::new(0.0, n, 0.0),
             SpacingKind::None => Vec3::new(0.0, 0.0, 0.0),
@@ -88,7 +93,7 @@ pub fn move_to_cursor<T: Component + Targeter + Spacing>(
     }
 }
 
-// pub fn attach_at_point<T: Component + 
+// pub fn attach_at_point<T: Component +
 
 pub fn configure_skybox_texture(
     image_handles: Res<ImageHandles>,
@@ -96,7 +101,7 @@ pub fn configure_skybox_texture(
     asset_server: Res<AssetServer>,
 ) {
     let skybox = &image_handles.skybox;
-    
+
     if !matches!(asset_server.get_load_state(skybox), Some(LoadState::Loaded)) {
         return;
     }
@@ -226,9 +231,7 @@ pub fn bind_left_and_right_wheel(
     }
 }
 
-pub fn spawn_toon_shader_cam(
-    mut commands: Commands,
-) {
+pub fn spawn_toon_shader_cam(mut commands: Commands) {
     // commands.spawn(
     //     (
     //         Camera3dBundle {
@@ -244,24 +247,20 @@ pub fn spawn_toon_shader_cam(
     //         ToonShaderMainCamera,
     //         Name::new("toon camera"),
     //     )
-    // );  
-    commands.spawn(
-        (
-            Camera {
-                hdr: true,
-                order: 1,
-                ..default()
-            },
-            Camera3d::default(),
-            Transform::from_xyz(0.0, 8., 12.0)
-                .looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
-            Name::new("toon camera"),
-        )
-    );
-
+    // );
+    commands.spawn((
+        Camera {
+            hdr: true,
+            order: 1,
+            ..default()
+        },
+        Camera3d::default(),
+        Transform::from_xyz(0.0, 8., 12.0).looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
+        Name::new("toon camera"),
+    ));
 }
 
-/// change robots to use toon shader 
+/// change robots to use toon shader
 pub fn set_robot_to_toon_shader(
     mut commands: Commands,
     standard_mats: ResMut<Assets<StandardMaterial>>,
@@ -290,7 +289,6 @@ pub fn set_robot_to_toon_shader(
     //     );
 
     //     commands.entity(bot).remove::<Handle<StandardMaterial>>();
-        
 
     // }
 }

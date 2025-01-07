@@ -1,5 +1,5 @@
 use crate::states::MainMenuState;
-use bevy::{prelude::*};
+use bevy::prelude::*;
 use robot_editor::states::RobotEditorState;
 
 use super::components::*;
@@ -255,7 +255,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                             left: Val::Px(10.5),
                             right: Val::Px(10.5),
                             ..default()
-                        }
+                        },
                     ));
                 });
         })
@@ -294,7 +294,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                                 right: Val::Px(10.5),
                             },
                             ..default()
-                        }
+                        },
                     ));
                 });
         })
@@ -333,7 +333,7 @@ pub fn spawn_start_menu(mut commands: Commands, asset_server: Res<AssetServer>) 
                                 right: Val::Px(10.5),
                             },
                             ..default()
-                        }
+                        },
                     ));
                 });
         });

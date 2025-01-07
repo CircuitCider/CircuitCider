@@ -14,12 +14,11 @@ pub struct ModelDisplayerPlugin;
 
 impl Plugin for ModelDisplayerPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .register_type::<DisplayModel>()
-        .register_type::<DisplayModelStaging>()
-        .register_type::<DisplayModelCamera>()
-        .add_systems(Startup, setup_display_area)
-        .add_systems(Update, rotate_display_model)
-        .add_systems(Update, manage_display_platform_visibility);
+        app.register_type::<DisplayModel>()
+            .register_type::<DisplayModelStaging>()
+            .register_type::<DisplayModelCamera>()
+            .add_systems(Startup, setup_display_area)
+            .add_systems(Update, rotate_display_model)
+            .add_systems(Update, manage_display_platform_visibility);
     }
 }

@@ -35,11 +35,10 @@ use super::components::AssemblingTarget;
 //         let ray = raycast.debug_cast_ray(
 //             Ray3d::new(trans.translation, Vec3::new(0.0, -1.0, 0.0)), &EXIT_EARLY, &mut gizmos);
 
-
 //         if let Some((_, hit)) = ray.first() {
 //             println!("moving robot to {:#?}", hit.barycentric_coord());
 //             trans.translation.y = hit.barycentric_coord().y + 1.0;
 //         }
 //     }
-    
+
 // }

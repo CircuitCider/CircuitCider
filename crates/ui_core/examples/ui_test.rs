@@ -1,7 +1,5 @@
-use app_core::{plugins::AppSourcesPlugin};
-use bevy::{
-    prelude::*,
-};
+use app_core::plugins::AppSourcesPlugin;
+use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use ui_core::plugins::StartMenuPlugin;
 

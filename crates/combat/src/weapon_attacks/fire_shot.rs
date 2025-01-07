@@ -1,6 +1,6 @@
+use crate::components::{Bullet, CollisionDamage, Health, Pistol, SpawnTimer, Velocity};
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::{Collider, Sensor};
-use crate::components::{Health, Pistol, Bullet, Velocity, CollisionDamage, SpawnTimer};
 
 pub fn fire_bullet(
     mut commands: Commands,
@@ -22,9 +22,7 @@ pub fn fire_bullet(
         commands.spawn((
             Mesh3d(meshes.add(Cuboid::new(0.1, 0.1, 0.1))),
             MeshMaterial3d(materials.add(Color::BLACK)),
-            Transform::from_translation(
-                transform.translation + -transform.forward() * 1.0,
-            ),
+            Transform::from_translation(transform.translation + -transform.forward() * 1.0),
             Health::new(1.0),
             CollisionDamage(25.0),
             Velocity::new(-transform.forward() * 25.0),

@@ -3,7 +3,7 @@ pub struct DespawnPlugin;
 
 impl Plugin for DespawnPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update,despawn_far_away_entities);
+        app.add_systems(Update, despawn_far_away_entities);
     }
 }
 

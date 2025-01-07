@@ -3,7 +3,6 @@ use bevy_camera_extras::*;
 
 use crate::raycast_utils::resources::CursorRayHits;
 
-
 /// camera controls for robot editor camera
 pub struct RobotEditorCameraPlugin;
 

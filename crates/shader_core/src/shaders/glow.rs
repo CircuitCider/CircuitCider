@@ -9,11 +9,8 @@ use bevy::{
     },
 };
 
-
-
 const SHADER_PATH: &str = "root://shaders/glow.wgsl";
 // const SHADER_PATH: &str = "../../../assets/shaders/glow.wgsl";
-
 
 #[derive(Asset, Reflect, AsBindGroup, Debug, Clone, Default)]
 #[reflect(Default, Debug)]
@@ -21,7 +18,6 @@ pub struct GlowMaterial {
     #[uniform(0)]
     pub heat: f32,
 }
-
 
 // impl From<LinearRgba> for GlowMaterial {
 //     fn from(color: LinearRgba) -> Self {

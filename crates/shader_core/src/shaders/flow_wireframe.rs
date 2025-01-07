@@ -1,10 +1,18 @@
-use bevy::{pbr::{MaterialPipeline, MaterialPipelineKey}, prelude::*, render::{mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, CompareFunction, PolygonMode, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError}}};
-
+use bevy::{
+    pbr::{MaterialPipeline, MaterialPipelineKey},
+    prelude::*,
+    render::{
+        mesh::MeshVertexBufferLayoutRef,
+        render_resource::{
+            AsBindGroup, CompareFunction, PolygonMode, RenderPipelineDescriptor, ShaderRef,
+            SpecializedMeshPipelineError,
+        },
+    },
+};
 
 const SHADER_PATH: &str = "root://shaders/flow_wireframe.wgsl";
 // const SHADER_PATH: &str = "../../../assets/shaders/flow_wireframe.wgsl";
 // const SHADER_PATH: &str = "shaders/flow_wireframe.wgsl";
-
 
 // pub struct FlowWireFramePipeline;
 
@@ -15,7 +23,6 @@ const SHADER_PATH: &str = "root://shaders/flow_wireframe.wgsl";
 //         )
 //     }
 // }
-
 
 #[derive(Default, AsBindGroup, Debug, Clone, Asset, Reflect, Component)]
 #[reflect(Default, Debug)]

@@ -1,12 +1,12 @@
-mod resources;
 pub mod plugins;
+mod resources;
 pub mod shaders;
 
 use std::any::TypeId;
 
 use bevy::asset::LoadedFolder;
-use bevy::prelude::*;
 use bevy::ecs::system::Resource;
+use bevy::prelude::*;
 
 use derive_more::From;
 use resources::{ShadersFolder, WgslCache};
@@ -19,8 +19,6 @@ pub struct Pane {
     pub content: String,
     //pub nr: usize,
 }
-
-
 
 /// loads assets of type T in a given folder.
 pub fn load_assets_for<T: Asset>(
@@ -80,7 +78,6 @@ pub fn update_wgsl_cache(
     }
 }
 
-
 /// Adds a folder to app by path and binds it to a given newtype struct resource with its handle.
 pub fn add_folder<T: From<bevy::asset::Handle<LoadedFolder>> + Resource>(
     local_path: String,
@@ -91,8 +88,6 @@ pub fn add_folder<T: From<bevy::asset::Handle<LoadedFolder>> + Resource>(
         world.insert_resource(T::from(folder_handle));
     }
 }
-
-
 
 // pub fn display_wgslout_info(
 //     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,

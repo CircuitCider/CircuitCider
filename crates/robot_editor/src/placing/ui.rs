@@ -42,4 +42,3 @@ pub fn placer_editor_ui(
         });
     }
 }
-

@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use super::{components::AssemblingTarget, ui::assembler_ui};
 
-
 /// plugin for assembling robots
 pub struct AssemblingPlugin;
 

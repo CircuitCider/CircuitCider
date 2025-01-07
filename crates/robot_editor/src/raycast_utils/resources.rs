@@ -3,14 +3,16 @@ use bevy::{
         entity::Entity,
         query::{QueryData, QueryFilter, ReadOnlyQueryData},
         system::{Query, Resource},
-    }, math::Ray3d, picking::mesh_picking::ray_cast::RayMeshHit, prelude::{Component, Deref, DerefMut}, reflect::Reflect
+    },
+    math::Ray3d,
+    picking::mesh_picking::ray_cast::RayMeshHit,
+    prelude::{Component, Deref, DerefMut},
+    reflect::Reflect,
 };
 
 /// weather mouse is over window or not.
 #[derive(Resource, Reflect, Deref, DerefMut, Default)]
 pub struct MouseOverWindow(bool);
-
-
 
 /// collection of things that [`CursorRay`] hit.
 ///
@@ -153,27 +155,23 @@ impl CursorRayHits {
         Some((first_hit.0, first_hit.1.clone()))
     }
     /// checks to see if the given entity was hit, returns None if not.
-    pub fn first_hit(
-        &self,
-        entity: &Entity,
-    ) -> Option<&(Entity, RayMeshHit)> {
+    pub fn first_hit(&self, entity: &Entity) -> Option<&(Entity, RayMeshHit)> {
         self.iter().find(|(e, ..)| e == entity)
     }
     /// gets the first hit after the given entity, returns if there is none.
-    pub fn first_hit_after(
-        &self,
-        entity: &Entity
-    ) -> Option<(&Entity, &RayMeshHit)> { 
-
-        for (i, (current, current_hit)) in self.iter().enumerate()
-        //overflow protection
-        .skip(0) {
+    pub fn first_hit_after(&self, entity: &Entity) -> Option<(&Entity, &RayMeshHit)> {
+        for (i, (current, current_hit)) in self
+            .iter()
+            .enumerate()
+            //overflow protection
+            .skip(0)
+        {
             if i == 0 {
-                continue
+                continue;
             }
             if let Some((previous, hit)) = self.get(i - 1) {
                 if previous == entity {
-                    return Some((current, current_hit))
+                    return Some((current, current_hit));
                 }
             }
         }

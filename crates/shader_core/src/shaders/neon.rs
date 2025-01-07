@@ -21,7 +21,7 @@ pub struct NeonMaterial {
 impl Default for NeonMaterial {
     fn default() -> Self {
         Self {
-            color: LinearRgba::WHITE
+            color: LinearRgba::WHITE,
         }
     }
 }

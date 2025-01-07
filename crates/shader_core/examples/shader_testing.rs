@@ -2,13 +2,23 @@
 
 use app_core::plugins::AppSourcesPlugin;
 use bevy::{
-    color::palettes::css::LIME, pbr::{wireframe::{Wireframe, WireframeColor, WireframePlugin}, MeshLayouts}, prelude::*, render::{
-        render_resource::ShaderRef, renderer::RenderDevice
-    }
+    color::palettes::css::LIME,
+    pbr::{
+        wireframe::{Wireframe, WireframeColor, WireframePlugin},
+        MeshLayouts,
+    },
+    prelude::*,
+    render::{render_resource::ShaderRef, renderer::RenderDevice},
 };
 use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraMode, CameraRestrained};
 // use bevy_ui_extras::UiExtrasDebug;
-use shader_core::{plugins::ShaderDebugPlugin, shaders::{flow_wireframe::FlowWireframeMaterial, glow::GlowMaterial, grid::GridMaterial, neon::NeonMaterial, plugins::CustomShadersPlugin}};
+use shader_core::{
+    plugins::ShaderDebugPlugin,
+    shaders::{
+        flow_wireframe::FlowWireframeMaterial, glow::GlowMaterial, grid::GridMaterial,
+        neon::NeonMaterial, plugins::CustomShadersPlugin,
+    },
+};
 
 fn main() {
     App::new()
@@ -19,11 +29,10 @@ fn main() {
             ..default()
         }))
         .add_plugins(WireframePlugin)
-        
         .add_plugins(CameraExtrasPlugin {
             cursor_grabbed_by_default: false,
             keybinds_override: None,
-            movement_settings_override: None
+            movement_settings_override: None,
         })
         // .add_plugins(UiExtrasDebug::default())
         //.add_plugins(ShaderDebugPlugin)
@@ -50,23 +59,18 @@ fn setup(
     mut grid_mat: ResMut<Assets<GridMaterial>>,
 ) {
     // circular base
-    commands.spawn(
-        (
-            Mesh3d(meshes.add(Circle::new(4.0))),
-            MeshMaterial3d(materials.add(Color::WHITE)),
-            Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
-        )
-    );
+    commands.spawn((
+        Mesh3d(meshes.add(Circle::new(4.0))),
+        MeshMaterial3d(materials.add(Color::WHITE)),
+        Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
+    ));
     // cube
-    commands.spawn(
-        (
-            Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
-            MeshMaterial3d(glow_materials.add(GlowMaterial {heat: 0.0})),
-            Transform::from_xyz(0.0, 0.5, 0.0),
-            Name::new("Cube"),
-
-        )
-    );
+    commands.spawn((
+        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0))),
+        MeshMaterial3d(glow_materials.add(GlowMaterial { heat: 0.0 })),
+        Transform::from_xyz(0.0, 0.5, 0.0),
+        Name::new("Cube"),
+    ));
     // commands.spawn((
     //     MaterialMeshBundle {
     //         mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
@@ -88,24 +92,20 @@ fn setup(
     //     // WireframeColor { color: LIME.into() },
     // ));
     // light
-    commands.spawn(
-        (
-            PointLight {
-                shadows_enabled: true,
-                ..default()
-            },
-            Transform::from_xyz(4.0, 8.0, 4.0)
-        )
-    );
+    commands.spawn((
+        PointLight {
+            shadows_enabled: true,
+            ..default()
+        },
+        Transform::from_xyz(4.0, 8.0, 4.0),
+    ));
     // camera
-    commands.spawn(
-        (
-            Camera3d::default(),
-            CameraController {
-                restrained: CameraRestrained(false),
-                camera_mode: CameraMode::Free
-            },
-            Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y)
-        )
-    );
+    commands.spawn((
+        Camera3d::default(),
+        CameraController {
+            restrained: CameraRestrained(false),
+            camera_mode: CameraMode::Free,
+        },
+        Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
+    ));
 }

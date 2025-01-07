@@ -2,10 +2,7 @@
 //!
 //!
 
-use bevy::{
-    math::primitives::Cylinder,
-    render::mesh::Mesh,
-};
+use bevy::{math::primitives::Cylinder, render::mesh::Mesh};
 
 #[derive(Default)]
 pub enum Direction {

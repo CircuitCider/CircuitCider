@@ -1,4 +1,4 @@
-pub mod plugins;
 pub mod components;
-mod ui;
+pub mod plugins;
 mod systems;
+mod ui;

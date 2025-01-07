@@ -1,13 +1,10 @@
 //! test for the positioning of displaying models
 //!
 
-use bevy::{prelude::*};
+use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_ui_extras::UiExtrasDebug;
-use robot_editor::model_display::{
-        plugins::ModelDisplayerPlugin,
-        systems::display_model,
-    };
+use robot_editor::model_display::{plugins::ModelDisplayerPlugin, systems::display_model};
 use shader_core::shaders::{neon::NeonMaterial, plugins::CustomShadersPlugin};
 
 pub fn main() {

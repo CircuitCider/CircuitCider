@@ -12,9 +12,7 @@ impl Health {
 }
 impl Default for Health {
     fn default() -> Self {
-        Self {
-            hp: 100.0,
-        }
+        Self { hp: 100.0 }
     }
 }
 

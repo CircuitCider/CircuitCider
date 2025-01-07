@@ -5,7 +5,6 @@ use bevy::prelude::*;
 pub mod plugins;
 mod systems;
 
-
 #[derive(Component, Clone, Copy)]
 pub struct PickSelection {
     pub is_selected: bool,

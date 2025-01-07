@@ -4,23 +4,18 @@ use bevy::{
     render::{
         mesh::MeshVertexBufferLayoutRef,
         render_resource::{
-            AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError
+            AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError,
         },
     },
 };
-
-
 
 const SHADER_PATH: &str = "root://shaders/grid.wgsl";
 // const SHADER_PATH: &str = "../../../assets/shaders/grid.wgsl";
 // const SHADER_PATH: &str = "shaders/grid.wgsl";
 
-
 #[derive(Asset, Reflect, AsBindGroup, Debug, Clone, Default)]
 #[reflect(Default, Debug)]
-pub struct GridMaterial {
-}
-
+pub struct GridMaterial {}
 
 impl Material for GridMaterial {
     fn fragment_shader() -> ShaderRef {

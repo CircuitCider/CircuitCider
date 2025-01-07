@@ -12,8 +12,6 @@ use crate::{
 
 use super::components::Placer;
 
-
-
 /// gets rid of placers if current mode is not placermode
 pub fn delete_placers(
     tool_mode: ResMut<State<BuildToolMode>>,
@@ -31,16 +29,13 @@ pub fn delete_placers(
     if despawn == true {
         for e in placers.iter() {
             commands.entity(e).despawn()
-        }    
+        }
     }
 }
 
 /// checks for any intersection between the placer and other meshes
 pub fn attach_placer(
-    placers: Query<(
-        Entity,
-        &Placer,
-    )>,
+    placers: Query<(Entity, &Placer)>,
     mouse: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
@@ -51,14 +46,11 @@ pub fn attach_placer(
     if mouse.just_released(MouseButton::Left) && **mouse_over_window == false {
         for (e, _) in placers.iter() {
             if let Some((target, ..)) = hits.first_with(&robots) {
-                commands.entity(e).insert(
-                    AttachCandidate {
-                        attempt_target: Some(target)
-                    }
-                );
-            } 
+                commands.entity(e).insert(AttachCandidate {
+                    attempt_target: Some(target),
+                });
+            }
             commands.entity(e).remove::<Placer>();
-
         }
     }
     if keys.just_pressed(KeyCode::Escape) {
@@ -67,5 +59,3 @@ pub fn attach_placer(
         }
     }
 }
-
-

@@ -1,6 +1,4 @@
-use bevy::{
-    prelude::*,
-};
+use bevy::prelude::*;
 
 use crate::{states::MainMenuState, ui::*};
 

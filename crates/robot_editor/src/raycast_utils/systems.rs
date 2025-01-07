@@ -1,6 +1,4 @@
-use bevy::{
-    prelude::*,
-};
+use bevy::prelude::*;
 
 pub const DONT_EXIT_EARLY: RayCastSettings<'static> = RayCastSettings {
     visibility: RayCastVisibility::VisibleInView,
@@ -59,7 +57,7 @@ pub const EXIT_EARLY: RayCastSettings = RayCastSettings {
 //     **cursor_ray_hits = hit_iter
 // }
 
-// /// Gets all hit data of entities clicked on by mouse.  
+// /// Gets all hit data of entities clicked on by mouse.
 // pub fn ray_hit_iter<'a>(
 //     ray: &'a Option<Ray3d>,
 //     raycast: &'a mut MeshRayCast,

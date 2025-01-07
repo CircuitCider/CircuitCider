@@ -6,7 +6,10 @@ use transform_gizmo_bevy::GizmoTarget;
 
 use crate::resources::BuildToolMode;
 
-use super::systems::{make_models_pickable, picking_click_effects, picking_interaction_effects, toggle_picking_enabled};
+use super::systems::{
+    make_models_pickable, picking_click_effects, picking_interaction_effects,
+    toggle_picking_enabled,
+};
 
 /// picking settings for this project
 pub struct CustomPickingPlugin;
@@ -28,12 +31,10 @@ impl Plugin for CustomPickingPlugin {
                 ..default()
             })
             .add_plugins(OutlinePlugin)
-
             // .add_systems(OnEnter(BuildToolMode), systems)
             .add_systems(PreUpdate, toggle_picking_enabled)
             .add_systems(Update, picking_click_effects)
             .add_systems(Update, picking_interaction_effects)
-            .add_systems(Update, make_models_pickable)
-            ;
+            .add_systems(Update, make_models_pickable);
     }
 }

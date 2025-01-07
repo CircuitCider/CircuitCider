@@ -1,18 +1,20 @@
-
 use crate::{
-    components::Wheel, load_assets_in, model_display::{components::DisplayModel, systems::display_model}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, raycast_utils::resources::MouseOverWindow, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
+    components::Wheel,
+    load_assets_in,
+    model_display::{components::DisplayModel, systems::display_model},
+    placing::components::Placer,
+    prelude::{WeaponsFolder, WheelsFolder},
+    raycast_utils::resources::MouseOverWindow,
+    resources::{BuildMenuTarget, BuildToolMode, HullsFolder},
 };
-use bevy::{
-    asset::LoadedFolder, prelude::*, window::PrimaryWindow
-};
+use bevy::{asset::LoadedFolder, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
+use combat::components::Pistol;
 use egui::{Align2, Color32, RichText, Sense, UiBuilder};
 use shader_core::shaders::neon::NeonMaterial;
 use strum::IntoEnumIterator;
-use combat::components::Pistol;
-
 
 /// list all placeable models
 pub fn build_menu_ui(
@@ -30,8 +32,10 @@ pub fn build_menu_ui(
 ) {
     let mut model_hovered = false;
 
-    let Ok(mut context) = primary_window.get_single_mut()
-    .inspect_err(|err| println!("issue spawning build menu: {:#}", err)) else {
+    let Ok(mut context) = primary_window
+        .get_single_mut()
+        .inspect_err(|err| println!("issue spawning build menu: {:#}", err))
+    else {
         return;
     };
 
@@ -44,11 +48,13 @@ pub fn build_menu_ui(
                     true => Color32::WHITE,
                     false => Color32::GRAY,
                 };
-                if ui.button(RichText::new(item.to_string()).color(color)).clicked() {
+                if ui
+                    .button(RichText::new(item.to_string()).color(color))
+                    .clicked()
+                {
                     *build_menu_target = item
                 }
             }
-
         });
         let model_king = build_menu_target.clone();
         let Some(handles) = (match model_king {
@@ -70,9 +76,11 @@ pub fn build_menu_ui(
                 let str_path = path.path().to_str().unwrap();
 
                 let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
-                let spawn_button = ui.button(model_name.clone()).interact(Sense::click_and_drag());
+                let spawn_button = ui
+                    .button(model_name.clone())
+                    .interact(Sense::click_and_drag());
 
-                if spawn_button.drag_started(){
+                if spawn_button.drag_started() {
                     println!("spawning model");
                     //TODO! put raycasting code here
                     let mut model = commands.spawn((
@@ -97,10 +105,14 @@ pub fn build_menu_ui(
                         // Name::new(model_name.clone()),
                     ));
                     match model_king {
-                        BuildMenuTarget::Hulls => {},
-                        BuildMenuTarget::Weapons => {model.insert(Pistol);},
+                        BuildMenuTarget::Hulls => {}
+                        BuildMenuTarget::Weapons => {
+                            model.insert(Pistol);
+                        }
                         //TODO: Wheel should NOT have "left-right" quality. This should be user defined/face defined/relativistic to other wheels.
-                        BuildMenuTarget::Wheels => {model.insert(Wheel::Right);},
+                        BuildMenuTarget::Wheels => {
+                            model.insert(Wheel::Right);
+                        }
                     }
                     tool_mode.set(BuildToolMode::PlacerMode)
                 }
@@ -134,7 +146,6 @@ pub fn build_menu_ui(
     //}
 }
 
-
 // /// ui for build menu
 // pub fn build_menu_ui(
 //     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
@@ -165,7 +176,6 @@ pub fn build_menu_ui(
 
 //         build_menu_ui_child.0 = Some(ui.new_child(UiBuilder::new()))
 //     });
-
 
 // }
 
@@ -232,7 +242,9 @@ pub fn save_load_model_ui(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     //mut commands: Commands,
 ) {
-    let Ok(context) = primary_window.get_single() else {return;};
+    let Ok(context) = primary_window.get_single() else {
+        return;
+    };
     for mut context in primary_window.iter_mut() {
         let ui_name = "Save Load Model";
         egui::Window::new(ui_name)

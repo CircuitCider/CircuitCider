@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{resources::{ShadersFolder, WgslCache}};
+use crate::resources::{ShadersFolder, WgslCache};
 use crate::*;
 pub struct ShaderDebugPlugin;
 

@@ -1,4 +1,3 @@
-
 use bevy::{prelude::*, render::view::RenderLayers};
 use shader_core::shaders::neon::NeonMaterial;
 

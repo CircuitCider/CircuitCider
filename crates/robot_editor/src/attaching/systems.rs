@@ -21,27 +21,26 @@ use crate::{placing::components::Placer, raycast_utils::resources::CursorRayHits
 pub fn confirm_attachment(
     candidates: Query<(Entity, &Transform, &AttachCandidate)>,
     mut commands: Commands,
-    mouse: Res<ButtonInput<MouseButton>>
+    mouse: Res<ButtonInput<MouseButton>>,
 ) {
     if mouse.just_pressed(MouseButton::Left) {
         for (e, transform, candidate) in candidates.iter() {
-           let Some(target) = candidate.attempt_target else {return;};
+            let Some(target) = candidate.attempt_target else {
+                return;
+            };
 
             commands.entity(e).insert(JointFlag {
                 parent_name: None,
                 parent_id: Some(target),
                 local_frame2: Some(transform.clone()),
-                ..default()
-                    //limit: JointLimitWrapper {lower: 0.0, upper: 0.0, effort: 0.0, velocity: 0.0},
-
+                ..default() //limit: JointLimitWrapper {lower: 0.0, upper: 0.0, effort: 0.0, velocity: 0.0},
             });
             commands.entity(e).remove::<AttachCandidate>();
-        }  
+        }
     }
-
 }
 
-/// switch to attach move to placer 
+/// switch to attach move to placer
 pub fn switch_to_attach_from_placer(
     keys: ResMut<ButtonInput<KeyCode>>,
     mut placers: Query<(Entity, Option<&mut AttachCandidate>), With<Placer>>,
@@ -51,23 +50,28 @@ pub fn switch_to_attach_from_placer(
     mut commands: Commands,
 ) {
     if keys.pressed(KeyCode::ShiftLeft) {
-        let Ok((e, current_target, ..)) = placers.get_single_mut()
-        .inspect_err(|err| warn!("switching attacher mode only works with 1 placer: Actual error: {:#}", err))
-         else {return;};
+        let Ok((e, current_target, ..)) = placers.get_single_mut().inspect_err(|err| {
+            warn!(
+                "switching attacher mode only works with 1 placer: Actual error: {:#}",
+                err
+            )
+        }) else {
+            return;
+        };
 
         if let Some((target, hit)) = hits.first_hit_after(&e) {
             if let Some(mut current_target) = current_target {
                 current_target.attempt_target = Some(*target)
             } else {
                 commands.entity(e).insert(AttachCandidate {
-                    attempt_target: Some(*target)
+                    attempt_target: Some(*target),
                 });
             }
         }
         // for (e, current_target) in placers.iter() {
         //     if let Some((target,..)) = hits.first_wi(&placers) {
         //         if let Some(current_target) = current_target {
-                    
+
         //         }
         //         commands.entity(e).insert(AttachCandidate {
         //             attempt_target: Some(target)
@@ -75,8 +79,9 @@ pub fn switch_to_attach_from_placer(
         //     }
         // }
     } else {
-        let Ok((e, current_target, ..)) = placers.get_single_mut()
-         else {return;};
+        let Ok((e, current_target, ..)) = placers.get_single_mut() else {
+            return;
+        };
 
         //  let Some(current_target) = current_target else {return;};
 

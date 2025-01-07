@@ -4,7 +4,7 @@ use bevy_asset::{
     AssetApp,
 };
 
-use crate::{ROOT};
+use crate::ROOT;
 
 /// PUT THIS PLUGIN BEFORE [`DefaultPlugins`]!!!
 ///
@@ -31,12 +31,11 @@ impl Plugin for AppSourcesPlugin {
 
         //let root = self.root_dir.clone();
 
-        app
-            .register_asset_source(
-                ROOT,
-                AssetSource::build()
-                    .with_reader(move || Box::new(FileAssetReader::new(asset_folder_location))),
-            );
+        app.register_asset_source(
+            ROOT,
+            AssetSource::build()
+                .with_reader(move || Box::new(FileAssetReader::new(asset_folder_location))),
+        );
     }
 }
 
@@ -46,7 +45,6 @@ impl Plugin for AppSourcesPlugin {
 
 // impl Plugin for AppSetupPlugin {
 //     fn build(&self, app: &mut App) {
-
 
 //     }
 // }

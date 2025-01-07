@@ -13,8 +13,6 @@ use super::resources::*;
 use super::systems::*;
 use super::ui::*;
 
-
-
 /// stuff required to run individual tools of robot editor
 pub struct PlacingToolingPlugin;
 

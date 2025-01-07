@@ -1,23 +1,20 @@
+use bevy::prelude::*;
 use bevy::render::camera;
 use bevy::window::PrimaryWindow;
-use bevy::{prelude::*};
 use bevy_ui_extras::DebugModeFlagRegister;
 
 use super::resources::*;
 use super::systems::*;
 /// adds and updates [`CursorRayHits`], a shorthand for listing things that were clicked on.
 pub struct CursorRayHitsPlugin {
-    pub debug_mode: bool
+    pub debug_mode: bool,
 }
 
 impl Default for CursorRayHitsPlugin {
     fn default() -> Self {
-        Self {
-            debug_mode: false
-        }
+        Self { debug_mode: false }
     }
 }
-
 
 impl Plugin for CursorRayHitsPlugin {
     fn build(&self, app: &mut App) {
@@ -40,7 +37,7 @@ impl Plugin for CursorRayHitsPlugin {
 
 // /// Automatically generates a ray in world space corresponding to the mouse cursor, and stores it in
 // /// [`CursorRay`].
-// /// modified to older use cams marked iwth `[CursorRayCam]` 
+// /// modified to older use cams marked iwth `[CursorRayCam]`
 // #[derive(Default)]
 // pub struct CustomCursorRayPlugin;
 // impl Plugin for CustomCursorRayPlugin {
