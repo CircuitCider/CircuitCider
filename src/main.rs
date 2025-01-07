@@ -8,12 +8,11 @@ use bevy_camera_extras::*;
 use bevy_egui::EguiPlugin;
 
 use app_core::{plugins::AppSourcesPlugin};
-use bevy_mod_raycast::cursor::CursorRayPlugin;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use bevy_serialization_urdf::plugin::AssetSourcesUrdfPlugin;
+use bevy_serialization_extras::prelude::AssetSourcesUrdfPlugin;
 use bevy_ui_extras::{UiExtrasDebug, UiStyle};
 use combat::weapon_attacks::plugins::CombatPlugin;
 use robot_editor::plugins::RobotEditorPlugin;
@@ -27,7 +26,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(UiExtrasDebug {
-            ui_style: UiStyle::BlackGlass,
+            ui_style: UiStyle::BLACK_GLASS,
             ..default()
         })        
         .add_plugins(StartMenuPlugin)
@@ -44,14 +43,11 @@ fn main() {
 fn setup_camera(mut commands: Commands) {
     // camera
     commands.spawn((
-        Camera3dBundle {
-            transform: Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        },
+        Camera3d::default(),
+        Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
         CameraController {
             restrained: CameraRestrained(true),
             camera_mode: CameraMode::Observer(ObserverCam::Orbit),
         },
-        //bevy_transform_gizmo::GizmoPickSource::default(),
     ));
 }

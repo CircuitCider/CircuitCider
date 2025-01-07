@@ -34,7 +34,6 @@
 //         //let root = self.root_dir.clone();
 
 //         app
-//             //.add_plugins(AssetPlugin::default())        // .obj file support
 //             //.add_plugins(ObjPlugin)
 //             .register_asset_source(
 //                 ROOT,

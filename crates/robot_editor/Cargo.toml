@@ -23,6 +23,7 @@ bevy_rapier3d = {workspace = true}
 strum = {workspace = true}
 strum_macros = {workspace = true}
 bevy_asset_loader = {workspace = true}
+
 # bevy_toon_material = {workspace = true}
 #async-trait = "*"
 

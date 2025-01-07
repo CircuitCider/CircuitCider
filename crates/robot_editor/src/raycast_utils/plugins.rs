@@ -25,7 +25,7 @@ impl Plugin for CursorRayHitsPlugin {
         // .add_plugins(CustomCursorRayPlugin)
         .add_plugins(DebugModeFlagRegister::<RayCastDebugMode>::default())
         .init_resource::<MouseOverWindow>()
-        // .init_resource::<CursorRayHits>()
+        .init_resource::<CursorRayHits>()
         // .register_type::<CursorRayHits>()
         .insert_resource(RayCastDebugMode(self.debug_mode))
         .register_type::<RayCastDebugMode>()

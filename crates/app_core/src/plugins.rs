@@ -3,7 +3,6 @@ use bevy_asset::{
     io::{file::FileAssetReader, AssetSource},
     AssetApp,
 };
-use bevy_obj::ObjPlugin;
 
 use crate::{ROOT};
 
@@ -33,7 +32,6 @@ impl Plugin for AppSourcesPlugin {
         //let root = self.root_dir.clone();
 
         app
-            //.add_plugins(AssetPlugin::default())        // .obj file support
             .register_asset_source(
                 ROOT,
                 AssetSource::build()

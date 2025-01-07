@@ -39,7 +39,7 @@ fn setup(
     // scene_assets: Res<SceneAssets>,
     asset_server: Res<AssetServer>,
 ) {
-    let mesh: Handle<Mesh> = asset_server.load("root://models/weapons/pistol.obj");
+    let mesh: Handle<Mesh> = asset_server.load("root://models/weapons/pistol.glb");
 
     // circular base
     commands.spawn(

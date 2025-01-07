@@ -2,17 +2,11 @@ use app_core::{plugins::AppSourcesPlugin};
 use bevy::{
     pbr::wireframe::WireframePlugin, prelude::*
 };
-use bevy_mod_raycast::cursor::CursorRayPlugin;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use bevy_serialization_extras::prelude::{
-    mesh::{GeometryFile, GeometryFlag}, DeserializeAssetFrom, SerializationBasePlugin, SerializationPhysicsPlugin, SerializationPlugin
-};
-use bevy_serialization_urdf::{
-    plugin::{AssetSourcesUrdfPlugin, UrdfSerializationPlugin},
-};
+use bevy_serialization_extras::prelude::*;
 use bevy_ui_extras::*;
 use combat::weapon_attacks::plugins::CombatPlugin;
 use robot_editor::{model_display::components::DisplayModel, plugins::*, resources::RobotControls, states::RobotEditorState};
@@ -31,7 +25,7 @@ pub fn main() {
         // robot editor
         .add_plugins(RobotEditorPlugin)
         .add_plugins(UiExtrasDebug {
-            ui_style: UiStyle::BlackGlass,
+            ui_style: UiStyle::BLACK_GLASS,
             ..default()
         })
         .run();

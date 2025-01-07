@@ -21,7 +21,7 @@ impl Plugin for CustomPickingPlugin {
             //         is_focus_enabled
             //     }
             // ))
-            .add_plugins(DefaultPickingPlugins)
+            // .add_plugins(DefaultPickingPlugins)
             .add_plugins(MeshPickingPlugin)
             .insert_resource(MeshPickingSettings {
                 require_markers: true,

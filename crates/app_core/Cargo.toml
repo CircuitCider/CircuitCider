@@ -9,5 +9,4 @@ description = "core stuff other crates rely on that doesn't justify its own crat
 bevy_asset = {workspace = true}
 bevy_app = {workspace = true}
 # bevy_ui_extras = "0.15.0"
-bevy_obj = {workspace = true}
 # bevy_serialization_extras = "0.6.0"
