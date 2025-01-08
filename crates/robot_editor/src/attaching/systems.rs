@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use bevy_serialization_extras::prelude::link::{JointFlag, JointLimitWrapper};
+use bevy_serialization_extras::prelude::link::JointFlag;
 
 use super::components::*;
-use crate::{placing::components::Placer, raycast_utils::resources::CursorRayHits, resources::*};
+use crate::{placing::components::Placer, raycast_utils::resources::CursorRayHits};
 
 // /// gets rid of placers if current mode is not placermode
 // // pub fn delete_attach_candidates(

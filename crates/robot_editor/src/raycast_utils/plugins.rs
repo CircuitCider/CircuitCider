@@ -1,10 +1,7 @@
 use bevy::prelude::*;
-use bevy::render::camera;
-use bevy::window::PrimaryWindow;
 use bevy_ui_extras::DebugModeFlagRegister;
 
 use super::resources::*;
-use super::systems::*;
 /// adds and updates [`CursorRayHits`], a shorthand for listing things that were clicked on.
 pub struct CursorRayHitsPlugin {
     pub debug_mode: bool,

@@ -4,16 +4,17 @@ use bevy::{
     asset::LoadState,
     render::render_resource::{TextureViewDescriptor, TextureViewDimension},
 };
+use bevy_rapier3d::plugin::DefaultRapierContext;
 //use bevy_camera_extras::Watched;
-use bevy_rapier3d::{plugin::RapierContext, prelude::Collider};
 use bevy_serialization_extras::prelude::{
     link::{JointFlag, StructureFlag},
     rigidbodies::RigidBodyFlag,
 };
 use components::Wheel;
-use raycast_utils::resources::{CursorRayHits, MouseOverWindow};
+use raycast_utils::resources::CursorRayHits;
 use resources::ImageHandles;
-
+use bevy_rapier3d::prelude::*;
+use bevy_toon_material::*;
 use super::*;
 
 ///util for standard movement for components with given [`T`] component
@@ -32,30 +33,35 @@ pub fn build_tool_control_util_for<T: Component>(
 }
 /// find models with given component, and change their material based on if it has any intersections or not.
 pub fn intersection_colors_for<T: Component, U: Material>(
-    // rapier_context: Res<RapierContext>,
-    // thing_query: Query<(Entity, &Handle<U>), With<T>>,
-    buttons: ResMut<ButtonInput<KeyCode>>,
+    rapier_context: Query<&RapierContext>,
+    thing_query: Query<(Entity, &MeshMaterial3d<U>), With<T>>,
+    // buttons: ResMut<ButtonInput<KeyCode>>,
     mut materials: ResMut<Assets<U>>,
 ) where
     U: From<LinearRgba>,
 {
-    warn!("implement this")
-    // for (e, mat_handle) in thing_query.iter() {
-    //     let Some(mat) = materials.get_mut(mat_handle) else {
-    //         return;
-    //     };
+    let Ok(rapier_context) = rapier_context.get_single()
+    .inspect_err(|err| {
+        warn!("{:#}", err)
+    }) else {
+        return;
+    };
+    for (e, mat_handle) in thing_query.iter() {
+        let Some(mat) = materials.get_mut(mat_handle) else {
+            return;
+        };
 
-    //     if rapier_context
-    //         .intersection_pairs_with(e)
-    //         .collect::<Vec<_>>()
-    //         .len()
-    //         > 0
-    //     {
-    //         *mat = LinearRgba::RED.into();
-    //     } else {
-    //         *mat = LinearRgba::GREEN.into();
-    //     }
-    // }
+        if rapier_context
+            .intersection_pairs_with(e)
+            .collect::<Vec<_>>()
+            .len()
+            > 0
+        {
+            *mat = LinearRgba::RED.into();
+        } else {
+            *mat = LinearRgba::GREEN.into();
+        }
+    }
 }
 
 /// moves entities of type `<T>` to cursor
@@ -63,7 +69,7 @@ pub fn move_to_cursor<T: Component + Targeter + Spacing>(
     cursor_hits: Res<CursorRayHits>,
     // rapier_context: Res<RapierContext>,
     // tool_mode: ResMut<State<BuildToolMode>>,
-    mut movables: Query<(Entity, &T)>,
+    movables: Query<(Entity, &T)>,
     mut transforms: Query<&mut Transform>, // mouse_over_window: Res<MouseOverWindow>,
 ) {
     for (movable, t) in movables.iter() {
@@ -264,31 +270,31 @@ pub fn spawn_toon_shader_cam(mut commands: Commands) {
 pub fn set_robot_to_toon_shader(
     mut commands: Commands,
     standard_mats: ResMut<Assets<StandardMaterial>>,
-    //mut toon_mats: ResMut<Assets<ToonShaderMaterial>>,
-    //bots: Query<(Entity, Option<&Handle<StandardMaterial>>), (With<StructureFlag>, Without<Handle<ToonShaderMaterial>>)>,
+    mut toon_mats: ResMut<Assets<ToonMaterial>>,
+    bots: Query<(Entity, Option<&MeshMaterial3d<StandardMaterial>>), (With<StructureFlag>, Without<MeshMaterial3d<ToonMaterial>>)>,
 ) {
-    warn!("Implement this")
-    // for (bot, handle) in bots.iter() {
-    //     println!("setting {:#} to toon shader..", bot);
-    //     let mat = match handle {
-    //         Some(mat) => {
-    //             standard_mats.get(mat).unwrap()
-    //         }
-    //         None => &StandardMaterial::default()
-    //     };
-    //     let toon_mat = toon_mats.add(ToonShaderMaterial {
-    //         color: mat.base_color,
-    //         sun_dir: Vec3::default(),
-    //         sun_color: Color::LinearRgba(LinearRgba::WHITE),
-    //         camera_pos: Vec3::default(),
-    //         ambient_color: Color::LinearRgba(LinearRgba::WHITE),
-    //         base_color_texture: None,
-    //     });
-    //     commands.entity(bot).insert(
-    //         toon_mat
-    //     );
+    for (bot, handle) in bots.iter() {
+        println!("setting {:#} to toon shader..", bot);
+        let mat = match handle {
+            Some(mat) => {
+                standard_mats.get(mat).unwrap()
+            }
+            None => &StandardMaterial::default()
+        };
+        let toon_mat = toon_mats.add(ToonMaterial {
+            base_color: mat.base_color.into(),
+            light_direction: Vec3::default(),
+            light_color: LinearRgba::WHITE,
+            camera_position: Vec3::default(),
+            ambient_color: LinearRgba::WHITE,
+            texture: None,
+            ..default()
+        });
+        commands.entity(bot).insert(
+            MeshMaterial3d(toon_mat)
+        );
 
-    //     commands.entity(bot).remove::<Handle<StandardMaterial>>();
+        commands.entity(bot).remove::<MeshMaterial3d<StandardMaterial>>();
 
-    // }
+    }
 }

@@ -1,4 +1,3 @@
-use std::f32::consts::PI;
 
 use app_core::ROOT;
 use assembling::plugins::AssemblingPlugin;
@@ -8,7 +7,6 @@ use bevy::pbr::wireframe::WireframePlugin;
 use bevy::prelude::*;
 use bevy::render::view::RenderLayers;
 use bevy_asset_loader::asset_collection::AssetCollectionApp;
-use bevy_camera_extras::CameraController;
 use bevy_camera_extras::CameraMode;
 use bevy_camera_extras::CameraRestrained;
 use bevy_camera_extras::ObservedBy;
@@ -28,7 +26,6 @@ use camera_controls::plugins::RobotEditorCameraPlugin;
 use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
 use picking::plugins::CustomPickingPlugin;
-use picking::plugins::PickingPlugin;
 use placing::plugins::PlacingToolingPlugin;
 use raycast_utils::plugins::CursorRayHitsPlugin;
 use raycast_utils::resources::MouseOverWindow;

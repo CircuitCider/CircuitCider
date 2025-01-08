@@ -1,8 +1,6 @@
 use bevy::prelude::*;
-use shader_core::shaders::neon::NeonMaterial;
 
 use crate::systems::build_tool_control_util_for;
-use crate::systems::intersection_colors_for;
 use crate::systems::move_to_cursor;
 
 use super::components::AttachCandidate;

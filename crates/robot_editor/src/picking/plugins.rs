@@ -1,10 +1,7 @@
-use bevy::app::PluginGroupBuilder;
 pub use bevy::prelude::*;
-use bevy_mod_outline::{OutlinePlugin, OutlineVolume};
+use bevy_mod_outline::OutlinePlugin;
 
-use transform_gizmo_bevy::GizmoTarget;
 
-use crate::resources::BuildToolMode;
 
 use super::systems::{
     make_models_pickable, picking_click_effects, picking_interaction_effects,

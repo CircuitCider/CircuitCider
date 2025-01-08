@@ -9,9 +9,9 @@ edition = "2021"
 bevy = {workspace = true}
 #bevy = {version = "0.14", features = ["file_watcher"]}
 app_core = {workspace = true}
+bevy_toon_material = {workspace = true}
 
-
-derive_more = {workspace = true, features = ["from", "into"]}
+derive_more = {workspace = true}
 
 [dev-dependencies]
 bevy_camera_extras = {workspace = true}

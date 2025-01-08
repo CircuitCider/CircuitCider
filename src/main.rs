@@ -1,13 +1,8 @@
 use bevy::prelude::*;
 use bevy_camera_extras::*;
 
-use bevy_egui::EguiPlugin;
 
 use app_core::plugins::AppSourcesPlugin;
-use bevy_rapier3d::{
-    plugin::{NoUserData, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
-};
 use bevy_serialization_extras::prelude::AssetSourcesUrdfPlugin;
 use bevy_ui_extras::{UiExtrasDebug, UiStyle};
 use combat::weapon_attacks::plugins::CombatPlugin;

@@ -1,13 +1,10 @@
 use bevy::prelude::*;
-use bevy_rapier3d::{geometry::Sensor, plugin::RapierContext};
-use bevy_serialization_extras::prelude::{colliders::ColliderFlag, link::StructureFlag};
-use shader_core::shaders::neon::NeonMaterial;
-use transform_gizmo_bevy::GizmoTarget;
+use bevy_serialization_extras::prelude::link::StructureFlag;
 
 use crate::{
     attaching::components::AttachCandidate,
     raycast_utils::resources::{CursorRayHits, MouseOverWindow},
-    resources::{BuildToolMode, HullsFolder},
+    resources::BuildToolMode,
 };
 
 use super::components::Placer;

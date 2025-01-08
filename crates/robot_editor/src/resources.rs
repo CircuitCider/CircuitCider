@@ -1,13 +1,10 @@
 use bevy::{
-    asset::{AssetServer, Assets, Handle, LoadState},
+    asset::Handle,
     ecs::system::Resource,
-    prelude::{Deref, DerefMut, Image, KeyCode, NextState, Res, ResMut, States},
+    prelude::{Deref, Image, KeyCode, States},
     reflect::Reflect,
-    render::render_resource::{TextureViewDescriptor, TextureViewDimension},
-    utils::default,
 };
 use bevy_asset_loader::asset_collection::AssetCollection;
-use egui::Ui;
 use strum_macros::{Display, EnumIter};
 
 #[derive(Hash, States, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display, Default)]

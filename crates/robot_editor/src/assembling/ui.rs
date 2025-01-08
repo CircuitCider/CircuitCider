@@ -6,7 +6,7 @@ use super::components::AssemblingTarget;
 
 pub fn assembler_ui(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut assembling_target: Query<(Entity, &AssemblingTarget)>,
+    assembling_target: Query<(Entity, &AssemblingTarget)>,
     //mut commands: Commands,
 ) {
     //don't render this ui if there is nothing its focusing on.

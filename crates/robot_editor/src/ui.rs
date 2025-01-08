@@ -12,7 +12,7 @@ use bevy_egui::EguiContext;
 use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 use combat::components::Pistol;
-use egui::{Align2, Color32, RichText, Sense, UiBuilder};
+use egui::{Align2, Color32, RichText, Sense};
 use shader_core::shaders::neon::NeonMaterial;
 use strum::IntoEnumIterator;
 

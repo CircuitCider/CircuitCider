@@ -6,13 +6,10 @@ use bevy::{
     prelude::*,
 };
 use bevy_mod_outline::OutlineVolume;
-use bevy_rapier3d::rapier::prelude::RigidBody;
-use bevy_serialization_extras::prelude::{link::StructureFlag, rigidbodies::RigidBodyFlag};
+use bevy_serialization_extras::prelude::rigidbodies::RigidBodyFlag;
 
 use crate::{
-    attaching::{self, components::AttachCandidate},
-    raycast_utils::systems::EXIT_EARLY,
-    ERROR_COLOR, NO_OUTLINE,
+    raycast_utils::systems::EXIT_EARLY, NO_OUTLINE,
 };
 
 // #[derive(Resource, Default)]
@@ -50,7 +47,7 @@ impl Component for AssemblingTarget {
 
                 let mut state: SystemState<(Query<&mut Transform>, MeshRayCast, Gizmos)> =
                     SystemState::new(world);
-                let (mut transforms, mut raycast, mut gizmos) = state.get_mut(&mut world);
+                let (mut transforms, mut raycast, _) = state.get_mut(&mut world);
 
                 let Ok(mut trans) = transforms.get_mut(e) else {
                     return;

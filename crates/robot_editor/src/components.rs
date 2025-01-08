@@ -1,7 +1,6 @@
 pub use bevy::prelude::*;
 use strum_macros::Display;
 
-use crate::{Spacing, Targeter};
 
 #[derive(Component, Reflect, Display)]
 #[reflect(Component)]

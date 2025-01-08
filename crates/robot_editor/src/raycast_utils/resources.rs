@@ -4,9 +4,8 @@ use bevy::{
         query::{QueryData, QueryFilter, ReadOnlyQueryData},
         system::{Query, Resource},
     },
-    math::Ray3d,
     picking::mesh_picking::ray_cast::RayMeshHit,
-    prelude::{Component, Deref, DerefMut},
+    prelude::{Deref, DerefMut},
     reflect::Reflect,
 };
 

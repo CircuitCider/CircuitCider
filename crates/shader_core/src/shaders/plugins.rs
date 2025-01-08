@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_toon_material::ToonShaderPlugin;
 
 use crate::shaders::neon::*;
 
@@ -10,7 +11,9 @@ pub struct CustomShadersPlugin;
 impl Plugin for CustomShadersPlugin {
     fn build(&self, app: &mut App) {
         // load shaders
-        app.register_asset_reflect::<NeonMaterial>()
+        app
+        .add_plugins(ToonShaderPlugin)
+        .register_asset_reflect::<NeonMaterial>()
             .register_asset_reflect::<GlowMaterial>()
             .register_asset_reflect::<FlowWireframeMaterial>()
             .add_plugins(MaterialPlugin::<FlowWireframeMaterial>::default())

@@ -42,7 +42,7 @@ impl Component for AttachCandidate {
 
     fn register_component_hooks(_hooks: &mut ComponentHooks) {
         _hooks.on_add(|mut world, e, _| {
-            world.commands().queue(move |mut world: &mut World| {
+            world.commands().queue(move |world: &mut World| {
                 world.commands().entity(e).insert(Sensor {});
 
                 // since there can only be 1 focus, remove other attacher flags.

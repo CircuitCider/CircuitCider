@@ -1,24 +1,16 @@
 use bevy::{
-    input::keyboard::KeyboardInput,
-    math::bounding::{IntersectsVolume, RayCast3d},
-    pbr::wireframe::Wireframe,
     picking::focus::PickingInteraction,
     prelude::*,
 };
 use bevy_mod_outline::OutlineVolume;
 use bevy_serialization_extras::prelude::{JointFlag, StructureFlag};
-use shader_core::shaders::flow_wireframe::FlowWireframeMaterial;
 use transform_gizmo_bevy::GizmoTarget;
 
 use crate::{
     assembling::components::AssemblingTarget,
     attaching::components::AttachCandidate,
     placing::components::Placer,
-    raycast_utils::{
-        resources::CursorRayHits,
-        systems::{DONT_EXIT_EARLY, EXIT_EARLY},
-    },
-    resources::BuildToolMode,
+    raycast_utils::resources::CursorRayHits,
 };
 
 use super::PickSelection;
@@ -64,9 +56,9 @@ pub fn picking_interaction_effects(
 /// effects on things that are clicked on
 pub fn picking_click_effects(
     mut commands: Commands,
-    mut keys: Res<ButtonInput<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     mut clickables: Query<(Entity, Option<&StructureFlag>, &PickSelection), Changed<PickSelection>>,
-    mut structures: Query<(Entity, &StructureFlag)>,
+    structures: Query<(Entity, &StructureFlag)>,
     joints: Query<&JointFlag>,
     // mut rigid_bodies: Query<&mut RigidBodyFlag>,
     // mut outlines: Query<&mut OutlineVolume>,

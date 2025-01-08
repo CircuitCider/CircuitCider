@@ -1,14 +1,10 @@
 use app_core::plugins::AppSourcesPlugin;
-use bevy::{pbr::wireframe::WireframePlugin, prelude::*};
-use bevy_rapier3d::{
-    plugin::{NoUserData, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
-};
+use bevy::prelude::*;
 use bevy_serialization_extras::prelude::*;
 use bevy_ui_extras::*;
 use combat::weapon_attacks::plugins::CombatPlugin;
 use robot_editor::{
-    model_display::components::DisplayModel, plugins::*, resources::RobotControls,
+    plugins::*,
     states::RobotEditorState,
 };
 
