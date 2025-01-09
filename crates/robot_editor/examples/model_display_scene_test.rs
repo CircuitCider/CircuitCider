@@ -3,8 +3,8 @@
 
 use bevy::prelude::*;
 use bevy_ui_extras::UiExtrasDebug;
-use robot_editor::model_display::{plugins::ModelDisplayerPlugin, systems::display_model};
-use shader_core::shaders::{neon::NeonMaterial, plugins::CustomShadersPlugin};
+use robot_editor::model_display::{plugins::ModelDisplayerPlugin, DisplayModel};
+use shader_core::shaders::plugins::CustomShadersPlugin;
 
 pub fn main() {
     App::new()
@@ -19,8 +19,12 @@ pub fn main() {
 pub fn display_model_test(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut neon_materials: ResMut<Assets<NeonMaterial>>,
+    //mut neon_materials: ResMut<Assets<NeonMaterial>>,
+    mut display_model: ResMut<DisplayModel>
 ) {
-    let mesh_handle = meshes.add(Cuboid::new(1.0, 1.0, 1.0).mesh());
-    display_model(&mut commands, &mut neon_materials, mesh_handle);
+    let cube = commands.spawn(
+        Mesh3d(meshes.add(Cuboid::new(1.0, 1.0, 1.0).mesh()))
+    ).id();
+    //let mesh_handle = meshes.add(Cuboid::new(1.0, 1.0, 1.0).mesh());
+    display_model.0 = Some(cube);
 }

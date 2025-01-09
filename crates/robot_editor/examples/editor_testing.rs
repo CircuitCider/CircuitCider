@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy_serialization_extras::prelude::*;
 use bevy_ui_extras::*;
 use combat::weapon_attacks::plugins::CombatPlugin;
+use egui::Align2;
 use robot_editor::{
     plugins::*,
     states::RobotEditorState,
@@ -22,6 +23,7 @@ pub fn main() {
         .add_plugins(RobotEditorPlugin)
         .add_plugins(UiExtrasDebug {
             ui_style: UiStyle::BLACK_GLASS,
+            alignment: UiAlignment(Align2::RIGHT_TOP),
             ..default()
         })
         .run();

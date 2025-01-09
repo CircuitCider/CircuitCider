@@ -9,5 +9,9 @@ pub enum Wheel {
     Right,
 }
 
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct GltfNodeRoot;
+
 // #[derive(Component, Reflect, Default)]
 // pub struct GizmoFocused;

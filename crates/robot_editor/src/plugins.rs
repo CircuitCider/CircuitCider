@@ -23,6 +23,7 @@ use bevy_serialization_extras::prelude::SerializationPlugin;
 use bevy_serialization_extras::prelude::Urdf;
 use bevy_serialization_extras::prelude::UrdfSerializationPlugin;
 use camera_controls::plugins::RobotEditorCameraPlugin;
+use components::GltfNodeRoot;
 use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
 use picking::plugins::CustomPickingPlugin;
@@ -99,6 +100,7 @@ impl Plugin for RobotEditorPlugin {
             })
             .insert_resource(RobotControls::default())
             .register_type::<RobotControls>()
+            .register_type::<GltfNodeRoot>()
             .insert_resource(BuildMenuTarget::default())
             // build tools
             .add_plugins((
