@@ -7,7 +7,7 @@ use crate::{
     raycast_utils::resources::MouseOverWindow,
     resources::{BuildMenuTarget, BuildToolMode, HullsFolder},
 };
-use bevy::{asset::LoadedFolder, prelude::*, window::PrimaryWindow};
+use bevy::{asset::LoadedFolder, gltf::{GltfMesh, GltfPrimitive}, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
@@ -22,6 +22,9 @@ pub fn build_menu_ui(
     hulls_folder: Res<HullsFolder>,
     weapons_folder: Res<WeaponsFolder>,
     wheels_folder: Res<WheelsFolder>,
+    gltfs: Res<Assets<Gltf>>,
+    gltf_meshes: Res<Assets<GltfMesh>>,
+    meshes: Res<Assets<Mesh>>,
     mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mut placer_materials: ResMut<Assets<NeonMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -58,9 +61,9 @@ pub fn build_menu_ui(
         });
         let model_king = build_menu_target.clone();
         let Some(handles) = (match model_king {
-            BuildMenuTarget::Hulls => load_assets_in::<Mesh>(&folders, &hulls_folder.0),
-            BuildMenuTarget::Weapons => load_assets_in::<Mesh>(&folders, &weapons_folder.0),
-            BuildMenuTarget::Wheels => load_assets_in::<Mesh>(&folders, &wheels_folder.0),
+            BuildMenuTarget::Hulls => load_assets_in::<Gltf>(&folders, &hulls_folder.0),
+            BuildMenuTarget::Weapons => load_assets_in::<Gltf>(&folders, &weapons_folder.0),
+            BuildMenuTarget::Wheels => load_assets_in::<Gltf>(&folders, &wheels_folder.0),
         }) else {
             ui.label("could not load folder..");
             return;
@@ -70,12 +73,48 @@ pub fn build_menu_ui(
         //     ui.label("could not load folder...");
         //     return;
         // };
-        for mesh_handle in handles {
-            //let mesh = meshes.get(mesh_handle.clone()).expect("not loaded");
-            if let Some(path) = mesh_handle.path() {
-                let str_path = path.path().to_str().unwrap();
 
+        for handle in handles {
+            //let mesh = meshes.get(mesh_handle.clone()).expect("not loaded");
+            if let Some(path) = handle.path() {
+                
+                let str_path = path.path().to_string_lossy();
+
+                let Some(gltf) = gltfs.get(&handle) else {
+                    ui.label("loading gltf");
+                    continue
+                };
+                
                 let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
+                
+
+                let Some(handle) = gltf.meshes.first() else {
+                    ui.label(RichText::new(
+                        format!("{:#} [INVALID]: Contains no mesh]", model_name)
+                    ).color(Color32::RED));
+                    continue
+                };
+
+                let Some(gltf_mesh) = gltf_meshes.get(handle) else {
+                    ui.label("loading gltf mesh");
+                    continue
+                };
+                let mesh_handle = {
+                    if gltf_mesh.primitives.len() > 1 {
+                        ui.label(RichText::new(
+                            format!("{:#} [UNIMPLEMENTED]: multi-primitive .gltfs unimplemented]", model_name)
+                        ).color(Color32::RED));
+                        continue
+                    }
+                    let Some(primitive) = gltf_mesh.primitives.first() else {
+                        ui.label(RichText::new(
+                            format!("{:#} [INVALID]: Contains no primitive", model_name)
+                        ).color(Color32::RED));
+                        continue
+                    };
+                    primitive.mesh.clone()
+                };
+
                 let spawn_button = ui
                     .button(model_name.clone())
                     .interact(Sense::click_and_drag());
@@ -91,7 +130,7 @@ pub fn build_menu_ui(
                         RayCastPickable::default(),
                         //GizmoTarget::default(),
                         Name::new(model_name),
-                        Placer::from_path(str_path),
+                        Placer::from_path(&str_path),
                         // MaterialMeshBundle {
                         //     mesh: mesh_handle.clone(),
                         //     material: placer_materials.add(NeonMaterial {

@@ -65,6 +65,7 @@ pub fn load_assets_in<T: Asset>(
             .into_iter()
             .filter(|handle| handle.type_id() == typeid)
             .map(|handle| handle.typed::<T>())
+            
             .collect::<Vec<_>>();
         Some(handles)
     } else {

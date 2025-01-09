@@ -36,7 +36,8 @@ bevy_asset = "0.15"
 bevy_obj = "0.15"
 strum = "0.26"
 strum_macros = "0.26"
-bevy_mod_outline = "0.9"
+# bevy_mod_outline = "0.9"
+bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline", rev = "3bd8357c656f6100c3fe13a2d6bab50f6de72a6f"}
 transform-gizmo-bevy = {git = "https://github.com/rydb/transform-gizmo", rev = "1a0060f23c2d4b5a4e6948107c0a7cbea961ddb7"}
 derive_more = "1.0"
 bevy_asset_loader = "0.22"
