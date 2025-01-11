@@ -1,10 +1,5 @@
 use crate::{
-    components::{GltfNodeRoot, Wheel},
-    load_assets_in,
-    placing::components::Placer,
-    prelude::{WeaponsFolder, WheelsFolder},
-    raycast_utils::resources::MouseOverWindow,
-    resources::{BuildMenuTarget, BuildToolMode, HullsFolder},
+    components::{GltfNodeRoot, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, raycast_utils::resources::MouseOverWindow, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
 };
 use bevy::{asset::LoadedFolder, gltf::{GltfMesh, GltfNode, GltfPrimitive}, math::Affine3A, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
@@ -25,6 +20,7 @@ pub fn build_menu_ui(
     gltf_meshes: Res<Assets<GltfMesh>>,
     gltf_nodes: Res<Assets<GltfNode>>,
     meshes: Res<Assets<Mesh>>,
+    mut display_model: ResMut<DisplayModel>,
     mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mut placer_materials: ResMut<Assets<NeonMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -206,19 +202,13 @@ pub fn build_menu_ui(
                     tool_mode.set(BuildToolMode::PlacerMode)
                 }
                 //spawn display model for hovered over spawnables
-
-                // if spawn_button.contains_pointer() {
-                //     model_hovered = true;
-                //     ui.label("show display model here!");
-                //     for (e, display_handle) in display_models.iter() {
-                //         if mesh_handle.path() != display_handle.0.path() {
-                //             commands.entity(e).despawn()
-                //         }
-                //     }
-                //     // if display_models.iter().len() < 1 {
-                //     //     display_model(&mut commands, &mut placer_materials, mesh_handle)
-                //     // }
-                // }
+                let mut new_display_model = None;
+                if spawn_button.contains_pointer() {
+                    new_display_model = Some(DisplayOption::GltfNode(node_handle.clone()))
+                } 
+                if display_model.0 != new_display_model {
+                    display_model.0 = new_display_model
+                }
             }
         }
         // if model_hovered == false {

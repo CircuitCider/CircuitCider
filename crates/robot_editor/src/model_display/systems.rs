@@ -1,7 +1,10 @@
-use bevy::{prelude::*, render::view::RenderLayers};
-use shader_core::shaders::neon::NeonMaterial;
 
-use super::{components::*, plugins::DISPLAY_MODEL_TRANSLATION, DisplayModel};
+use bevy::{gltf::{GltfMesh, GltfNode}, prelude::*, render::view::RenderLayers};
+
+
+use crate::model_display::extract_gltf_node;
+
+use super::{components::*, plugins::DISPLAY_MODEL_TRANSLATION, DisplayModel, DisplayModelLoading};
 
 /// enviorment display models are showcased in.
 pub fn setup_display_area(
@@ -35,62 +38,83 @@ pub fn setup_display_area(
     ));
 }
 
-pub fn setup_display_model(
+pub fn stage_display_model(
     display_model: Res<DisplayModel>,
-    models: Query<(&Mesh3d, Option<&MeshMaterial3d<StandardMaterial>>)>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
     mut commands: Commands,
-    children: Query<&Children>
+    display_models: Query<Entity, With<DisplayRoot>>,
 ) {
-    let Some(source) = display_model.0 else {
-        warn!("This should be unreachable?");
+    println!("staging display model");
+    if display_model.0.is_some() {
+        commands.spawn(
+            (
+                DisplayRoot,
+                Name::new("display model"),
+                Transform::from_translation(DISPLAY_MODEL_TRANSLATION),
+                RenderLayers::layer(1),
+                Visibility::default(),
+                DisplayModelLoading,
+            )
+        );
+    } else {
+        for e in display_models.iter() {
+            commands.entity(e).despawn_recursive();
+        }
+    }
+}
+
+pub fn populate_display_model(
+    display_model_kind: Res<DisplayModel>,
+    mut display_model: Query<(Entity, &mut Transform), With<DisplayModelLoading>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    gltf_meshes: Res<Assets<GltfMesh>>,
+    gltf_nodes: Res<Assets<GltfNode>>,
+    asset_server: Res<AssetServer>,
+    mut commands: Commands,
+) {
+    let Ok((root, mut trans)) = display_model.get_single_mut() else {
         return;
     };
-    let source_children = {
-        let mut childs = Vec::new();
-
-        if let Ok(children) = children.get(source) {
-            for child in children {
-                childs.push(child)
-            }
-        } 
-        childs
-        // = children.get(root)
+    //let old_model = display_root.get_single();
+    let Some(ref kind) = display_model_kind.0 else {
+        return;
     };
-    let root = commands.spawn(
-        (
-            DisplayRoot,
-            Name::new("display model"),
-            Transform::from_translation(DISPLAY_MODEL_TRANSLATION),
-            RenderLayers::layer(1),
-
-
-        )
-    ).id();
-    if let Ok((mesh, mat)) = models.get(source) {
-        commands.entity(root).insert(mesh.clone());
-        if let Some(mat) = mat {
-            commands.entity(root).insert(mat.clone());
-        } else {
-            let handle = materials.add(StandardMaterial::default());
-            commands.entity(root).insert(MeshMaterial3d(handle));
-        }
-    }
-    for source_child in source_children {
-        if let Ok((mesh, mat)) = models.get(*source_child) {
-            let child = commands.spawn(
-                mesh.clone()
-            ).id();
-            if let Some(mat) = mat {
-                commands.entity(child).insert(mat.clone());
-            } else {
-                let handle = materials.add(StandardMaterial::default());
-                commands.entity(child).insert(MeshMaterial3d(handle));
+    println!("spawning desplay model");
+    match kind {
+        super::DisplayOption::Mesh(handle) => {
+            commands.entity(root).insert(
+                (
+                    Mesh3d(handle.clone()),
+                    MeshMaterial3d(materials.add(StandardMaterial::default())),
+                    RenderLayers::layer(1),
+                    
+                )
+            );
+        },
+        super::DisplayOption::GltfNode(handle) => {
+            let Ok((node_trans, gltf_mesh)) = extract_gltf_node(handle, gltf_meshes, gltf_nodes) else {
+                return
+            };
+            for primitive in &gltf_mesh.primitives {
+                let mat = primitive.material.clone().unwrap_or_default();
+                let child = commands.spawn(
+                    (
+                        Mesh3d(primitive.mesh.clone()),
+                        MeshMaterial3d(mat),
+                        RenderLayers::layer(1),
+                    )
+                ).id();
+                commands.entity(root)
+                .add_child(child);
             }
-            commands.entity(root).add_child(child);
-        }
+            // incase gltf has different scale, this matches it to it.
+            trans.scale = node_trans.scale;
+            trans.rotation = node_trans.rotation;
+        },
     }
-
+    commands.entity(root).remove::<DisplayModelLoading>();
+    // if let Ok(old_model) = old_model {
+    //     commands.entity(old_model).despawn_recursive();
+    // }
 }
 
 pub fn rotate_display_model(
@@ -106,7 +130,6 @@ pub fn rotate_display_model(
 pub fn manage_display_platform_visibility(
     display_models: Query<&DisplayRoot>,
     mut display_platforms: Query<&mut Visibility, With<DisplayModelStaging>>,
-    commands: Commands,
 ) {
     if display_models.iter().len() <= 0 {
         for mut vis in display_platforms.iter_mut() {

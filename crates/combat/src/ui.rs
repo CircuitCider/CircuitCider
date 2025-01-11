@@ -1,4 +1,4 @@
-pub use bevy::prelude::*;
+use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_inspector_egui::bevy_egui::EguiContext;
 
