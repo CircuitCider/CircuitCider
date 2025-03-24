@@ -58,11 +58,6 @@ fn setup(
         Mesh3d(mesh),
         Transform::from_xyz(0.0, 0.5, 0.0),
         MeshMaterial3d(materials.add(Color::WHITE)),
-        // SceneBundle {
-        //     scene: scene_assets.pistol.clone(),
-        //     transform: Transform::from_xyz(0.0, 0.5, 0.0),
-        //     ..default()
-        // },
         Health::default(),
         Pistol,
         Name::new("Player"),

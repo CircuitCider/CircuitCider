@@ -9,7 +9,8 @@ use bevy_mod_outline::OutlineVolume;
 use bevy_serialization_extras::prelude::rigidbodies::RigidBodyFlag;
 
 use crate::{
-    raycast_utils::systems::EXIT_EARLY, NO_OUTLINE,
+    // raycast_utils::systems::EXIT_EARLY,
+    picking::EXIT_EARLY, NO_OUTLINE
 };
 
 // #[derive(Resource, Default)]

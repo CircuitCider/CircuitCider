@@ -1,15 +1,14 @@
 //! code for display models.
+use std::ops::Deref;
+
 use bevy::{gltf::{GltfMesh, GltfNode, GltfPrimitive}, prelude::*, render::view::RenderLayers};
+use bevy_serialization_assemble::{components::DisassembleStage, traits::Disassemble};
 
 pub mod components;
 pub mod plugins;
 pub mod systems;
 
-#[derive(PartialEq)]
-pub enum DisplayOption {
-    Mesh(Handle<Mesh>),
-    GltfNode(Handle<GltfNode>),
-}
+pub struct DisplayOption<T: Disassemble + Deref<Target: Asset + Sized>>(DisassembleStage<T>);
 
 pub enum GltfNodeLoadError {
     /// for heirarchy reduction, multi node mesh gltfs error
@@ -28,7 +27,7 @@ pub struct DisplayModelLoading;
 
 /// entity marked to be displayed
 #[derive(Default, Resource)]
-pub struct DisplayModel(pub Option<DisplayOption>);
+pub struct DisplayModel(pub Option<Entity>);
 
 // /// gltf_mesh handle
 // pub struct 

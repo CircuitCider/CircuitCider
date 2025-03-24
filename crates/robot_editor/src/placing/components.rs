@@ -3,6 +3,10 @@ use strum_macros::Display;
 
 use crate::{Spacing, Targeter};
 
+/// cam used for [`CursorRay`]
+#[derive(Component)]
+pub struct CursorRayCam;
+
 /// entity used to place other similar entities.
 #[derive(Component, Default, Display, Reflect)]
 #[reflect(Component)]

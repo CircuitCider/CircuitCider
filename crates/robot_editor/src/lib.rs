@@ -12,16 +12,16 @@ pub mod model_display;
 pub mod picking;
 pub mod placing;
 pub mod plugins;
-pub mod raycast_utils;
+// pub mod raycast_utils;
 pub mod resources;
 pub mod states;
 pub mod systems;
 pub mod ui;
 
-// #[derive(Bundle)]
-// pub struct Placable {
-//     mesh
-// }
+
+
+#[derive(Component)]
+pub struct Part;
 
 pub mod prelude {
     pub use crate::*;

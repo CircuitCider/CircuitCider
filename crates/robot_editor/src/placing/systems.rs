@@ -1,9 +1,8 @@
 use bevy::prelude::*;
-use bevy_serialization_extras::prelude::link::StructureFlag;
 
 use crate::{
     attaching::components::AttachCandidate,
-    raycast_utils::resources::{CursorRayHits, MouseOverWindow},
+    // raycast_utils::resources::{MouseOverWindow},
     resources::BuildToolMode,
 };
 
@@ -36,23 +35,23 @@ pub fn attach_placer(
     mouse: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
-    mouse_over_window: Res<MouseOverWindow>,
-    hits: Res<CursorRayHits>,
-    robots: Query<&StructureFlag>,
+    // mouse_over_window: Res<MouseOverWindow>,
+    // hits: Res<CursorRayHits>,
+    //robots: Query<&StructureFlag>,
 ) {
-    if mouse.just_released(MouseButton::Left) && **mouse_over_window == false {
-        for (e, _) in placers.iter() {
-            if let Some((target, ..)) = hits.first_with(&robots) {
-                commands.entity(e).insert(AttachCandidate {
-                    attempt_target: Some(target),
-                });
-            }
-            commands.entity(e).remove::<Placer>();
-        }
-    }
-    if keys.just_pressed(KeyCode::Escape) {
-        for (e, ..) in placers.iter() {
-            commands.entity(e).despawn_recursive();
-        }
-    }
+    // if mouse.just_released(MouseButton::Left) && **mouse_over_window == false {
+    //     for (e, _) in placers.iter() {
+    //         if let Some((target, ..)) = hits.first_with(&robots) {
+    //             commands.entity(e).insert(AttachCandidate {
+    //                 attempt_target: Some(target),
+    //             });
+    //         }
+    //         commands.entity(e).remove::<Placer>();
+    //     }
+    // }
+    // if keys.just_pressed(KeyCode::Escape) {
+    //     for (e, ..) in placers.iter() {
+    //         commands.entity(e).despawn_recursive();
+    //     }
+    // }
 }

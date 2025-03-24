@@ -1,17 +1,18 @@
-use crate::resources::RobotControls;
+use crate::{placing::components::CursorRayCam, resources::{BuildToolMode, RobotControls}};
 pub use bevy::prelude::*;
 use bevy::{
     asset::LoadState,
     render::render_resource::{TextureViewDescriptor, TextureViewDimension},
 };
+use bevy_picking::{backend::PointerHits, pointer::{PointerInput, PointerInteraction}};
 use bevy_rapier3d::plugin::DefaultRapierContext;
+use bevy_serialization_assemble::AssemblyId;
 //use bevy_camera_extras::Watched;
 use bevy_serialization_extras::prelude::{
-    link::{JointFlag, StructureFlag},
+    link::{JointFlag},
     rigidbodies::RigidBodyFlag,
 };
 use components::Wheel;
-use raycast_utils::resources::CursorRayHits;
 use resources::ImageHandles;
 use bevy_rapier3d::prelude::*;
 use bevy_toon_material::*;
@@ -33,26 +34,32 @@ pub fn build_tool_control_util_for<T: Component>(
 }
 /// find models with given component, and change their material based on if it has any intersections or not.
 pub fn intersection_colors_for<T: Component, U: Material>(
-    rapier_context: Query<&RapierContext>,
+    rapier_context_simulation: Query<&RapierContextSimulation>,
+    rapier_context_colliders: Query<&RapierContextColliders>,
     thing_query: Query<(Entity, &MeshMaterial3d<U>), With<T>>,
     // buttons: ResMut<ButtonInput<KeyCode>>,
     mut materials: ResMut<Assets<U>>,
 ) where
     U: From<LinearRgba>,
 {
-    let Ok(rapier_context) = rapier_context.get_single()
+    let Ok(rapier_context_simulation) = rapier_context_simulation.get_single()
     .inspect_err(|err| {
         warn!("{:#}", err)
     }) else {
         return;
+    };
+    let Ok(rapier_context_colliders) = rapier_context_colliders.get_single().inspect_err(|err| {
+        warn!("{:#}", err)
+    }) else {
+        return
     };
     for (e, mat_handle) in thing_query.iter() {
         let Some(mat) = materials.get_mut(mat_handle) else {
             return;
         };
 
-        if rapier_context
-            .intersection_pairs_with(e)
+        if rapier_context_simulation
+            .intersection_pairs_with(rapier_context_colliders, e)
             .collect::<Vec<_>>()
             .len()
             > 0
@@ -66,35 +73,41 @@ pub fn intersection_colors_for<T: Component, U: Material>(
 
 /// moves entities of type `<T>` to cursor
 pub fn move_to_cursor<T: Component + Targeter + Spacing>(
-    cursor_hits: Res<CursorRayHits>,
-    // rapier_context: Res<RapierContext>,
     // tool_mode: ResMut<State<BuildToolMode>>,
-    movables: Query<(Entity, &T)>,
+    //cursor_cam: Single<With<CursorRayCam>>,
+    pointer: Single<&PointerInteraction>,
+    movables: Query<(Entity, &T, Option<&Children>)>,
     mut transforms: Query<&mut Transform>, // mouse_over_window: Res<MouseOverWindow>,
 ) {
-    for (movable, t) in movables.iter() {
-        let Ok(mut movable_trans) = transforms.get_mut(movable) else {
-            return;
+    for (e, _, children) in movables.iter() {
+        let Ok(mut movable_trans) = transforms.get_mut(e) else {
+            continue;
         };
+        // let hits = if let Some(children) = children{
+        //     pointer.iter().filter(|(e, ..)| children.contains(e) == false).into_iter()
+        // } else {
+        //     pointer.iter()
+        // };
 
-        // keep move restricted to "attached" targets if move has target, otherwise, allow un-restricted movement of movables.
-        let hit_pos = if let Some(target) = t.targets() {
-            let Some((.., hit)) = cursor_hits.first_hit(&target) else {
-                return;
-            };
-            hit.point
-        } else {
-            let Some((e, hit, ..)) = cursor_hits.first_without(&movables) else {
-                return;
-            };
-            hit.point
+        let Some((_, hit_data)) = pointer.iter()
+        .filter(|(e, ..)| {
+            if let Some(children) = children {
+                children.contains(e) == false
+            } else {
+                true
+            }
+        })    
+        .find(|(target, ..)| target != &e) else {
+            continue
+        };
+        let Some(hit_pos) = hit_data.position else {
+            continue
         };
 
         let offset = match T::spacing() {
             SpacingKind::Uplift(n) => Vec3::new(0.0, n, 0.0),
             SpacingKind::None => Vec3::new(0.0, 0.0, 0.0),
         };
-
         movable_trans.translation = hit_pos + offset;
     }
 }
@@ -128,7 +141,9 @@ pub fn configure_skybox_texture(
 pub struct WasFrozen;
 
 pub fn control_robot(
-    mut rigid_body_flag: Query<&mut RigidBodyFlag, (Without<JointFlag>, With<StructureFlag>)>,
+    mut rigid_body_flag: Query<&mut RigidBodyFlag, (Without<JointFlag>, 
+        With<Part>
+    )>,
     keys: Res<ButtonInput<KeyCode>>,
     controls: Res<RobotControls>,
     //mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
@@ -160,7 +175,7 @@ pub fn control_robot(
     //         });
     // }
     for (mut joint, wheel) in wheels.iter_mut() {
-        for axis in joint.motors.iter_mut() {
+        for axis in joint.joint.motors.iter_mut() {
             if keys.pressed(controls.forward_key) {
                 axis.target_vel = controls.target_speed
             } else if keys.pressed(controls.backward_key) {
@@ -171,7 +186,7 @@ pub fn control_robot(
         }
         match wheel {
             Wheel::Left => {
-                for axis in joint.motors.iter_mut() {
+                for axis in joint.joint.motors.iter_mut() {
                     if keys.pressed(controls.leftward_key) {
                         axis.target_vel = -controls.target_speed
                     }
@@ -181,7 +196,7 @@ pub fn control_robot(
                 }
             }
             Wheel::Right => {
-                for axis in joint.motors.iter_mut() {
+                for axis in joint.joint.motors.iter_mut() {
                     if keys.pressed(controls.leftward_key) {
                         axis.target_vel = controls.target_speed
                     }
@@ -208,7 +223,9 @@ pub fn control_robot(
 pub fn freeze_spawned_robots(
     mut robots: Query<
         (Entity, &mut RigidBodyFlag),
-        (With<StructureFlag>, Without<JointFlag>, Without<WasFrozen>),
+        (
+            With<AssemblyId>, 
+            Without<JointFlag>, Without<WasFrozen>),
     >,
     mut commands: Commands,
 ) {
@@ -238,22 +255,6 @@ pub fn bind_left_and_right_wheel(
 }
 
 pub fn spawn_toon_shader_cam(mut commands: Commands) {
-    // commands.spawn(
-    //     (
-    //         Camera3dBundle {
-    //             camera: Camera {
-    //                 hdr: true,
-    //                 order: 1,
-    //                 ..default()
-    //             },
-    //             transform: Transform::from_xyz(0.0, 8., 12.0)
-    //                 .looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
-    //             ..default()
-    //         },
-    //         ToonShaderMainCamera,
-    //         Name::new("toon camera"),
-    //     )
-    // );
     commands.spawn((
         Camera {
             hdr: true,
@@ -271,16 +272,22 @@ pub fn set_robot_to_toon_shader(
     mut commands: Commands,
     standard_mats: ResMut<Assets<StandardMaterial>>,
     mut toon_mats: ResMut<Assets<ToonMaterial>>,
-    bots: Query<(Entity, Option<&MeshMaterial3d<StandardMaterial>>), (With<StructureFlag>, Without<MeshMaterial3d<ToonMaterial>>)>,
+    bots: Query<(Entity, Option<&MeshMaterial3d<StandardMaterial>>), (
+        With<Part>, 
+        Without<MeshMaterial3d<ToonMaterial>>)>,
 ) {
-    for (bot, handle) in bots.iter() {
+    for (bot, mat) in bots.iter() {
         println!("setting {:#} to toon shader..", bot);
-        let mat = match handle {
-            Some(mat) => {
-                standard_mats.get(mat).unwrap()
-            }
-            None => &StandardMaterial::default()
+        let mat = match mat {
+            Some(handle) => &standard_mats.get(&handle.0).map(|n| n.clone()).unwrap_or_default(),
+            None => &StandardMaterial::default(),
         };
+        // let mat = match handle {
+        //     Some(mat) => {
+        //         standard_mats.get(mat).unwrap_or_default()
+        //     }
+        //     None => &StandardMaterial::default()
+        // };
         let toon_mat = toon_mats.add(ToonMaterial {
             base_color: mat.base_color.into(),
             light_direction: Vec3::default(),

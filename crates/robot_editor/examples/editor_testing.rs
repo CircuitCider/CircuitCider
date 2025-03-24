@@ -23,7 +23,7 @@ pub fn main() {
         .add_plugins(RobotEditorPlugin)
         .add_plugins(UiExtrasDebug {
             ui_style: UiStyle::BLACK_GLASS,
-            alignment: UiAlignment(Align2::RIGHT_TOP),
+            alignment: Some(Align2::RIGHT_TOP),
             ..default()
         })
         .run();

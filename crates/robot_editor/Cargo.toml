@@ -1,7 +1,7 @@
 [package]
 name = "robot_editor"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,10 +12,11 @@ bevy = {workspace = true}
 bevy-inspector-egui = {workspace = true}
 bevy_egui = {workspace = true}
 egui = {workspace = true}
-
 combat = {workspace = true}
 bevy_serialization_extras = {workspace = true}
+bevy_serialization_assemble = {workspace = true}
 bevy_mod_outline = {workspace = true}
+bevy_picking = {workspace = true}
 transform-gizmo-bevy = {workspace = true}
 bevy_camera_extras = {workspace = true}
 bevy_ui_extras = {workspace = true}
@@ -23,7 +24,7 @@ bevy_rapier3d = {workspace = true}
 strum = {workspace = true}
 strum_macros = {workspace = true}
 bevy_asset_loader = {workspace = true}
-
+derive_more = {workspace = true}
 bevy_toon_material = {workspace = true}
 #async-trait = "*"
 

@@ -12,24 +12,29 @@ use bevy_camera_extras::CameraRestrained;
 use bevy_camera_extras::ObservedBy;
 use bevy_rapier3d::plugin::NoUserData;
 use bevy_rapier3d::plugin::RapierPhysicsPlugin;
+use bevy_rapier3d::render::RapierDebugRenderPlugin;
+use bevy_serialization_assemble::components::DisassembleAssetRequest;
 //use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
+use bevy_serialization_extras::prelude::RequestCollider;
 use bevy_serialization_extras::prelude::RigidBodyFlag;
+use bevy_serialization_extras::prelude::SerializationAssembleBasePlugin;
 use bevy_serialization_extras::prelude::SerializationBasePlugin;
 use bevy_serialization_extras::prelude::SerializationPhysicsPlugin;
 use bevy_serialization_extras::prelude::SerializationPlugin;
 use bevy_serialization_extras::prelude::Urdf;
 use bevy_serialization_extras::prelude::UrdfSerializationPlugin;
+use bevy_serialization_extras::prelude::UrdfWrapper;
 use camera_controls::plugins::RobotEditorCameraPlugin;
 use components::GltfNodeRoot;
 use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
 use picking::plugins::CustomPickingPlugin;
 use placing::plugins::PlacingToolingPlugin;
-use raycast_utils::plugins::CursorRayHitsPlugin;
-use raycast_utils::resources::MouseOverWindow;
+// use raycast_utils::plugins::CursorRayHitsPlugin;
+// use raycast_utils::resources::MouseOverWindow;
 use resources::BuildMenuTarget;
 use resources::BuildToolMode;
 use resources::ImageHandles;
@@ -79,11 +84,12 @@ impl Plugin for RobotEditorPlugin {
             .add_plugins(CachePrefabsPlugin)
             // PickingRobotEditorPlugin
             .add_plugins(RobotEditorCameraPlugin)
-            .add_plugins(CursorRayHitsPlugin { debug_mode: false })
+            //.add_plugins(CursorRayHitsPlugin { debug_mode: false })
             .add_plugins((TransformGizmoPlugin, CustomPickingPlugin))
             // Serialization
             .add_plugins(SerializationPlugin)
             .add_plugins(SerializationBasePlugin)
+            .add_plugins(SerializationAssembleBasePlugin)
             .add_plugins(SerializationPhysicsPlugin)
             .add_plugins(UrdfSerializationPlugin)
             .insert_resource(GizmoOptions {
@@ -109,8 +115,8 @@ impl Plugin for RobotEditorPlugin {
                 AssemblingPlugin,
             ))
             .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+            .add_plugins(RapierDebugRenderPlugin::default())
             .add_plugins(ModelDisplayerPlugin)
-            .init_resource::<MouseOverWindow>()
             // ui
             .add_plugins(RobotEditorUiPlugin)
             .add_systems(PreUpdate, check_if_mouse_over_ui)
@@ -118,7 +124,7 @@ impl Plugin for RobotEditorPlugin {
                 Update,
                 control_robot.run_if(in_state(RobotEditorState::Active)),
             )
-            .add_systems(Update, freeze_spawned_robots)
+            //.add_systems(Update, freeze_spawned_robots)
             .add_systems(Update, bind_left_and_right_wheel)
             .add_systems(Update, set_robot_to_toon_shader)
             .add_systems(Startup, spawn_toon_shader_cam)
@@ -153,7 +159,6 @@ fn setup_editor_area(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut urdf_load_requests: ResMut<AssetSpawnRequestQueue<Urdf>>,
     images: Res<ImageHandles>,
     mut cameras: Query<(Entity, &mut CameraMode, Option<&mut Name>), With<Camera>>,
 ) {
@@ -187,21 +192,12 @@ fn setup_editor_area(
     };
 
     commands.entity(cam).insert((
-        // Camera3dBundle {
-        //     transform: Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-        //     camera: Camera {
-        //         order: 2,
-        //         ..default()
-        //     },
-        //     ..Default::default()
-
-        // },
         Camera3d::default(),
         Transform::from_xyz(2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         CameraRestrained(false),
         // ToonShaderMainCamera,
         GizmoCamera,
-        // RaycastPickable,
+        RayCastPickable,
         // TODO: Add this back
         // CursorRayCam, // Set this camera as a raycaster using the mouse cursor
         Name::new("editor cam"),
@@ -214,13 +210,20 @@ fn setup_editor_area(
     ));
 
     // robot
-    urdf_load_requests.requests.push_front(AssetSpawnRequest {
-        source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)
-            .to_owned()
-            .into(),
-        position: Transform::from_xyz(0.0, 15.0, 0.0),
-        ..Default::default()
-    });
+    commands.spawn(
+        (
+            DisassembleAssetRequest::<UrdfWrapper>::path(format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT).to_owned().into(), None),
+            Transform::from_xyz(0.0, 2.0, 0.0)
+        )
+    );
+    // urdf_load_requests.requests.push_front(AssetSpawnRequest {
+    //     source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)
+    //         .to_owned()
+    //         .into(),
+    //     position: Transform::from_xyz(0.0, 15.0, 0.0),
+    //     ..Default::default()
+    // });
+    
 
     // plane
     commands.spawn((
@@ -231,6 +234,7 @@ fn setup_editor_area(
         MeshMaterial3d(materials.add(Color::srgb(0.3, 0.5, 0.3))),
         RigidBodyFlag::Fixed,
         Name::new("Editor baseplate"),
+        RequestCollider::Convex
     ));
     // Sun(TODO: ADD BACK)
     // commands

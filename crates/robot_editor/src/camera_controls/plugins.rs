@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_camera_extras::*;
 
-use crate::raycast_utils::resources::CursorRayHits;
+// use crate::raycast_utils::resources::CursorRayHits;
 
 /// camera controls for robot editor camera
 pub struct RobotEditorCameraPlugin;
@@ -33,7 +33,7 @@ impl Plugin for RobotEditorCameraPlugin {
 
 ///click a target to focus camera on
 pub fn click_camera_focus_target(
-    cursor_ray_hits: Res<CursorRayHits>,
+    // cursor_ray_hits: Res<CursorRayHits>,
     mesh_query: Query<(Entity, &Mesh3d)>,
     observed_bodies: Query<&ObservedBy>,
     mouse: ResMut<ButtonInput<MouseButton>>,
@@ -41,22 +41,22 @@ pub fn click_camera_focus_target(
     cameras: Query<Entity, With<CameraMode>>,
     mut commands: Commands,
 ) {
-    if mouse.just_pressed(MouseButton::Right) && keys.pressed(KeyCode::ShiftLeft) {
-        let Some((_, _, (e, _))) = cursor_ray_hits.first_with(&mesh_query) else {
-            return;
-        };
-        // get_first_hit_with(
-        //     &**cursor_ray_hits
-        //     , &mesh_query
-        // ) else {return;};
-        if observed_bodies.contains(e) {
-            commands.entity(e).remove::<ObservedBy>();
-        } else {
-            let Ok(camera) = cameras.get_single() else {
-                warn!("multiple cameras detected. Can't set focus target. Aborting");
-                return;
-            };
-            commands.entity(e).insert(ObservedBy(camera));
-        }
-    }
+    // if mouse.just_pressed(MouseButton::Right) && keys.pressed(KeyCode::ShiftLeft) {
+    //     let Some((_, _, (e, _))) = cursor_ray_hits.first_with(&mesh_query) else {
+    //         return;
+    //     };
+    //     // get_first_hit_with(
+    //     //     &**cursor_ray_hits
+    //     //     , &mesh_query
+    //     // ) else {return;};
+    //     if observed_bodies.contains(e) {
+    //         commands.entity(e).remove::<ObservedBy>();
+    //     } else {
+    //         let Ok(camera) = cameras.get_single() else {
+    //             warn!("multiple cameras detected. Can't set focus target. Aborting");
+    //             return;
+    //         };
+    //         commands.entity(e).insert(ObservedBy(camera));
+    //     }
+    // }
 }

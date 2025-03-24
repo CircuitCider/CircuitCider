@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_ui_extras::DebugModeFlagRegister;
 
 use super::resources::*;
@@ -13,24 +13,23 @@ impl Default for CursorRayHitsPlugin {
     }
 }
 
-impl Plugin for CursorRayHitsPlugin {
-    fn build(&self, app: &mut App) {
-        app
-        // .add_plugins(CustomCursorRayPlugin)
-        .add_plugins(DebugModeFlagRegister::<RayCastDebugMode>::default())
-        .init_resource::<MouseOverWindow>()
-        .init_resource::<CursorRayHits>()
-        // .register_type::<CursorRayHits>()
-        .insert_resource(RayCastDebugMode(self.debug_mode))
-        .register_type::<RayCastDebugMode>()
-        // .add_systems(PreUpdate, update_cursor_ray_hits);
-        ;
-    }
-}
+// impl Plugin for CursorRayHitsPlugin {
+//     fn build(&self, app: &mut App) {
+//         app
+            // .init_resource::<MouseOverWindow>()
+//         // .add_plugins(CustomCursorRayPlugin)
+//         .add_plugins(DebugModeFlagRegister::<RayCastDebugMode>::default())
+//         .init_resource::<MouseOverWindow>()
+//         .init_resource::<CursorRayHits>()
+//         // .register_type::<CursorRayHits>()
+//         .insert_resource(RayCastDebugMode(self.debug_mode))
+//         .register_type::<RayCastDebugMode>()
+//         //.add_systems(PreUpdate, update_cursor_ray_hits);
+//         ;
+//     }
+// }
 
-// /// cam used for [`CursorRay`]
-// #[derive(Component)]
-// pub struct CursorRayCam;
+
 
 // /// Automatically generates a ray in world space corresponding to the mouse cursor, and stores it in
 // /// [`CursorRay`].
@@ -48,7 +47,7 @@ impl Plugin for CursorRayHitsPlugin {
 //     }
 // }
 
-// /// Updates the [`CursorRay`] every frame.
+// Updates the [`CursorRay`] every frame.
 // pub fn update_cursor_ray(
 //     primary_window: Query<Entity, With<PrimaryWindow>>,
 //     windows: Query<&Window>,

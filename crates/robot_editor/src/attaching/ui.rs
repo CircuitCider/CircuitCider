@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
-use bevy_rapier3d::plugin::RapierContext;
+use bevy_rapier3d::{plugin::{DefaultRapierContext, RapierContext, ReadRapierContext}, prelude::{RapierContextColliders, RapierContextSimulation}};
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 use egui::{Color32, RichText};
 
@@ -11,18 +11,24 @@ use super::components::AttachCandidate;
 
 /// ui for editing attach candidates to fine tune and confirm their placement.
 pub fn attach_candidate_edit_ui(
-    rapier_context: Query<&RapierContext>,
+    rapier_context_simulation: Query<&RapierContextSimulation, With<DefaultRapierContext>>,
+    rapier_context_colliders: Query<&RapierContextColliders>,
     mut primary_window: Query<(&Window, &mut EguiContext), With<PrimaryWindow>>,
     attach_candidates: Query<(Entity, &mut Transform, &ColliderFlag, &mut AttachCandidate)>,
     keys: Res<ButtonInput<KeyCode>>,
     named: Query<&Name>,
     mut commands: Commands,
 ) {
-    let Ok(rapier_context) = rapier_context.get_single()
+    let Ok(rapier_context_simulation) = rapier_context_simulation.get_single()
     .inspect_err(|err| {
         warn!("{:#}", err)
     }) else {
         return;
+    };
+    let Ok(rapier_context_colliders) = rapier_context_colliders.get_single().inspect_err(|err| {
+        warn!("{:#}", err)
+    }) else {
+        return
     };
     //don't render this ui if there is nothing its focusing on.
     if attach_candidates.iter().len() <= 0 {
@@ -42,8 +48,8 @@ pub fn attach_candidate_edit_ui(
 
     // check attach canidates to confirm nothing is wrong with them before attaching
     for (e, ..) in attach_candidates.iter() {
-        if rapier_context
-            .intersection_pairs_with(e)
+        if rapier_context_simulation
+            .intersection_pairs_with(rapier_context_colliders, e)
             .collect::<Vec<_>>()
             .len()
             <= 0

@@ -14,21 +14,12 @@ pub struct CustomPickingPlugin;
 impl Plugin for CustomPickingPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app
-            // add_plugins(DefaultPickingPlugins.build()
-            // .set(
-            //     PickingPlugin {
-            //         is_enabled: true,
-            //         is_focus_enabled
-            //     }
-            // ))
-            // .add_plugins(DefaultPickingPlugins)
             .add_plugins(MeshPickingPlugin)
             .insert_resource(MeshPickingSettings {
-                require_markers: true,
+                 require_markers: true,
                 ..default()
             })
             .add_plugins(OutlinePlugin)
-            // .add_systems(OnEnter(BuildToolMode), systems)
             .add_systems(PreUpdate, toggle_picking_enabled)
             .add_systems(Update, picking_click_effects)
             .add_systems(Update, picking_interaction_effects)

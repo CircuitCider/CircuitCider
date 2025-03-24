@@ -1,14 +1,76 @@
+use std::f32::consts::PI;
+
 use crate::{
-    components::{GltfNodeRoot, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, raycast_utils::resources::MouseOverWindow, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
+    components::{GltfNodeRoot, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
 };
 use bevy::{asset::LoadedFolder, gltf::{GltfMesh, GltfNode, GltfPrimitive}, math::Affine3A, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_rapier3d::prelude::Sensor;
-use bevy_serialization_extras::prelude::colliders::ColliderFlag;
+use bevy_serialization_assemble::{components::{DisassembleAssetRequest, Maybe}, gltf::{gltf_collider_request, GltfNodeColliderVisualChilds, GltfNodeMeshOne, GltfNodeVisuals, GltfPhysicsMeshPrimitive, GltfPhysicsModel}, traits::{Disassemble, Split, Structure}};
+use bevy_serialization_extras::prelude::{colliders::ColliderFlag, RequestCollider, RequestColliderFromChildren, RigidBodyFlag};
 use combat::components::Pistol;
+use derive_more::From;
 use egui::{Align2, Color32, RichText, Sense};
 use shader_core::shaders::neon::NeonMaterial;
 use strum::IntoEnumIterator;
+
+#[derive(Component)]
+pub struct ModifyTransformGltf;
+
+// /// GltfNode wrapper for spawning gltf nodes with a parent collider mesh, and children visual meshes.
+// /// This is for physics
+// /// 
+// /// MOVE CODE FROM THIS IN BEVY_SERIALIZATION_EXTRAS, JUST TEMP TO RESOLVE NO FROM IMPL
+// #[derive(Clone, Deref, From)]
+// pub struct GltfPhysicsModel(pub GltfNode);
+
+// impl Disassemble for GltfPhysicsModel {
+//     fn components(value: Self) -> Structure<impl Bundle> {
+//         let visuals = value
+//             .0
+//             .mesh
+//             .map(|n| DisassembleAssetRequest::<GltfVisualChildren>::handle(n, None));
+
+//         // let collider_request = {
+//         //     if let Some(gltf_extras) = value.0.extras {
+//         //         RequestColliderFromChildren(gltf_collider_request(gltf_extras))
+//         //     } else {
+//         //         RequestCollider::Convex.into()
+//         //     }
+//         // };
+//         let collider_request = {
+//             RequestColliderFromChildren(RequestCollider::Cuboid)
+//         };
+//         Structure::Root((
+//             collider_request,
+//             Maybe(visuals),
+//             Visibility::Visible,
+//             //TODO: Implement properly
+//             ModifyTransformGltf,
+//             //Maybe(mesh),
+//             //RequestStructure(GltfNodeVisuals(value.0.children)),
+//         ))
+//     }
+// }
+
+// #[derive(From, Deref, Clone)]
+// pub struct GltfVisualChildren(pub GltfMesh);
+
+// impl Disassemble for GltfVisualChildren {
+//     fn components(value: Self) -> Structure<impl Bundle> {
+//         let mut children = Vec::new();
+
+//         for primitive in value.primitives.clone() {
+//             children.push(
+//                 (
+//                     Maybe(primitive.material.map(|n| MeshMaterial3d(n))),
+//                     Mesh3d(primitive.mesh)
+//                 )
+//             )
+//         }
+//         Structure::Children(children, Split(false))
+//     }
+// }
 
 /// list all placeable models
 pub fn build_menu_ui(
@@ -75,99 +137,50 @@ pub fn build_menu_ui(
             if let Some(path) = handle.path() {
                 
                 let str_path = path.path().to_string_lossy();
-
-                let Some(gltf) = gltfs.get(&handle) else {
-                    ui.label("loading gltf");
-                    continue
-                };
                 
                 let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
-                
 
-                let node_handle = 
-                {
-                    if gltf.nodes.len() > 1 {
-                        ui.label(RichText::new(
-                            format!("{:#} [UNIMPLEMENTED]: multi-node .gltfs not supported]", model_name)
-                        ).color(Color32::RED));
-                        continue
-                    }
-                    let Some(handle) = gltf.nodes.first() else{
-                        ui.label(RichText::new(
-                            format!("{:#} [INVALID]: Contains no node]", model_name)
-                        ).color(Color32::RED));
-                        continue
-                    };
-                    handle
-                };
-
-
-                let Some(node) = gltf_nodes.get(node_handle) else {
-                    ui.label("loading gltf node");
-                    continue
-                };
-                let Some(ref mesh_handle) = node.mesh else {
-                    ui.label(RichText::new(
-                        format!("{:#} [UNIMPLEMENTED]: node has no mesh", model_name)
-                    ).color(Color32::RED));
-                    continue
-                };
-
-                let Some(mesh) = gltf_meshes.get(mesh_handle) else {
-                    ui.label("loading gltf mesh");
-                    continue;
-                };
-
-                // let (sub_meshes, sub_materials) = mesh.primitives.iter()
-                // .map(|primitive| {
-
-                // })
-                // let mesh_handle = {
-                //     if gltf_mesh.primitives.len() > 1 {
-                //         ui.label(RichText::new(
-                //             format!("{:#} [UNIMPLEMENTED]: multi-primitive .gltfs unimplemented]", model_name)
-                //         ).color(Color32::RED));
-                //         continue
-                //     }
-                //     let Some(primitive) = gltf_mesh.primitives.first() else {
-                //         ui.label(RichText::new(
-                //             format!("{:#} [INVALID]: Contains no primitive", model_name)
-                //         ).color(Color32::RED));
-                //         continue
-                //     };
-                //     primitive.mesh.clone()
-                // };
                 let spawn_button = ui
                     .button(model_name.clone())
                     .interact(Sense::click_and_drag());
 
                 if spawn_button.drag_started() {
                     println!("spawning model");
-
-                    let mut root = commands.spawn(
-                    (
-                        // TODO: set this to be where raycast point is?
-                        Transform::default(),
-                        GltfNodeRoot,
-                        Name::new(node.name.clone()),
-                        InheritedVisibility::default(),
-                    )).id();
-                    for primitive in mesh.primitives.iter() {
-                        let child = commands.spawn(
-                            (
-                                Mesh3d(primitive.mesh.clone()),
-                                MeshMaterial3d(primitive.material.clone().unwrap_or_default()),
-                                ColliderFlag::Convex,
-                                Sensor,
-                                RayCastPickable::default(),
-                                //GizmoTarget::default(),
-                                Name::new(primitive.name.clone()),
-                                Placer::from_path(&str_path),
-                                //GlobalTransform::from_translation(primitive.)
-                            )
-                        ).id();
-                        commands.entity(root).add_child(child);
-                    }
+                    println!("Path is {:#?}", handle.path());
+                    let model = commands.spawn(
+                        (
+                            DisassembleAssetRequest::<GltfPhysicsModel>::path(path.to_string() + "#Node0", None),
+                            Sensor,
+                            Transform::default(),
+                            RigidBodyFlag::Fixed,
+                            Name::new("pistol"),
+                            Placer::from_path(&str_path),
+                        )
+                    ).id();
+                    // let mut root = commands.spawn(
+                    // (
+                    //     // TODO: set this to be where raycast point is?
+                    //     Transform::default(),
+                    //     GltfNodeRoot,
+                    //     Name::new(node.name.clone()),
+                    //     InheritedVisibility::default(),
+                    // )).id();
+                    // for primitive in mesh.primitives.iter() {
+                    //     let child = commands.spawn(
+                    //         (
+                    //             Mesh3d(primitive.mesh.clone()),
+                    //             MeshMaterial3d(primitive.material.clone().unwrap_or_default()),
+                    //             RequestC::Convex,
+                    //             Sensor,
+                    //             RayCastPickable::default(),
+                    //             //GizmoTarget::default(),
+                    //             Name::new(primitive.name.clone()),
+                    //             Placer::from_path(&str_path),
+                    //             //GlobalTransform::from_translation(primitive.)
+                    //         )
+                    //     ).id();
+                    //     commands.entity(root).add_child(child);
+                    // }
                     // let mut model = commands.spawn((
                     //     Mesh3d(mesh_handle.clone()),
                     //     MeshMaterial3d(materials.add(Color::WHITE)),
@@ -192,11 +205,11 @@ pub fn build_menu_ui(
                     match model_king {
                         BuildMenuTarget::Hulls => {}
                         BuildMenuTarget::Weapons => {
-                            commands.entity(root).insert(Pistol);
+                            commands.entity(model).insert(Pistol);
                         }
                         //TODO: Wheel should NOT have "left-right" quality. This should be user defined/face defined/relativistic to other wheels.
                         BuildMenuTarget::Wheels => {
-                            commands.entity(root).insert(Wheel::Right);
+                            commands.entity(model).insert(Wheel::Right);
                         }
                     }
                     tool_mode.set(BuildToolMode::PlacerMode)
@@ -204,7 +217,8 @@ pub fn build_menu_ui(
                 //spawn display model for hovered over spawnables
                 let mut new_display_model = None;
                 if spawn_button.contains_pointer() {
-                    new_display_model = Some(DisplayOption::GltfNode(node_handle.clone()))
+                    todo!();
+                    //new_display_model = Some(DisplayOption::GltfNode(node_handle.clone()))
                 } 
                 if display_model.0 != new_display_model {
                     display_model.0 = new_display_model
@@ -298,16 +312,16 @@ pub fn select_build_tool(
 /// Sets mouse over window resource to true/false depending on mouse state.
 pub fn check_if_mouse_over_ui(
     mut windows: Query<&mut EguiContext>,
-    mut mouse_over_window: ResMut<MouseOverWindow>,
+    // mut mouse_over_window: ResMut<MouseOverWindow>,
 ) {
-    for mut window in windows.iter_mut() {
-        if window.get_mut().is_pointer_over_area() {
-            //println!("mouse is over window");
-            **mouse_over_window = true
-        } else {
-            **mouse_over_window = false
-        }
-    }
+    // for mut window in windows.iter_mut() {
+    //     if window.get_mut().is_pointer_over_area() {
+    //         //println!("mouse is over window");
+    //         **mouse_over_window = true
+    //     } else {
+    //         **mouse_over_window = false
+    //     }
+    // }
     //**mouse_over_window = false
 }
 

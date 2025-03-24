@@ -1,12 +1,12 @@
 [package]
 name = "CircuitCider"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = {workspace = true, features = ["dynamic_linking"]}
+bevy = {workspace = true, features = ["dynamic_linking", "trace_tracy"]}
 bevy-inspector-egui = {workspace = true}
 bevy_egui = {workspace = true}
 egui = {workspace = true}
@@ -24,22 +24,27 @@ combat = {workspace = true}
 [workspace.dependencies]
 bevy_toon_material = {git = "https://github.com/rydb/bevy_toon_material", rev = "cd1bae5599e8d3654014f0174035a19483192283"}
 bevy = {version = "0.15", features = ["dynamic_linking"]}
-bevy-inspector-egui = "0.28"
-bevy_egui = "0.31"
-egui = "0.29"
-bevy_serialization_extras = "0.8.0"
+bevy_picking = {version = "0.15"}
+bevy-inspector-egui = "0.29"
+bevy_egui = "0.32"
+egui = "0.30"
+# bevy_serialization_extras = {version = "0.9.0-beta.0", features = ["default"]}
+# bevy_serialization_assemble = {version = "0.2.0-beta.0"}
+bevy_serialization_assemble = {path = "../bevy_serialization_extras/crates/bevy_serialization_assemble"}
+bevy_serialization_extras = {path = "../bevy_serialization_extras"}
+
 bevy_camera_extras = "0.15"
-bevy_ui_extras = "0.17.0"
-bevy_rapier3d = "0.28"
+bevy_ui_extras = "0.18.0"
+bevy_rapier3d = "0.29"
 bevy_app = "0.15"
 bevy_asset = "0.15"
 bevy_obj = "0.15"
-strum = "0.26"
-strum_macros = "0.26"
+strum = "0.27"
+strum_macros = "0.27"
 # bevy_mod_outline = "0.9"
 bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline", rev = "3bd8357c656f6100c3fe13a2d6bab50f6de72a6f"}
 transform-gizmo-bevy = {git = "https://github.com/rydb/transform-gizmo", rev = "1a0060f23c2d4b5a4e6948107c0a7cbea961ddb7"}
-derive_more = "1.0"
+derive_more = {version = "2.0", features = ["from"]}
 bevy_asset_loader = "0.22"
 egui_extras = "0.30"
 

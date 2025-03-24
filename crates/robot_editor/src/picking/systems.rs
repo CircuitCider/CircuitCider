@@ -3,14 +3,14 @@ use bevy::{
     prelude::*,
 };
 use bevy_mod_outline::OutlineVolume;
-use bevy_serialization_extras::prelude::{JointFlag, StructureFlag};
+use bevy_serialization_extras::prelude::JointFlag;
 use transform_gizmo_bevy::GizmoTarget;
 
 use crate::{
     assembling::components::AssemblingTarget,
     attaching::components::AttachCandidate,
-    placing::components::Placer,
-    raycast_utils::resources::CursorRayHits,
+    placing::components::Placer, Part,
+    // raycast_utils::resources::CursorRayHits,
 };
 
 use super::PickSelection;
@@ -28,26 +28,28 @@ pub fn toggle_picking_enabled(
 /// effects on things that are iteracted with
 pub fn picking_interaction_effects(
     interactables: Query<
-        (Entity, Option<&StructureFlag>, &PickingInteraction),
+        (Entity, 
+            Option<&Part>, 
+            &PickingInteraction),
         Changed<PickingInteraction>,
     >,
     //hovered: Query<&Hovered>,
     mut commands: Commands,
-    hits: ResMut<CursorRayHits>,
+    // hits: ResMut<CursorRayHits>,
     mouse: Res<ButtonInput<MouseButton>>,
 ) {
-    let Some((_, _, (e, structure, interaction))) = hits.first_with(&interactables) else {
-        return;
-    };
+    // let Some((_, _, (e, structure, interaction))) = hits.first_with(&interactables) else {
+    //     return;
+    // };
 
-    if interaction == &PickingInteraction::Pressed && mouse.just_pressed(MouseButton::Left) {
-        let structure_exists = structure.map(|_| true).unwrap_or(false);
+    // if interaction == &PickingInteraction::Pressed && mouse.just_pressed(MouseButton::Left) {
+    //     let structure_exists = structure.map(|_| true).unwrap_or(false);
 
-        if structure_exists == false {
-            //TODO: This is not correct, this will only work for hulls.
-            commands.entity(e).insert(Placer::Hull);
-        }
-    }
+    //     if structure_exists == false {
+    //         //TODO: This is not correct, this will only work for hulls.
+    //         commands.entity(e).insert(Placer::Hull);
+    //     }
+    // }
     // if interaction == &PickingInteraction::Hovered {
 
     // }
@@ -57,8 +59,12 @@ pub fn picking_interaction_effects(
 pub fn picking_click_effects(
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
-    mut clickables: Query<(Entity, Option<&StructureFlag>, &PickSelection), Changed<PickSelection>>,
-    structures: Query<(Entity, &StructureFlag)>,
+    mut clickables: Query<(Entity, 
+        Option<&Part>, 
+        &PickSelection), Changed<PickSelection>>,
+    structures: Query<(Entity, 
+        &Part
+    )>,
     joints: Query<&JointFlag>,
     // mut rigid_bodies: Query<&mut RigidBodyFlag>,
     // mut outlines: Query<&mut OutlineVolume>,
@@ -67,7 +73,9 @@ pub fn picking_click_effects(
 ) {
     // Continuously update entities based on their picking state
 
-    for (e, structure, selectable) in &mut clickables {
+    for (e, 
+        structure, 
+        selectable) in &mut clickables {
         if selectable.is_selected {
             let mut entity_cmd = commands.entity(e);
 
@@ -78,7 +86,7 @@ pub fn picking_click_effects(
             } else if let Ok(joint) = joints.get(e) {
                 //if let Ok(joint) = joints.get(e) {
                 entity_cmd.insert(AttachCandidate {
-                    attempt_target: joint.parent_id,
+                    attempt_target: Some(joint.parent),
                 });
             } else {
                 entity_cmd.insert(GizmoTarget::default());
@@ -162,25 +170,15 @@ pub fn picking_click_effects(
 
 pub fn make_models_pickable(
     mut commands: Commands,
-    models_query: Query<Entity, (With<StructureFlag>, Without<RayCastPickable>)>,
+    models_query: Query<Entity, (
+        //With<Part>, 
+        With<Mesh3d>,
+        Without<RayCastPickable>
+    )>,
 ) {
     for e in models_query.iter() {
         commands.entity(e).insert((
-            // PickableBundle {
-            //     pickable: Pickable::default(),
-            //     interaction: PickingInteraction::default(),
-            //     selection: PickSelection::default(),
-            //     highlight: PickHighlight::default(),
-            // },
             RayCastPickable,
-            // OutlineBundle {
-            //     outline: OutlineVolume {
-            //         visible: false,
-            //         colour: Color::Srgba(Srgba::GREEN),
-            //         width: 2.0,
-            //     },
-            //     ..default()
-            // },
             OutlineVolume {
                 visible: false,
                 colour: Color::Srgba(Srgba::GREEN),

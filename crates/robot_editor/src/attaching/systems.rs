@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use bevy_serialization_extras::prelude::link::JointFlag;
+use bevy_serialization_extras::prelude::{link::JointFlag, Dynamics, JointAxesMaskWrapper, JointInfo, JointLimitWrapper, JointMotorWrapper};
 
 use super::components::*;
-use crate::{placing::components::Placer, raycast_utils::resources::CursorRayHits};
+use crate::placing::components::Placer;
 
 // /// gets rid of placers if current mode is not placermode
 // // pub fn delete_attach_candidates(
@@ -30,10 +30,30 @@ pub fn confirm_attachment(
             };
 
             commands.entity(e).insert(JointFlag {
-                parent_name: None,
-                parent_id: Some(target),
-                local_frame2: Some(transform.clone()),
-                ..default() //limit: JointLimitWrapper {lower: 0.0, upper: 0.0, effort: 0.0, velocity: 0.0},
+                parent: target,
+                //TODO: add default impl back on next update
+                joint: JointInfo {
+                    local_frame1: Transform::default(),
+                    local_frame2: transform.clone(),
+                    limit: JointLimitWrapper::default(),
+                    dynamics: Dynamics::default(),
+                    limit_axes: JointAxesMaskWrapper::default(),
+                    locked_axes: JointAxesMaskWrapper::default(),
+                    motor_axes: JointAxesMaskWrapper::default(),
+                    contacts_enabled: false,
+                    coupled_axes: JointAxesMaskWrapper::default(),
+                    motors: [
+                        JointMotorWrapper::default(),
+                        JointMotorWrapper::default(),
+                        JointMotorWrapper::default(),
+                        JointMotorWrapper::default(),
+                        JointMotorWrapper::default(),
+                        JointMotorWrapper::default()
+                    ],
+                    enabled: true
+                    
+                }
+
             });
             commands.entity(e).remove::<AttachCandidate>();
         }
@@ -46,50 +66,50 @@ pub fn switch_to_attach_from_placer(
     mut placers: Query<(Entity, Option<&mut AttachCandidate>), With<Placer>>,
     joints: Query<&JointFlag>,
     mouse: Res<ButtonInput<MouseButton>>,
-    hits: ResMut<CursorRayHits>,
+    // hits: ResMut<CursorRayHits>,
     mut commands: Commands,
 ) {
-    if keys.pressed(KeyCode::ShiftLeft) {
-        let Ok((e, current_target, ..)) = placers.get_single_mut().inspect_err(|err| {
-            warn!(
-                "switching attacher mode only works with 1 placer: Actual error: {:#}",
-                err
-            )
-        }) else {
-            return;
-        };
+    // if keys.pressed(KeyCode::ShiftLeft) {
+    //     let Ok((e, current_target, ..)) = placers.get_single_mut().inspect_err(|err| {
+    //         warn!(
+    //             "switching attacher mode only works with 1 placer: Actual error: {:#}",
+    //             err
+    //         )
+    //     }) else {
+    //         return;
+    //     };
 
-        if let Some((target, hit)) = hits.first_hit_after(&e) {
-            if let Some(mut current_target) = current_target {
-                current_target.attempt_target = Some(*target)
-            } else {
-                commands.entity(e).insert(AttachCandidate {
-                    attempt_target: Some(*target),
-                });
-            }
-        }
-        // for (e, current_target) in placers.iter() {
-        //     if let Some((target,..)) = hits.first_wi(&placers) {
-        //         if let Some(current_target) = current_target {
+    //     if let Some((target, hit)) = hits.first_hit_after(&e) {
+    //         if let Some(mut current_target) = current_target {
+    //             current_target.attempt_target = Some(*target)
+    //         } else {
+    //             commands.entity(e).insert(AttachCandidate {
+    //                 attempt_target: Some(*target),
+    //             });
+    //         }
+    //     }
+    //     // for (e, current_target) in placers.iter() {
+    //     //     if let Some((target,..)) = hits.first_wi(&placers) {
+    //     //         if let Some(current_target) = current_target {
 
-        //         }
-        //         commands.entity(e).insert(AttachCandidate {
-        //             attempt_target: Some(target)
-        //         });
-        //     }
-        // }
-    } else {
-        let Ok((e, current_target, ..)) = placers.get_single_mut() else {
-            return;
-        };
+    //     //         }
+    //     //         commands.entity(e).insert(AttachCandidate {
+    //     //             attempt_target: Some(target)
+    //     //         });
+    //     //     }
+    //     // }
+    // } else {
+    //     let Ok((e, current_target, ..)) = placers.get_single_mut() else {
+    //         return;
+    //     };
 
-        //  let Some(current_target) = current_target else {return;};
+    //     //  let Some(current_target) = current_target else {return;};
 
-        // remove attach candidates if they aren't attached to anything
-        if joints.get(e).is_err() {
-            commands.entity(e).remove::<AttachCandidate>();
-        }
-    }
+    //     // remove attach candidates if they aren't attached to anything
+    //     if joints.get(e).is_err() {
+    //         commands.entity(e).remove::<AttachCandidate>();
+    //     }
+    // }
 }
 
 // /// manages gizmos associated with attacher
