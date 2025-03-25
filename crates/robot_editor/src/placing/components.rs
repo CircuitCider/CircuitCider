@@ -8,7 +8,7 @@ use crate::{Spacing, Targeter};
 pub struct CursorRayCam;
 
 /// entity used to place other similar entities.
-#[derive(Component, Default, Display, Reflect)]
+#[derive(Component, Clone, Default, Display, Reflect)]
 #[reflect(Component)]
 pub enum Placer {
     #[default]

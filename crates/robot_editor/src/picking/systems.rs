@@ -171,7 +171,6 @@ pub fn picking_click_effects(
 pub fn make_models_pickable(
     mut commands: Commands,
     models_query: Query<Entity, (
-        //With<Part>, 
         With<Mesh3d>,
         Without<RayCastPickable>
     )>,

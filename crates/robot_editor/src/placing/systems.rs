@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_picking::pointer::PointerInteraction;
 
 use crate::{
     attaching::components::AttachCandidate,
@@ -24,7 +25,7 @@ pub fn delete_placers(
     }
     if despawn == true {
         for e in placers.iter() {
-            commands.entity(e).despawn()
+            commands.entity(e).despawn_recursive()
         }
     }
 }
@@ -35,23 +36,26 @@ pub fn attach_placer(
     mouse: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
+    pointer: Single<&PointerInteraction>,
     // mouse_over_window: Res<MouseOverWindow>,
     // hits: Res<CursorRayHits>,
     //robots: Query<&StructureFlag>,
 ) {
-    // if mouse.just_released(MouseButton::Left) && **mouse_over_window == false {
-    //     for (e, _) in placers.iter() {
-    //         if let Some((target, ..)) = hits.first_with(&robots) {
-    //             commands.entity(e).insert(AttachCandidate {
-    //                 attempt_target: Some(target),
-    //             });
-    //         }
-    //         commands.entity(e).remove::<Placer>();
-    //     }
-    // }
-    // if keys.just_pressed(KeyCode::Escape) {
-    //     for (e, ..) in placers.iter() {
-    //         commands.entity(e).despawn_recursive();
-    //     }
-    // }
+    //let Some(first_hit, ) = pointer.iter().nth(0);
+    if mouse.just_released(MouseButton::Left) && pointer.iter().nth(0).map(|(a, b)| b.position).is_some() {
+        for (e, _) in placers.iter() {
+            
+            // if let Some((target, ..)) = hits.first_with(&robots) {
+            //     commands.entity(e).insert(AttachCandidate {
+            //         attempt_target: Some(target),
+            //     });
+            // }
+            commands.entity(e).remove::<Placer>();
+        }
+    }
+    if keys.just_pressed(KeyCode::Escape) {
+        for (e, ..) in placers.iter() {
+            commands.entity(e).despawn_recursive();
+        }
+    }
 }

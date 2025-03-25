@@ -134,7 +134,10 @@ impl Plugin for RobotEditorPlugin {
             .add_systems(
                 Update,
                 build_menu_ui.run_if(in_state(RobotEditorState::Active)),
-            );
+            )
+            .add_systems(Update, make_window_not_block_picking)
+            ;
+            
     }
 }
 

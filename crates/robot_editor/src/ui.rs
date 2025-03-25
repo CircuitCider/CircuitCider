@@ -1,12 +1,12 @@
 use std::f32::consts::PI;
 
 use crate::{
-    components::{GltfNodeRoot, Wheel}, load_assets_in, model_display::DisplayModel, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
+    components::{GltfNodeRoot, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
 };
 use bevy::{asset::LoadedFolder, gltf::{GltfMesh, GltfNode, GltfPrimitive}, math::Affine3A, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_rapier3d::prelude::Sensor;
-use bevy_serialization_assemble::{components::{DisassembleAssetRequest, Maybe}, gltf::{gltf_collider_request, GltfNodeColliderVisualChilds, GltfNodeMeshOne, GltfNodeVisuals, GltfPhysicsMeshPrimitive, GltfPhysicsModel}, traits::{Disassemble, Split, Structure}};
+use bevy_serialization_assemble::{components::{DisassembleAssetRequest, Maybe, RollDown}, gltf::{gltf_collider_request, GltfNodeColliderVisualChilds, GltfNodeMeshOne, GltfNodeVisuals, GltfPhysicsMeshPrimitive, GltfPhysicsModel}, traits::{Disassemble, Split, Structure}};
 use bevy_serialization_extras::prelude::{colliders::ColliderFlag, RequestCollider, RequestColliderFromChildren, RigidBodyFlag};
 use combat::components::Pistol;
 use derive_more::From;
@@ -17,71 +17,12 @@ use strum::IntoEnumIterator;
 #[derive(Component)]
 pub struct ModifyTransformGltf;
 
-// /// GltfNode wrapper for spawning gltf nodes with a parent collider mesh, and children visual meshes.
-// /// This is for physics
-// /// 
-// /// MOVE CODE FROM THIS IN BEVY_SERIALIZATION_EXTRAS, JUST TEMP TO RESOLVE NO FROM IMPL
-// #[derive(Clone, Deref, From)]
-// pub struct GltfPhysicsModel(pub GltfNode);
-
-// impl Disassemble for GltfPhysicsModel {
-//     fn components(value: Self) -> Structure<impl Bundle> {
-//         let visuals = value
-//             .0
-//             .mesh
-//             .map(|n| DisassembleAssetRequest::<GltfVisualChildren>::handle(n, None));
-
-//         // let collider_request = {
-//         //     if let Some(gltf_extras) = value.0.extras {
-//         //         RequestColliderFromChildren(gltf_collider_request(gltf_extras))
-//         //     } else {
-//         //         RequestCollider::Convex.into()
-//         //     }
-//         // };
-//         let collider_request = {
-//             RequestColliderFromChildren(RequestCollider::Cuboid)
-//         };
-//         Structure::Root((
-//             collider_request,
-//             Maybe(visuals),
-//             Visibility::Visible,
-//             //TODO: Implement properly
-//             ModifyTransformGltf,
-//             //Maybe(mesh),
-//             //RequestStructure(GltfNodeVisuals(value.0.children)),
-//         ))
-//     }
-// }
-
-// #[derive(From, Deref, Clone)]
-// pub struct GltfVisualChildren(pub GltfMesh);
-
-// impl Disassemble for GltfVisualChildren {
-//     fn components(value: Self) -> Structure<impl Bundle> {
-//         let mut children = Vec::new();
-
-//         for primitive in value.primitives.clone() {
-//             children.push(
-//                 (
-//                     Maybe(primitive.material.map(|n| MeshMaterial3d(n))),
-//                     Mesh3d(primitive.mesh)
-//                 )
-//             )
-//         }
-//         Structure::Children(children, Split(false))
-//     }
-// }
-
 /// list all placeable models
 pub fn build_menu_ui(
     folders: Res<Assets<LoadedFolder>>,
     hulls_folder: Res<HullsFolder>,
     weapons_folder: Res<WeaponsFolder>,
     wheels_folder: Res<WheelsFolder>,
-    gltfs: Res<Assets<Gltf>>,
-    gltf_meshes: Res<Assets<GltfMesh>>,
-    gltf_nodes: Res<Assets<GltfNode>>,
-    meshes: Res<Assets<Mesh>>,
     mut display_model: ResMut<DisplayModel>,
     mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mut placer_materials: ResMut<Assets<NeonMaterial>>,
@@ -91,8 +32,6 @@ pub fn build_menu_ui(
     mut build_menu_target: ResMut<BuildMenuTarget>,
     mut commands: Commands,
 ) {
-    let mut model_hovered = false;
-
     let Ok(mut context) = primary_window
         .get_single_mut()
         .inspect_err(|err| println!("issue spawning build menu: {:#}", err))
@@ -127,11 +66,6 @@ pub fn build_menu_ui(
             return;
         };
 
-        // let Some(handles) = load_assets_in::<Mesh>(&folders, &hulls_folder.0) else {
-        //     ui.label("could not load folder...");
-        //     return;
-        // };
-
         for handle in handles {
             //let mesh = meshes.get(mesh_handle.clone()).expect("not loaded");
             if let Some(path) = handle.path() {
@@ -145,65 +79,24 @@ pub fn build_menu_ui(
                     .button(model_name.clone())
                     .interact(Sense::click_and_drag());
 
+                let model_path = path.to_string() + "#Node0";
                 if spawn_button.drag_started() {
 
                     println!("spawning model");
-                    println!("Path is {:#?}", handle.path());
                     let model = commands.spawn(
                         (
-                            DisassembleAssetRequest::<GltfPhysicsModel>::path(path.to_string() + "#Node0", None),
+                            DisassembleAssetRequest::<GltfPhysicsModel>::path(model_path.clone(), None),
                             Sensor,
                             Transform::default(),
                             RigidBodyFlag::Fixed,
                             Name::new("pistol"),
                             Placer::from_path(&str_path),
+                            RollDown(PickingBehavior {
+                                should_block_lower: false,
+                                is_hoverable: true
+                            }, vec![])
                         )
                     ).id();
-                    // let mut root = commands.spawn(
-                    // (
-                    //     // TODO: set this to be where raycast point is?
-                    //     Transform::default(),
-                    //     GltfNodeRoot,
-                    //     Name::new(node.name.clone()),
-                    //     InheritedVisibility::default(),
-                    // )).id();
-                    // for primitive in mesh.primitives.iter() {
-                    //     let child = commands.spawn(
-                    //         (
-                    //             Mesh3d(primitive.mesh.clone()),
-                    //             MeshMaterial3d(primitive.material.clone().unwrap_or_default()),
-                    //             RequestC::Convex,
-                    //             Sensor,
-                    //             RayCastPickable::default(),
-                    //             //GizmoTarget::default(),
-                    //             Name::new(primitive.name.clone()),
-                    //             Placer::from_path(&str_path),
-                    //             //GlobalTransform::from_translation(primitive.)
-                    //         )
-                    //     ).id();
-                    //     commands.entity(root).add_child(child);
-                    // }
-                    // let mut model = commands.spawn((
-                    //     Mesh3d(mesh_handle.clone()),
-                    //     MeshMaterial3d(materials.add(Color::WHITE)),
-                    //     ColliderFlag::Convex,
-                    //     Sensor,
-                    //     RayCastPickable::default(),
-                    //     //GizmoTarget::default(),
-                    //     Name::new(model_name),
-                    //     Placer::from_path(&str_path),
-                    //     // MaterialMeshBundle {
-                    //     //     mesh: mesh_handle.clone(),
-                    //     //     material: placer_materials.add(NeonMaterial {
-                    //     //         color: Color::Srgba(Srgba::RED).into(),
-                    //     //     }),
-                    //     //     ..default()
-                    //     // },
-                    //     // Placer::from_path(str_path),
-                    //     // ColliderFlag::Convex,
-                    //     // Sensor,
-                    //     // Name::new(model_name.clone()),
-                    // ));
                     match model_king {
                         BuildMenuTarget::Hulls => {}
                         BuildMenuTarget::Weapons => {
@@ -217,17 +110,15 @@ pub fn build_menu_ui(
                     tool_mode.set(BuildToolMode::PlacerMode)
                 }
                 //spawn display model for hovered over spawnables
-                todo!();
-                // let mut new_display_model = None;
-                // let model_path = if spawn_button.contains_pointer() {
+                let mut new_display_model = None;
+                if spawn_button.contains_pointer() {
                     
 
-                //     //new_display_model = Some(DisplayOption::Path(node_handle.clone()))
-                // } 
-                // todo!();
-                // if display_model.0 != new_display_model {
-                //     display_model.0 = new_display_model
-                // }
+                    new_display_model = Some(DisplayOption::Path(model_path.clone()))
+                } 
+                if display_model.0 != new_display_model {
+                    display_model.0 = new_display_model
+                }
             }
         }
         // if model_hovered == false {
@@ -359,5 +250,16 @@ pub fn save_load_model_ui(
     }
 }
 
+pub fn make_window_not_block_picking(
+    windows: Query<(Entity, &Window), Without<PickingBehavior>>,
+    mut commands: Commands
+) {
+    for (e, window) in windows.iter() {
+        commands.entity(e).insert(PickingBehavior {
+            should_block_lower: false,
+            is_hoverable: true,
+        });
+    }
+}
 // #[derive(Resource, Deref, Default)]
 // pub struct DisplayModelImage(pub Handle<Image>);

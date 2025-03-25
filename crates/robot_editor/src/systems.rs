@@ -71,23 +71,37 @@ pub fn intersection_colors_for<T: Component, U: Material>(
     }
 }
 
+// /// return first valid hit on something that:
+// /// 1. has a hit position(not a window)
+// /// 2. is not it self/children of it self(self/sub-primitives of self)
+// pub fn first_valid_other_hit(entity: Entity, children: Query<Option<&Children>>, pointer: PointerInteraction) {
+//     let children = children.get(entity).iter();
+//     let Some((_, hit_data)) = pointer.iter()
+//     .filter(|(e, ..)| {
+//         if let Some(children) = children {
+//             children.contains(e) == false
+//         } else {
+//             true
+//         }
+//     })    
+//     .find(|(target, data)| target != &e && data.position.is_some()) else {
+//         continue
+//     };
+//     let Some(hit_pos) = hit_data.position else {
+//         continue
+//     };
+// }
+
 /// moves entities of type `<T>` to cursor
 pub fn move_to_cursor<T: Component + Targeter + Spacing>(
-    // tool_mode: ResMut<State<BuildToolMode>>,
-    //cursor_cam: Single<With<CursorRayCam>>,
     pointer: Single<&PointerInteraction>,
-    movables: Query<(Entity, &T, Option<&Children>)>,
-    mut transforms: Query<&mut Transform>, // mouse_over_window: Res<MouseOverWindow>,
+    movables: Query<(Entity, Option<&Name>, &T, Option<&Children>)>,
+    mut transforms: Query<&mut Transform>,
 ) {
-    for (e, _, children) in movables.iter() {
+    for (e, name,_ , children) in movables.iter() {
         let Ok(mut movable_trans) = transforms.get_mut(e) else {
             continue;
         };
-        // let hits = if let Some(children) = children{
-        //     pointer.iter().filter(|(e, ..)| children.contains(e) == false).into_iter()
-        // } else {
-        //     pointer.iter()
-        // };
 
         let Some((_, hit_data)) = pointer.iter()
         .filter(|(e, ..)| {
@@ -97,7 +111,7 @@ pub fn move_to_cursor<T: Component + Targeter + Spacing>(
                 true
             }
         })    
-        .find(|(target, ..)| target != &e) else {
+        .find(|(target, data)| target != &e && data.position.is_some()) else {
             continue
         };
         let Some(hit_pos) = hit_data.position else {

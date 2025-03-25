@@ -9,9 +9,6 @@ use bevy::{
     reflect::Reflect,
 };
 
-/// weather mouse is over window or not.
-#[derive(Resource, Reflect, Deref, DerefMut, Default)]
-pub struct MouseOverWindow(bool);
 
 /// collection of things that [`CursorRay`] hit.
 ///

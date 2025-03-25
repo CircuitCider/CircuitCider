@@ -1,7 +1,7 @@
 use bevy::{picking::pointer::PointerInteraction, prelude::*};
 use bevy_picking::mesh_picking::ray_cast::RayMeshHit;
 
-use super::resources::{CursorRayHits, MouseOverWindow, RayCastDebugMode};
+use super::resources::{CursorRayHits, RayCastDebugMode};
 
 
 
@@ -50,27 +50,26 @@ use super::resources::{CursorRayHits, MouseOverWindow, RayCastDebugMode};
 //     **cursor_ray_hits = hit_iter
 // }
 
-/// Gets all hit data of entities clicked on by mouse.
-pub fn ray_hit_iter<'a>(
-    ray: &'a Option<Ray3d>,
-    raycast: &'a mut MeshRayCast,
-    mouse_over_window: &'a Res<MouseOverWindow>,
-    debug_mode: &'a Res<RayCastDebugMode>,
-    gizmos: &'a mut Gizmos,
-) -> Option<std::slice::Iter<'a, (Entity, RayMeshHit)>> {
-    if ***mouse_over_window {
-        return None;
-    }
-    let Some(ray) = *ray else { return None };
-    if ***debug_mode {
-        warn!("re-add debug ray visualization");
+// /// Gets all hit data of entities clicked on by mouse.
+// pub fn ray_hit_iter<'a>(
+//     ray: &'a Option<Ray3d>,
+//     raycast: &'a mut MeshRayCast,
+//     debug_mode: &'a Res<RayCastDebugMode>,
+//     gizmos: &'a mut Gizmos,
+// ) -> Option<std::slice::Iter<'a, (Entity, RayMeshHit)>> {
+//     if ***mouse_over_window {
+//         return None;
+//     }
+//     let Some(ray) = *ray else { return None };
+//     if ***debug_mode {
+//         warn!("re-add debug ray visualization");
         
-        //raycast.debug_cast_ray(ray, &DONT_EXIT_EARLY, gizmos).iter()
-    } 
+//         //raycast.debug_cast_ray(ray, &DONT_EXIT_EARLY, gizmos).iter()
+//     } 
     
-    else {
-    };
-    let hit_list = raycast.cast_ray(ray, &DONT_EXIT_EARLY).iter();
+//     else {
+//     };
+//     let hit_list = raycast.cast_ray(ray, &DONT_EXIT_EARLY).iter();
 
-    Some(hit_list)
-}
+//     Some(hit_list)
+// }
