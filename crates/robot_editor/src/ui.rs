@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::{
-    components::{GltfNodeRoot, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
+    components::{GltfNodeRoot, Wheel}, load_assets_in, model_display::DisplayModel, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
 };
 use bevy::{asset::LoadedFolder, gltf::{GltfMesh, GltfNode, GltfPrimitive}, math::Affine3A, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
@@ -140,11 +140,13 @@ pub fn build_menu_ui(
                 
                 let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
 
+
                 let spawn_button = ui
                     .button(model_name.clone())
                     .interact(Sense::click_and_drag());
 
                 if spawn_button.drag_started() {
+
                     println!("spawning model");
                     println!("Path is {:#?}", handle.path());
                     let model = commands.spawn(
@@ -215,14 +217,17 @@ pub fn build_menu_ui(
                     tool_mode.set(BuildToolMode::PlacerMode)
                 }
                 //spawn display model for hovered over spawnables
-                let mut new_display_model = None;
-                if spawn_button.contains_pointer() {
-                    todo!();
-                    //new_display_model = Some(DisplayOption::GltfNode(node_handle.clone()))
-                } 
-                if display_model.0 != new_display_model {
-                    display_model.0 = new_display_model
-                }
+                todo!();
+                // let mut new_display_model = None;
+                // let model_path = if spawn_button.contains_pointer() {
+                    
+
+                //     //new_display_model = Some(DisplayOption::Path(node_handle.clone()))
+                // } 
+                // todo!();
+                // if display_model.0 != new_display_model {
+                //     display_model.0 = new_display_model
+                // }
             }
         }
         // if model_hovered == false {

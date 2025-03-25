@@ -15,7 +15,7 @@ pub struct ModelDisplayerPlugin;
 impl Plugin for ModelDisplayerPlugin {
     fn build(&self, app: &mut App) {
         app
-        // .init_resource::<DisplayModel>()
+        .init_resource::<DisplayModel>()
         .register_type::<DisplayRoot>()
             .register_type::<DisplayModelStaging>()
             .register_type::<DisplayModelCamera>()

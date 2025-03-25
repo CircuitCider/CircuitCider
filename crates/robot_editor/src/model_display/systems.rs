@@ -1,8 +1,9 @@
 
 use bevy::{gltf::{GltfMesh, GltfNode}, prelude::*, render::view::RenderLayers};
+use bevy_serialization_assemble::{components::{DisassembleAssetRequest, RollDown}, gltf::GltfVisualModel, traits::DisassembleSettings, Assemblies};
 
 
-use crate::model_display::extract_gltf_node;
+use crate::model_display::{extract_gltf_node, DisplayOption};
 
 use super::{components::*, plugins::DISPLAY_MODEL_TRANSLATION, DisplayModel, DisplayModelLoading};
 
@@ -63,58 +64,30 @@ pub fn stage_display_model(
 }
 
 pub fn populate_display_model(
-    display_model_kind: Res<DisplayModel>,
-    mut display_model: Query<(Entity, &mut Transform), With<DisplayModelLoading>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    gltf_meshes: Res<Assets<GltfMesh>>,
-    gltf_nodes: Res<Assets<GltfNode>>,
-    asset_server: Res<AssetServer>,
+    model: ResMut<DisplayModel>,
+    mut display_model: Query<Entity, With<DisplayModelLoading>>,
     mut commands: Commands,
 ) {
-    let Ok((root, mut trans)) = display_model.get_single_mut() else {
+    let Ok(root) = display_model.get_single_mut() else {
         return;
     };
-    //let old_model = display_root.get_single();
-    let Some(ref kind) = display_model_kind.0 else {
+    let Some(kind) = model.0.clone() else {
         return;
     };
     println!("spawning desplay model");
-    match kind {
-        super::DisplayOption::Mesh(handle) => {
-            commands.entity(root).insert(
-                (
-                    Mesh3d(handle.clone()),
-                    MeshMaterial3d(materials.add(StandardMaterial::default())),
-                    RenderLayers::layer(1),
-                    
-                )
-            );
-        },
-        super::DisplayOption::GltfNode(handle) => {
-            let Ok((node_trans, gltf_mesh)) = extract_gltf_node(handle, gltf_meshes, gltf_nodes) else {
-                return
-            };
-            for primitive in &gltf_mesh.primitives {
-                let mat = primitive.material.clone().unwrap_or_default();
-                let child = commands.spawn(
-                    (
-                        Mesh3d(primitive.mesh.clone()),
-                        MeshMaterial3d(mat),
-                        RenderLayers::layer(1),
-                    )
-                ).id();
-                commands.entity(root)
-                .add_child(child);
-            }
-            // incase gltf has different scale, this matches it to it.
-            trans.scale = node_trans.scale;
-            trans.rotation = node_trans.rotation;
-        },
-    }
+    
+    let request = match kind {
+        DisplayOption::Path(path) => DisassembleAssetRequest::<GltfVisualModel>::path(path, None),
+        DisplayOption::Handle(handle) => DisassembleAssetRequest::handle(handle, None),
+    };
+    commands.entity(root).insert(
+        (
+            request,
+            RollDown(RenderLayers::layer(1), vec![]),
+            
+        )
+    );
     commands.entity(root).remove::<DisplayModelLoading>();
-    // if let Ok(old_model) = old_model {
-    //     commands.entity(old_model).despawn_recursive();
-    // }
 }
 
 pub fn rotate_display_model(

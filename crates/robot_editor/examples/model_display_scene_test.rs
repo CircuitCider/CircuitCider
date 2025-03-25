@@ -3,6 +3,7 @@
 
 use app_core::plugins::AppSourcesPlugin;
 use bevy::{gltf::{GltfMesh, GltfNode}, prelude::*};
+use bevy_serialization_extras::prelude::{SerializationAssembleBasePlugin, SerializationBasePlugin};
 use bevy_ui_extras::UiExtrasDebug;
 use robot_editor::model_display::{plugins::ModelDisplayerPlugin, DisplayModel, DisplayOption};
 use shader_core::shaders::plugins::CustomShadersPlugin;
@@ -11,6 +12,8 @@ pub fn main() {
     App::new()
         .add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(DefaultPlugins)
+        .add_plugins(SerializationBasePlugin)
+        .add_plugins(SerializationAssembleBasePlugin)
         .add_plugins(UiExtrasDebug::default())
         .add_plugins(CustomShadersPlugin)
         .add_plugins(ModelDisplayerPlugin)
@@ -31,5 +34,5 @@ pub fn display_model_test(
     //let gun = asset_server.load("root://models/weapons.robot_gun.glb");
     let gun = asset_server.load::<GltfNode>(GltfAssetLabel::Node(0).from_asset("root://models/weapons/robot_gun.glb"));
     //let gun = asset_server.load("root://models/weapons/robot_gun.glb");
-    display_model.0 = Some(DisplayOption::GltfNode(gun))
+    display_model.0 = Some(DisplayOption::Handle(gun))
 }
