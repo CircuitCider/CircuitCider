@@ -29,8 +29,8 @@ bevy_toon_material = {workspace = true}
 #async-trait = "*"
 
 # parrallize compile
-[build]
-rustflags = ["-Z", "threads=8"]
+# [build]
+# rustflags = ["-Z", "threads=8"]
 
 
 # Enable max optimizations for dependencies, but not for our code:

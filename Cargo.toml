@@ -25,28 +25,28 @@ combat = {workspace = true}
 bevy_toon_material = {git = "https://github.com/rydb/bevy_toon_material", rev = "cd1bae5599e8d3654014f0174035a19483192283"}
 bevy = {version = "0.15", features = ["dynamic_linking"]}
 bevy_picking = {version = "0.15"}
-bevy-inspector-egui = "0.29"
-bevy_egui = "0.32"
-egui = "0.30"
+bevy-inspector-egui = "0.30"
+bevy_egui = "0.33"
+egui = "0.31"
 # bevy_serialization_extras = {version = "0.9.0-beta.0", features = ["default"]}
 # bevy_serialization_assemble = {version = "0.2.0-beta.0"}
 bevy_serialization_assemble = {path = "../bevy_serialization_extras/crates/bevy_serialization_assemble"}
 bevy_serialization_extras = {path = "../bevy_serialization_extras"}
 
 bevy_camera_extras = "0.15"
-bevy_ui_extras = "0.18.0"
+bevy_ui_extras = "0.19.0"
 bevy_rapier3d = "0.29"
 bevy_app = "0.15"
 bevy_asset = "0.15"
 bevy_obj = "0.15"
 strum = "0.27"
 strum_macros = "0.27"
-# bevy_mod_outline = "0.9"
-bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline", rev = "3bd8357c656f6100c3fe13a2d6bab50f6de72a6f"}
-transform-gizmo-bevy = {git = "https://github.com/rydb/transform-gizmo", rev = "1a0060f23c2d4b5a4e6948107c0a7cbea961ddb7"}
+bevy_mod_outline = "0.9.1"
+# bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline", rev = "3bd8357c656f6100c3fe13a2d6bab50f6de72a6f"}
+transform-gizmo-bevy = {git = "https://github.com/rydb/transform-gizmo", rev = "e27eb861370097124931a5463aee7366b333b22a"}
 derive_more = {version = "2.0", features = ["from"]}
 bevy_asset_loader = "0.22"
-egui_extras = "0.30"
+egui_extras = "0.31"
 
 robot_editor = {path = "./crates/robot_editor", version = "0.1"}
 app_core = {path = "./crates/app_core", version = "0.1"}

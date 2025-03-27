@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_picking::pointer::PointerInteraction;
 use bevy_serialization_extras::prelude::{link::JointFlag, Dynamics, JointAxesMaskWrapper, JointInfo, JointLimitWrapper, JointMotorWrapper};
 
 use super::components::*;
@@ -22,39 +23,26 @@ pub fn confirm_attachment(
     candidates: Query<(Entity, &Transform, &AttachCandidate)>,
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
+    pointer: Single<&PointerInteraction>
 ) {
-    if mouse.just_pressed(MouseButton::Left) {
-        for (e, transform, candidate) in candidates.iter() {
+    let first_hit_pos = pointer.first().and_then(|(_, n)| n.position);
+    if mouse.just_pressed(MouseButton::Left) && first_hit_pos.is_some() {
+        for (e, transform, candidate) in &candidates {
             let Some(target) = candidate.attempt_target else {
                 return;
             };
 
-            commands.entity(e).insert(JointFlag {
-                parent: target,
-                //TODO: add default impl back on next update
-                joint: JointInfo {
-                    local_frame1: Transform::default(),
-                    local_frame2: transform.clone(),
-                    limit: JointLimitWrapper::default(),
-                    dynamics: Dynamics::default(),
-                    limit_axes: JointAxesMaskWrapper::default(),
-                    locked_axes: JointAxesMaskWrapper::default(),
-                    motor_axes: JointAxesMaskWrapper::default(),
-                    contacts_enabled: false,
-                    coupled_axes: JointAxesMaskWrapper::default(),
-                    motors: [
-                        JointMotorWrapper::default(),
-                        JointMotorWrapper::default(),
-                        JointMotorWrapper::default(),
-                        JointMotorWrapper::default(),
-                        JointMotorWrapper::default(),
-                        JointMotorWrapper::default()
-                    ],
-                    enabled: true
-                    
-                }
+            // commands.entity(e).insert(JointFlag {
+            //     parent: target,
+            //     //TODO: implement properly.
+            //     joint: JointInfo {
+            //         local_frame2: transform.clone(),
+            //         contacts_enabled: false,
+            //         enabled: true,
+            //         ..default()  
+            //     }
 
-            });
+            // });
             commands.entity(e).remove::<AttachCandidate>();
         }
     }

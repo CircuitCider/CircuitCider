@@ -1,10 +1,11 @@
 use std::f32::consts::PI;
 
 use crate::{
-    components::{GltfNodeRoot, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
+    components::{BuildWidgetTarget, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, picking::components::{PickCollector, PickSelected}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
 };
 use bevy::{asset::LoadedFolder, gltf::{GltfMesh, GltfNode, GltfPrimitive}, math::Affine3A, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
+use bevy_mod_outline::{bundles::InheritOutlineBundle, AsyncSceneInheritOutline, ComputedOutline, InheritOutline, OutlineVolume};
 use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_assemble::{components::{DisassembleAssetRequest, Maybe, RollDown}, gltf::{gltf_collider_request, GltfNodeColliderVisualChilds, GltfNodeMeshOne, GltfNodeVisuals, GltfPhysicsMeshPrimitive, GltfPhysicsModel}, traits::{Disassemble, Split, Structure}};
 use bevy_serialization_extras::prelude::{colliders::ColliderFlag, RequestCollider, RequestColliderFromChildren, RigidBodyFlag};
@@ -94,7 +95,19 @@ pub fn build_menu_ui(
                             RollDown(PickingBehavior {
                                 should_block_lower: false,
                                 is_hoverable: true
-                            }, vec![])
+                            }, vec![]),
+                            OutlineVolume {
+                                visible: true,
+                                width: 3.0,
+                                colour: Color::srgb(1.0, 0.0, 0.0),
+                            },
+                            RollDown(InheritOutline, vec![]),
+                            BuildWidgetTarget,
+                            PickSelected(true),
+                            RollDown(PickCollector, vec![]),
+                            //RollDown(ComputedOutline, vec![]),
+
+                            //AsyncSceneInheritOutline::default()
                         )
                     ).id();
                     match model_king {

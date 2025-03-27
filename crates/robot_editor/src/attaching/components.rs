@@ -88,7 +88,7 @@ impl Component for AttachCandidate {
                 .remove::<MeshMaterial3d<NeonMaterial>>();
 
             if let Some(mut rigid_body) = world.get_mut::<RigidBodyFlag>(e) {
-                *rigid_body = RigidBodyFlag::Dynamic
+                *rigid_body = RigidBodyFlag::Fixed
             }
         });
     }

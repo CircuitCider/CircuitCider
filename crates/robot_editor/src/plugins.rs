@@ -28,7 +28,6 @@ use bevy_serialization_extras::prelude::Urdf;
 use bevy_serialization_extras::prelude::UrdfSerializationPlugin;
 use bevy_serialization_extras::prelude::UrdfWrapper;
 use camera_controls::plugins::RobotEditorCameraPlugin;
-use components::GltfNodeRoot;
 use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
 use picking::plugins::CustomPickingPlugin;
@@ -53,6 +52,9 @@ use transform_gizmo_bevy::GizmoOrientation;
 use transform_gizmo_bevy::TransformGizmoPlugin;
 use ui::*;
 
+use crate::picking::components::PickSelected;
+use crate::resources::BuildWidgetMode;
+
 use super::*;
 
 /// ui for robot editor
@@ -60,7 +62,8 @@ pub struct RobotEditorUiPlugin;
 
 impl Plugin for RobotEditorUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app
+        .add_systems(
             Update,
             save_load_model_ui.run_if(in_state(RobotEditorState::Active)),
         );
@@ -82,31 +85,20 @@ impl Plugin for RobotEditorPlugin {
             .init_state::<RobotEditorState>()
             // asset folders
             .add_plugins(CachePrefabsPlugin)
+            .add_plugins(EditorToolsPlugin)
             // PickingRobotEditorPlugin
             .add_plugins(RobotEditorCameraPlugin)
             //.add_plugins(CursorRayHitsPlugin { debug_mode: false })
-            .add_plugins((TransformGizmoPlugin, CustomPickingPlugin))
+            .add_plugins(CustomPickingPlugin)
             // Serialization
             .add_plugins(SerializationPlugin)
             .add_plugins(SerializationBasePlugin)
             .add_plugins(SerializationAssembleBasePlugin)
             .add_plugins(SerializationPhysicsPlugin)
             .add_plugins(UrdfSerializationPlugin)
-            .insert_resource(GizmoOptions {
-                gizmo_modes: enum_set!(
-                    GizmoMode::RotateX
-                        | GizmoMode::RotateY
-                        | GizmoMode::RotateZ
-                        | GizmoMode::TranslateX
-                        | GizmoMode::TranslateY
-                        | GizmoMode::TranslateZ
-                ),
-                gizmo_orientation: GizmoOrientation::Global,
-                ..default()
-            })
+
             .insert_resource(RobotControls::default())
             .register_type::<RobotControls>()
-            .register_type::<GltfNodeRoot>()
             .insert_resource(BuildMenuTarget::default())
             // build tools
             .add_plugins((
@@ -146,15 +138,55 @@ pub struct CachePrefabsPlugin;
 impl Plugin for CachePrefabsPlugin {
     fn build(&self, app: &mut App) {
         app
-        .init_state::<BuildToolMode>()
-            //.init_resource::<DisplayModelImage>()
-            .insert_resource(HullsFolder::default())
+
+        .insert_resource(HullsFolder::default())
             .insert_resource(WeaponsFolder::default())
             .insert_resource(WheelsFolder::default())
             .add_systems(Startup, cache_initial_folders)
-            //.add_systems(Update, select_build_tool)
             
             ;
+    }
+}
+
+/// plugin for handling all behaviour/setup of transform gizmo within project.
+pub struct GizmoFeaturesPlugin;
+
+impl Plugin for GizmoFeaturesPlugin {
+    fn build(&self, app: &mut App) {
+        app
+        .add_plugins(TransformGizmoPlugin)
+        .insert_resource(GizmoOptions {
+            gizmo_modes: enum_set!(
+                GizmoMode::RotateX
+                    | GizmoMode::RotateY
+                    | GizmoMode::RotateZ
+                    | GizmoMode::TranslateX
+                    | GizmoMode::TranslateY
+                    | GizmoMode::TranslateZ
+            ),
+            gizmo_orientation: GizmoOrientation::Global,
+            ..default()
+        })
+        .add_systems(OnEnter(BuildWidgetMode::Gizmo), add_gizmo_targets)
+        .add_systems(Update, manage_gizmo_targets.run_if(in_state(BuildWidgetMode::Gizmo)))
+        .add_systems(OnExit(BuildWidgetMode::Gizmo), cleanup_gizmos)
+
+        ;
+
+    }
+}
+
+pub struct EditorToolsPlugin;
+
+impl Plugin for EditorToolsPlugin {
+    fn build(&self, app: &mut App) {
+        app
+        .init_state::<BuildToolMode>()
+        .init_state::<BuildWidgetMode>()
+        .add_plugins(GizmoFeaturesPlugin)
+        .add_systems(Update, build_tool_controls)
+        ;
+
     }
 }
 

@@ -1,10 +1,11 @@
-use crate::{placing::components::CursorRayCam, resources::{BuildToolMode, RobotControls}};
+use std::any::type_name;
+
+use crate::{components::BuildWidgetTarget, picking::components::PickSelected, placing::components::CursorRayCam, resources::{BuildToolMode, BuildWidgetMode, RobotControls}};
 pub use bevy::prelude::*;
 use bevy::{
-    asset::LoadState,
-    render::render_resource::{TextureViewDescriptor, TextureViewDimension},
+    asset::LoadState, ecs::query::QuerySingleError, render::render_resource::{TextureViewDescriptor, TextureViewDimension}, state::commands
 };
-use bevy_picking::{backend::PointerHits, pointer::{PointerInput, PointerInteraction}};
+use bevy_picking::{backend::{HitData, PointerHits}, pointer::{PointerInput, PointerInteraction}};
 use bevy_rapier3d::plugin::DefaultRapierContext;
 use bevy_serialization_assemble::AssemblyId;
 //use bevy_camera_extras::Watched;
@@ -16,21 +17,87 @@ use components::Wheel;
 use resources::ImageHandles;
 use bevy_rapier3d::prelude::*;
 use bevy_toon_material::*;
+use transform_gizmo_bevy::GizmoTarget;
 use super::*;
 
+
+pub fn add_gizmo_targets(
+    items: Query<Entity, With<BuildWidgetTarget>>,
+    mut commands: Commands,
+
+) {
+    for e in &items {
+        commands.entity(e).insert(GizmoTarget::default());
+    }
+}
+
+/// manage the components on tool targets to make them to set them to the correct tools.
+pub fn manage_gizmo_targets(
+    items: Query<(Entity, &PickSelected), (Changed<PickSelected>, With<BuildWidgetTarget>)>,
+    mut commands: Commands,
+) {
+    for (e, picked) in &items {
+        if **picked {
+            commands.entity(e).remove::<GizmoTarget>();
+        } else {
+            commands.entity(e).insert(GizmoTarget::default());
+        }
+        //commands.entity(e).insert(GizmoTarget::default());
+    }
+}
+
+pub fn cleanup_gizmos(
+    items: Query<Entity, With<BuildWidgetTarget>>,
+    mut commands: Commands,
+) {
+    for e in &items {
+        commands.entity(e).remove::<GizmoTarget>();
+    }
+}
+
 ///util for standard movement for components with given [`T`] component
-pub fn build_tool_control_util_for<T: Component>(
-    mut attachers: Query<&mut Transform, With<T>>,
+pub fn build_tool_controls(
+    mut targets: Query<&mut Transform, With<BuildWidgetTarget>>,
+    mut build_widget_mode_setter: ResMut<NextState<BuildWidgetMode>>,
+    build_widget_mode: ResMut<State<BuildWidgetMode>>,
+
     keys: Res<ButtonInput<KeyCode>>,
 ) {
-    for mut attacher in attachers.iter_mut() {
-        if keys.pressed(KeyCode::KeyQ) {
-            attacher.rotate_y(0.1);
+
+    let Ok(mut target) = targets.get_single_mut().inspect_err(|e| {
+        if matches!(e, QuerySingleError::MultipleEntities(_)) {
+            warn!("multiple {:#} found. Build tool only works with one", type_name::<BuildWidgetTarget>());
         }
-        if keys.pressed(KeyCode::KeyE) {
-            attacher.rotate_y(-0.1);
+    }) else {
+        return;
+    };
+
+    if keys.just_pressed(KeyCode::AltLeft) {
+        match build_widget_mode.get() {
+            BuildWidgetMode::Gizmo => build_widget_mode_setter.set(BuildWidgetMode::Mouse),
+            BuildWidgetMode::Mouse => build_widget_mode_setter.set(BuildWidgetMode::Gizmo),
+            BuildWidgetMode::UnInitialized => build_widget_mode_setter.set(BuildWidgetMode::Gizmo)
         }
     }
+
+    match build_widget_mode.get() {
+        BuildWidgetMode::Mouse => {
+            if keys.pressed(KeyCode::KeyA) {
+                target.rotate_y(0.1);
+            }
+            if keys.pressed(KeyCode::KeyD) {
+                target.rotate_y(-0.1);
+            }
+            if keys.pressed(KeyCode::KeyW) {
+                target.rotate_x(0.1);
+            }
+            if keys.pressed(KeyCode::KeyS) {
+                target.rotate_x(-0.1);
+            }
+        },
+        _ => return
+    }
+
 }
 /// find models with given component, and change their material based on if it has any intersections or not.
 pub fn intersection_colors_for<T: Component, U: Material>(
@@ -70,48 +137,48 @@ pub fn intersection_colors_for<T: Component, U: Material>(
         }
     }
 }
+/// collect hits that aren't on self(so childed primitives)
+pub fn non_self_hits<'a: 'b, 'b>(children: Option<&Children>, pointer: &'a PointerInteraction) -> Vec<&'b (Entity, HitData)> {
+    pointer.iter().filter(|(e, ..)| {
+        if let Some(children) = children {
+            children.contains(e) == false
+        } else {
+            true
+        }
+    }).collect::<Vec<_>>()
+}
 
-// /// return first valid hit on something that:
-// /// 1. has a hit position(not a window)
-// /// 2. is not it self/children of it self(self/sub-primitives of self)
-// pub fn first_valid_other_hit(entity: Entity, children: Query<Option<&Children>>, pointer: PointerInteraction) {
-//     let children = children.get(entity).iter();
-//     let Some((_, hit_data)) = pointer.iter()
-//     .filter(|(e, ..)| {
-//         if let Some(children) = children {
-//             children.contains(e) == false
-//         } else {
-//             true
-//         }
-//     })    
-//     .find(|(target, data)| target != &e && data.position.is_some()) else {
-//         continue
-//     };
-//     let Some(hit_pos) = hit_data.position else {
-//         continue
-//     };
-// }
+/// return first valid hit on something that:
+/// 1. has a hit position(not a window)
+/// 2. is not it self/children of it self(self/sub-primitives of self)
+pub fn first_valid_other_hit<'a: 'b, 'b>(entity: Entity, children: Option<&Children>, pointer: &'a PointerInteraction) -> Option<(Entity, &'b HitData)> {
+    let Some((e, hit_data)) = pointer.iter()
+    
+    .filter(|(e, ..)| {
+        if let Some(children) = children {
+            children.contains(e) == false
+        } else {
+            true
+        }
+    })    
+    .find(|(target, data)| target != &entity && data.position.is_some()) else {
+        return None
+    };
+    Some((e.clone(), hit_data))
+}
 
 /// moves entities of type `<T>` to cursor
 pub fn move_to_cursor<T: Component + Targeter + Spacing>(
     pointer: Single<&PointerInteraction>,
-    movables: Query<(Entity, Option<&Name>, &T, Option<&Children>)>,
+    movables: Query<(Entity, Option<&Children>), With<T>>,
     mut transforms: Query<&mut Transform>,
 ) {
-    for (e, name,_ , children) in movables.iter() {
+    for (e, children) in &movables {
         let Ok(mut movable_trans) = transforms.get_mut(e) else {
             continue;
         };
 
-        let Some((_, hit_data)) = pointer.iter()
-        .filter(|(e, ..)| {
-            if let Some(children) = children {
-                children.contains(e) == false
-            } else {
-                true
-            }
-        })    
-        .find(|(target, data)| target != &e && data.position.is_some()) else {
+        let Some((_, hit_data)) = first_valid_other_hit(e, children, &pointer) else {
             continue
         };
         let Some(hit_pos) = hit_data.position else {
@@ -125,8 +192,6 @@ pub fn move_to_cursor<T: Component + Targeter + Spacing>(
         movable_trans.translation = hit_pos + offset;
     }
 }
-
-// pub fn attach_at_point<T: Component +
 
 pub fn configure_skybox_texture(
     image_handles: Res<ImageHandles>,

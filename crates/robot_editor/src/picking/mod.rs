@@ -3,6 +3,7 @@
 use bevy::prelude::*;
 
 pub mod plugins;
+pub mod components;
 mod systems;
 
 
@@ -17,8 +18,3 @@ pub const EXIT_EARLY: RayCastSettings = RayCastSettings {
     filter: &|_| true,
     early_exit_test: &|_| false,
 };
-
-#[derive(Component, Clone, Copy)]
-pub struct PickSelection {
-    pub is_selected: bool,
-}

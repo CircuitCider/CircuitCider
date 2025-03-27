@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 use bevy_picking::pointer::PointerInteraction;
+use bevy_serialization_assemble::AssemblyId;
 
 use crate::{
-    attaching::components::AttachCandidate,
-    // raycast_utils::resources::{MouseOverWindow},
-    resources::BuildToolMode,
+    attaching::components::AttachCandidate, picking::components::PickSelected, resources::BuildToolMode, systems::{first_valid_other_hit, non_self_hits}
 };
 
 use super::components::Placer;
@@ -32,25 +31,35 @@ pub fn delete_placers(
 
 /// checks for any intersection between the placer and other meshes
 pub fn attach_placer(
-    placers: Query<(Entity, &Placer)>,
+    placers: Query<(Entity, Option<&Children>, &Placer)>,
     mouse: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
     pointer: Single<&PointerInteraction>,
-    // mouse_over_window: Res<MouseOverWindow>,
-    // hits: Res<CursorRayHits>,
-    //robots: Query<&StructureFlag>,
+    valid_attach_targets: Query<&Mesh3d>,
 ) {
     //let Some(first_hit, ) = pointer.iter().nth(0);
     if mouse.just_released(MouseButton::Left) && pointer.iter().nth(0).map(|(a, b)| b.position).is_some() {
-        for (e, _) in placers.iter() {
-            
-            // if let Some((target, ..)) = hits.first_with(&robots) {
-            //     commands.entity(e).insert(AttachCandidate {
-            //         attempt_target: Some(target),
-            //     });
-            // }
-            commands.entity(e).remove::<Placer>();
+        for (e, children, placer) in placers.iter() {
+            let Some((target, hit)) = non_self_hits(children, &pointer).first() else {
+                return
+            };
+            // don't attach when over a window.
+            if hit.position == None {
+                return
+            }
+            println!("Attaching: {:#}", e);
+            if valid_attach_targets.contains(*target) {
+                commands.entity(e).insert((
+                    AttachCandidate {
+                    attempt_target: Some(*target),
+                },
+                PickSelected(true)
+                ))
+                ;
+                
+                commands.entity(e).remove::<Placer>();
+            }
         }
     }
     if keys.just_pressed(KeyCode::Escape) {
