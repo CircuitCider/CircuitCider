@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::{
-    components::{BuildWidgetTarget, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, picking::components::{PickCollector, PickSelected}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, HullsFolder}
+    components::{BuildWidgetTarget, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, picking::components::{PickCollector, PickSelected}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, BuildWidgetMode, HullsFolder}
 };
 use bevy::{asset::LoadedFolder, gltf::{GltfMesh, GltfNode, GltfPrimitive}, math::Affine3A, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
@@ -31,6 +31,7 @@ pub fn build_menu_ui(
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
     //display_models: Query<(Entity, &Mesh3d), With<DisplayModel>>,
     mut build_menu_target: ResMut<BuildMenuTarget>,
+    mut build_widget_mode: ResMut<NextState<BuildWidgetMode>>,
     mut commands: Commands,
 ) {
     let Ok(mut context) = primary_window
@@ -120,7 +121,8 @@ pub fn build_menu_ui(
                             commands.entity(model).insert(Wheel::Right);
                         }
                     }
-                    tool_mode.set(BuildToolMode::PlacerMode)
+                    tool_mode.set(BuildToolMode::PlacerMode);
+                    build_widget_mode.set(BuildWidgetMode::Pointer);
                 }
                 //spawn display model for hovered over spawnables
                 let mut new_display_model = None;

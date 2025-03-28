@@ -7,7 +7,7 @@ use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_extras::prelude::rigidbodies::RigidBodyFlag;
 use shader_core::shaders::neon::NeonMaterial;
 
-use crate::{Spacing, Targeter, NO_OUTLINE};
+use crate::{resources::BuildWidgetMode, Spacing, Targeter, NO_OUTLINE};
 
 const ATTACHING_COLOR: Color = Color::LinearRgba(LinearRgba::GREEN);
 
@@ -45,6 +45,8 @@ impl Component for AttachCandidate {
             world.commands().queue(move |world: &mut World| {
                 world.commands().entity(e).insert(Sensor {});
 
+                let mut build_widget_mode = world.resource_mut::<NextState<BuildWidgetMode>>();
+                build_widget_mode.set(BuildWidgetMode::Gizmo);
                 // since there can only be 1 focus, remove other attacher flags.
                 let other_attachers = world
                     .query_filtered::<Entity, With<AttachCandidate>>()

@@ -21,10 +21,9 @@ pub enum BuildToolMode {
 #[derive(Hash, States, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display, Default)]
 
 pub enum BuildWidgetMode {
-    #[default]
-    UnInitialized,
     Gizmo,
-    Mouse
+    #[default]
+    Pointer
 }
 
 use bevy::{asset::LoadedFolder, prelude::*};

@@ -1,8 +1,12 @@
 use bevy::{ecs::component::*, prelude::{Deref, DerefMut}, reflect::Reflect};
-
+use bevy_picking::PickingBehavior;
+use bevy::prelude::ReflectComponent;
+use bevy::prelude::ReflectDefault;
 
 
 #[derive(Component, Reflect, Deref, DerefMut)]
+#[require(PickingBehavior)]
+#[reflect(Component, Default)]
 pub struct PickSelected(pub bool);
 
 impl Default for PickSelected {

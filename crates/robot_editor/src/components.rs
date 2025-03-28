@@ -16,5 +16,9 @@ pub enum Wheel {
 #[require(PickSelected)]
 pub struct BuildWidgetTarget;
 
+
+#[derive(Component)]
+pub struct PointerFollowTarget;
+
 // #[derive(Component, Reflect, Default)]
 // pub struct GizmoFocused;

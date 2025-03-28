@@ -1,6 +1,6 @@
 use std::any::type_name;
 
-use crate::{components::BuildWidgetTarget, picking::components::PickSelected, placing::components::CursorRayCam, resources::{BuildToolMode, BuildWidgetMode, RobotControls}};
+use crate::{components::{BuildWidgetTarget, PointerFollowTarget}, picking::{components::PickSelected, PickMode}, placing::components::CursorRayCam, resources::{BuildToolMode, BuildWidgetMode, RobotControls}};
 pub use bevy::prelude::*;
 use bevy::{
     asset::LoadState, ecs::query::QuerySingleError, render::render_resource::{TextureViewDescriptor, TextureViewDimension}, state::commands
@@ -23,12 +23,14 @@ use super::*;
 
 pub fn add_gizmo_targets(
     items: Query<Entity, With<BuildWidgetTarget>>,
+    mut pick_mode: ResMut<NextState<PickMode>>,
     mut commands: Commands,
 
 ) {
     for e in &items {
         commands.entity(e).insert(GizmoTarget::default());
     }
+    pick_mode.set(PickMode::PickSelfSelectAirDeselect)
 }
 
 /// manage the components on tool targets to make them to set them to the correct tools.
@@ -37,13 +39,15 @@ pub fn manage_gizmo_targets(
     mut commands: Commands,
 ) {
     for (e, picked) in &items {
+        println!("pick selected changed for {:#}", e);
         if **picked {
-            commands.entity(e).remove::<GizmoTarget>();
-        } else {
             commands.entity(e).insert(GizmoTarget::default());
+        } else {
+            commands.entity(e).remove::<GizmoTarget>();
         }
         //commands.entity(e).insert(GizmoTarget::default());
     }
+
 }
 
 pub fn cleanup_gizmos(
@@ -74,24 +78,23 @@ pub fn build_tool_controls(
 
     if keys.just_pressed(KeyCode::AltLeft) {
         match build_widget_mode.get() {
-            BuildWidgetMode::Gizmo => build_widget_mode_setter.set(BuildWidgetMode::Mouse),
-            BuildWidgetMode::Mouse => build_widget_mode_setter.set(BuildWidgetMode::Gizmo),
-            BuildWidgetMode::UnInitialized => build_widget_mode_setter.set(BuildWidgetMode::Gizmo)
+            BuildWidgetMode::Gizmo => build_widget_mode_setter.set(BuildWidgetMode::Pointer),
+            BuildWidgetMode::Pointer => build_widget_mode_setter.set(BuildWidgetMode::Gizmo),
         }
     }
 
     match build_widget_mode.get() {
-        BuildWidgetMode::Mouse => {
-            if keys.pressed(KeyCode::KeyA) {
+        BuildWidgetMode::Pointer => {
+            if keys.pressed(KeyCode::Numpad4) {
                 target.rotate_y(0.1);
             }
-            if keys.pressed(KeyCode::KeyD) {
+            if keys.pressed(KeyCode::Numpad6) {
                 target.rotate_y(-0.1);
             }
-            if keys.pressed(KeyCode::KeyW) {
+            if keys.pressed(KeyCode::Numpad8) {
                 target.rotate_x(0.1);
             }
-            if keys.pressed(KeyCode::KeyS) {
+            if keys.pressed(KeyCode::Numpad5) {
                 target.rotate_x(-0.1);
             }
         },
@@ -168,28 +171,52 @@ pub fn first_valid_other_hit<'a: 'b, 'b>(entity: Entity, children: Option<&Child
 }
 
 /// moves entities of type `<T>` to cursor
-pub fn move_to_cursor<T: Component + Targeter + Spacing>(
+pub fn move_to_pointer(
     pointer: Single<&PointerInteraction>,
-    movables: Query<(Entity, Option<&Children>), With<T>>,
-    mut transforms: Query<&mut Transform>,
+    mut movables: Query<(Entity, &mut Transform, Option<&Children>, &PickSelected, &PointerFollowTarget)>,
 ) {
-    for (e, children) in &movables {
-        let Ok(mut movable_trans) = transforms.get_mut(e) else {
-            continue;
-        };
+    let Ok((e, mut trans, children, picked, _)) = movables.get_single_mut().inspect_err(|e| {
+        if matches!(e, QuerySingleError::MultipleEntities(_)) {
+            warn!("multiple {:#} found. Build tool only works with one", type_name::<BuildWidgetTarget>());
+        }
+    }) else {
+        return;
+    };
+    if picked.0 == false {
+        return;
+    }
+    let Some((_, hit_data)) = first_valid_other_hit(e, children, &pointer) else {
+        return
+    };
+    let Some(hit_pos) = hit_data.position else {
+        return
+    };
 
-        let Some((_, hit_data)) = first_valid_other_hit(e, children, &pointer) else {
-            continue
-        };
-        let Some(hit_pos) = hit_data.position else {
-            continue
-        };
+    // let offset = match T::spacing() {
+    //     SpacingKind::Uplift(n) => Vec3::new(0.0, n, 0.0),
+    //     SpacingKind::None => Vec3::new(0.0, 0.0, 0.0),
+    // };
+    trans.translation = hit_pos;
+}
 
-        let offset = match T::spacing() {
-            SpacingKind::Uplift(n) => Vec3::new(0.0, n, 0.0),
-            SpacingKind::None => Vec3::new(0.0, 0.0, 0.0),
-        };
-        movable_trans.translation = hit_pos + offset;
+pub fn add_pointer_move_targets(
+    targets: Query<Entity, (With<BuildWidgetTarget>, Without<PointerFollowTarget>)>,
+    mut pick_mode: ResMut<NextState<PickMode>>,
+    mut commands: Commands,
+) {
+    for e in &targets {
+        commands.entity(e).insert(PointerFollowTarget);
+    }
+    pick_mode.set(PickMode::PickSelfSelectAirDeselect)
+
+}
+
+pub fn cleanup_pointer_move_targets(
+    movables: Query<Entity, With<PointerFollowTarget>>,
+    mut commands: Commands,
+) {
+    for e in &movables {
+        commands.entity(e).remove::<PointerFollowTarget>();    
     }
 }
 

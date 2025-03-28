@@ -176,6 +176,19 @@ impl Plugin for GizmoFeaturesPlugin {
     }
 }
 
+
+pub struct PointerEditFeaturesPlugin;
+
+impl Plugin for PointerEditFeaturesPlugin {
+    fn build(&self, app: &mut App) {
+        app
+        .add_systems(Update, add_pointer_move_targets.run_if(in_state(BuildWidgetMode::Pointer)))
+        .add_systems(Update, move_to_pointer.run_if(in_state(BuildWidgetMode::Pointer)))
+        .add_systems(OnExit(BuildWidgetMode::Pointer), cleanup_pointer_move_targets)
+        ;
+    }
+}
+
 pub struct EditorToolsPlugin;
 
 impl Plugin for EditorToolsPlugin {
@@ -184,6 +197,7 @@ impl Plugin for EditorToolsPlugin {
         .init_state::<BuildToolMode>()
         .init_state::<BuildWidgetMode>()
         .add_plugins(GizmoFeaturesPlugin)
+        .add_plugins(PointerEditFeaturesPlugin)
         .add_systems(Update, build_tool_controls)
         ;
 

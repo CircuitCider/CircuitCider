@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::systems::move_to_cursor;
-
 use super::components::AttachCandidate;
 use super::systems::*;
 use super::ui::*;

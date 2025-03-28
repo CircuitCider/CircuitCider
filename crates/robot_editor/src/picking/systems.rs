@@ -13,7 +13,7 @@ use crate::{
     // raycast_utils::resources::CursorRayHits,
 };
 
-use super::components::{PickCollector, PickSelected};
+use super::{components::{PickCollector, PickSelected}, PickMode};
 
 pub fn toggle_picking_enabled(
     gizmo_targets: Query<&GizmoTarget>,
@@ -25,88 +25,78 @@ pub fn toggle_picking_enabled(
         .all(|target| !target.is_focused() && !target.is_active());
 }
 
-// /// effects on things that are iteracted with
-// pub fn picking_interaction_effects(
-//     interactables: Query<
-//         (Option<&Part>, 
-//             Option<&Children>,
-//             Option<&AssemblyId>,
-//             &PickingInteraction),
-//         Changed<PickingInteraction>,
-//     >,
-//     //hovered: Query<&Hovered>,
-//     mut commands: Commands,
-//     assemblies: Res<Assemblies>,
-//     // hits: ResMut<CursorRayHits>,
-//     mouse: Res<ButtonInput<MouseButton>>,
-//     pointer: Single<&PointerInteraction>,
-// ) {
+pub fn get_top_pickable_entity(
+    picked_entity: Entity,
+    pick_collectors: Query<(Entity, &Parent), With<PickCollector>>,
+) -> Entity {
+    // Ascend parent chain to get root selectable object
+    let top_entity = if let Ok((e, parent)) = pick_collectors.get(picked_entity) {
+        let mut top_entity_check = Ok((e, parent));
+        let mut top_parent = e;
 
-//     let Some((e, hit)) = pointer.first() else {
-//         return;
-//     };
+        while let Ok((e, parent)) = top_entity_check {
+            let next_parent = parent.get();
+            top_entity_check = pick_collectors.get(next_parent);
+            top_parent = next_parent;
+        }
+        top_parent
+    } else {
+        picked_entity
+    };
+    top_entity
+}
 
-//     let Ok((part, children, assembly, interaction)) = interactables.get(*e) else {
-//         return;
-//     };
+pub fn pick_self_select_air_deselect(
+    pointer: Single<&PointerInteraction>,
+    pick_collectors: Query<(Entity, &Parent), With<PickCollector>>,
+    mut interactables: Query<&mut PickSelected>,
+    mouse: ResMut<ButtonInput<MouseButton>>,
+) {
+    let mouse_pressed = mouse.just_pressed(MouseButton::Left);
+    let Some((e, hit)) = pointer.first() else {
+        // remove selection if air is clicked
+        if mouse_pressed {
+            for mut selected in &mut interactables {
+                selected.0 = false;
+            }
+         }
+        return;
+    };
 
-//     // if interaction == &PickingInteraction::Pressed {
-//     //     let parts = match assembly {
-//     //         Some(relatives) => ,
-//     //         None => todo!(),
-//     //     }
-//     // }
-//     if interaction == &PickingInteraction::Pressed {
 
-//     }
-//     // if interaction == &PickingInteraction::Pressed && mouse.just_pressed(MouseButton::Left) {
-//     //     let structure_exists = structure.map(|_| true).unwrap_or(false);
+    if mouse_pressed {
+        // remove all preivous selection if hiting something that is in the world(not a window)
+        // TODO: If multi-select is added at some point, this will need to be changed to check for that.
+        if hit.position.is_some() {
+            if mouse_pressed {
+                for mut selected in &mut interactables {
+                    selected.0 = false;
+                }
+             }
+        }
+        let Ok(mut picked) = interactables.get_mut(get_top_pickable_entity(*e, pick_collectors)) else {
+            return
+        };
 
-//     //     if structure_exists == false {
-//     //         //TODO: This is not correct, this will only work for hulls.
-//     //         commands.entity(e).insert(Placer::Hull);
-//     //     }
-//     // }
-//     // if interaction == &PickingInteraction::Hovered {
-
-//     // }
-// }
+        picked.0 = true;
+    }
+}
 
 /// behaviour for what happens when stuff is clicked on
-pub fn picking_interaction_effects(
+pub fn pick_self_select_deselect(
     pick_collectors: Query<(Entity, &Parent), With<PickCollector>>,
     mut interactables: Query<&mut PickSelected>,
     pointer: Single<&PointerInteraction>,
     mouse: ResMut<ButtonInput<MouseButton>>,
-
 ) {
+
     let Some((e, _hit)) = pointer.first() else {
         return;
     };
-
-    //println!("hit {:#}", e);
-    let mut picked = {
-        // ascend parent chain to get root selectable object.
-        let top_entity = if let Ok((e, parent)) = pick_collectors.get(*e) {
-
-            let mut top_entity_check = Ok((e, parent));
-            let mut top_parent = e;
-
-            while let Ok((e, parent)) = top_entity_check {
-                let next_parent = parent.get();
-                top_entity_check = pick_collectors.get(next_parent);
-                top_parent = next_parent;
-            } 
-            top_parent
-        } else {
-            *e
-        };
-        let Ok(picked) = interactables.get_mut(top_entity) else {
-            return
-        };
-        picked
-
+    let Ok(mut picked) = interactables.get_mut(get_top_pickable_entity(*e, pick_collectors)) else {
+        return
     };
+
     if mouse.just_pressed(MouseButton::Left) {
         if picked.0 {
             picked.0 = false;
