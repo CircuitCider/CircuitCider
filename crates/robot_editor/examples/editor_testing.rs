@@ -1,4 +1,5 @@
 use app_core::plugins::AppSourcesPlugin;
+use app_internal::AppDefaultPlugins;
 use bevy::prelude::*;
 use bevy_serialization_extras::prelude::*;
 use bevy_ui_extras::*;
@@ -15,8 +16,8 @@ pub fn main() {
         .add_plugins(AssetSourcesUrdfPlugin {
             assets_folder_local_path: "../../assets".to_owned(),
         })
-        .add_plugins(CombatPlugin)
         .add_plugins(DefaultPlugins)
+        .add_plugins(AppDefaultPlugins)
         //.add_plugins(DefaultPlugins.set(bevy_mod_raycast::low_latency_window_plugin()))
         .insert_state(RobotEditorState::Active)
         // robot editor

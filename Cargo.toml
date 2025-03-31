@@ -63,6 +63,7 @@ egui_extras = "0.31"
 
 robot_editor = {path = "./crates/robot_editor", version = "0.1"}
 picking_core = {path = "./crates/picking_core", version = "0.1"}
+app_internal = {path = "./crates/app_internal", version = "0.1"}
 app_core = {path = "./crates/app_core", version = "0.1"}
 ui_core = {path = "./crates/ui_core", version = "0.1"}
 shader_core = {path = "./crates/shader_core", version = "0.1"}

@@ -77,8 +77,6 @@ impl Plugin for RobotEditorPlugin {
     fn build(&self, app: &mut App) {
         app
             .register_type::<Wheel>()
-            // load shaders
-            .add_plugins(ShaderCorePlugin)
             //TODO: Add back
             // .add_plugins(ToonShaderPlugin)
             .init_collection::<ImageHandles>()
@@ -89,15 +87,6 @@ impl Plugin for RobotEditorPlugin {
             .add_plugins(EditorToolsPlugin)
             // PickingRobotEditorPlugin
             .add_plugins(RobotEditorCameraPlugin)
-            //.add_plugins(CursorRayHitsPlugin { debug_mode: false })
-            .add_plugins(PickingCorePlugin)
-            // Serialization
-            .add_plugins(SerializationPlugin)
-            .add_plugins(SerializationBasePlugin)
-            .add_plugins(SerializationAssembleBasePlugin)
-            .add_plugins(SerializationPhysicsPlugin)
-            .add_plugins(UrdfSerializationPlugin)
-
             .insert_resource(RobotControls::default())
             .register_type::<RobotControls>()
             .insert_resource(BuildMenuTarget::default())
@@ -107,8 +96,7 @@ impl Plugin for RobotEditorPlugin {
                 AttachingToolingPlugin,
                 AssemblingPlugin,
             ))
-            .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-            .add_plugins(RapierDebugRenderPlugin::default())
+
             .add_plugins(ModelDisplayerPlugin)
             // ui
             .add_plugins(RobotEditorUiPlugin)
