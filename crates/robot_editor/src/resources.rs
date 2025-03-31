@@ -7,16 +7,16 @@ use bevy::{
 use bevy_asset_loader::asset_collection::AssetCollection;
 use strum_macros::{Display, EnumIter};
 
-#[derive(Hash, States, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display, Default)]
-pub enum BuildToolMode {
-    GizmoMode,
-    PlacerMode,
-    SelectorMode,
-    //AttachMode,
-    EditerMode,
-    #[default]
-    None,
-}
+// #[derive(Hash, States, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display, Default)]
+// pub enum BuildToolMode {
+//     GizmoMode,
+//     PlacerMode,
+//     SelectorMode,
+//     //AttachMode,
+//     EditerMode,
+//     #[default]
+//     None,
+// }
 
 #[derive(Hash, States, Clone, Copy, Reflect, Debug, PartialEq, Eq, EnumIter, Display, Default)]
 

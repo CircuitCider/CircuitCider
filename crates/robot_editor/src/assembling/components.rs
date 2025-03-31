@@ -7,11 +7,10 @@ use bevy::{
 };
 use bevy_mod_outline::OutlineVolume;
 use bevy_serialization_extras::prelude::rigidbodies::RigidBodyFlag;
+use picking_core::EXIT_EARLY;
 
-use crate::{
-    // raycast_utils::systems::EXIT_EARLY,
-    picking::EXIT_EARLY, NO_OUTLINE
-};
+use crate::NO_OUTLINE;
+
 
 // #[derive(Resource, Default)]
 // pub struct AssemblingTarget {

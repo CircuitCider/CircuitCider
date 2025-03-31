@@ -7,6 +7,7 @@ edition = "2024"
 
 [dependencies]
 app_core = {workspace = true}
+picking_core = {workspace = true}
 shader_core = {workspace = true}
 bevy = {workspace = true}
 bevy-inspector-egui = {workspace = true}

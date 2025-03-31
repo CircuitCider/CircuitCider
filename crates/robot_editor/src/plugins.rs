@@ -10,10 +10,12 @@ use bevy_asset_loader::asset_collection::AssetCollectionApp;
 use bevy_camera_extras::CameraMode;
 use bevy_camera_extras::CameraRestrained;
 use bevy_camera_extras::ObservedBy;
+use bevy_mod_outline::OutlinePlugin;
 use bevy_rapier3d::plugin::NoUserData;
 use bevy_rapier3d::plugin::RapierPhysicsPlugin;
 use bevy_rapier3d::render::RapierDebugRenderPlugin;
 use bevy_serialization_assemble::components::DisassembleAssetRequest;
+use bevy_serialization_assemble::components::RollDown;
 //use bevy_mod_raycast::DefaultRaycastingPlugin;
 use bevy_serialization_extras::prelude::link::JointFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
@@ -30,12 +32,12 @@ use bevy_serialization_extras::prelude::UrdfWrapper;
 use camera_controls::plugins::RobotEditorCameraPlugin;
 use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
-use picking::plugins::CustomPickingPlugin;
+use picking_core::components::PickCollector;
+use picking_core::plugins::CustomPickingPlugin;
 use placing::plugins::PlacingToolingPlugin;
 // use raycast_utils::plugins::CursorRayHitsPlugin;
 // use raycast_utils::resources::MouseOverWindow;
 use resources::BuildMenuTarget;
-use resources::BuildToolMode;
 use resources::ImageHandles;
 use resources::RobotControls;
 use resources::WeaponsFolder;
@@ -52,7 +54,6 @@ use transform_gizmo_bevy::GizmoOrientation;
 use transform_gizmo_bevy::TransformGizmoPlugin;
 use ui::*;
 
-use crate::picking::components::PickSelected;
 use crate::resources::BuildWidgetMode;
 
 use super::*;
@@ -76,6 +77,7 @@ impl Plugin for RobotEditorPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(WireframePlugin)
             .register_type::<Wheel>()
+            .add_plugins(OutlinePlugin)
             // load shaders
             .add_plugins(CustomShadersPlugin)
             //TODO: Add back
@@ -128,6 +130,8 @@ impl Plugin for RobotEditorPlugin {
                 build_menu_ui.run_if(in_state(RobotEditorState::Active)),
             )
             .add_systems(Update, make_window_not_block_picking)
+            .add_systems(Update, make_models_pickable);
+
             ;
             
     }
@@ -194,7 +198,6 @@ pub struct EditorToolsPlugin;
 impl Plugin for EditorToolsPlugin {
     fn build(&self, app: &mut App) {
         app
-        .init_state::<BuildToolMode>()
         .init_state::<BuildWidgetMode>()
         .add_plugins(GizmoFeaturesPlugin)
         .add_plugins(PointerEditFeaturesPlugin)
@@ -262,16 +265,11 @@ fn setup_editor_area(
     commands.spawn(
         (
             DisassembleAssetRequest::<UrdfWrapper>::path(format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT).to_owned().into(), None),
-            Transform::from_xyz(0.0, 2.0, 0.0)
+            Transform::from_xyz(0.0, 2.0, 0.0),
+            RollDown(PickCollector, vec![]),
+
         )
     );
-    // urdf_load_requests.requests.push_front(AssetSpawnRequest {
-    //     source: format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)
-    //         .to_owned()
-    //         .into(),
-    //     position: Transform::from_xyz(0.0, 15.0, 0.0),
-    //     ..Default::default()
-    // });
     
 
     // plane
@@ -314,6 +312,26 @@ fn setup_editor_area(
         Transform::from_xyz(4.0, 8.0, 4.0),
     ));
 }
+
+pub fn make_models_pickable(
+    mut commands: Commands,
+    models_query: Query<Entity, (
+        With<Mesh3d>,
+        Without<RayCastPickable>
+    )>,
+) {
+    for e in models_query.iter() {
+        commands.entity(e).insert((
+            RayCastPickable,
+            // OutlineVolume {
+            //     visible: false,
+            //     colour: Color::Srgba(Srgba::GREEN),
+            //     width: 2.0,
+            // },
+        ));
+    }
+}
+
 
 pub fn set_robot_to_follow(
     cameras: Query<Entity, With<CameraRestrained>>,

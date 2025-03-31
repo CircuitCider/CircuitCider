@@ -2,7 +2,6 @@
 
 use app_core::plugins::AppSourcesPlugin;
 use bevy::prelude::*;
-use bevy_obj::ObjPlugin;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,

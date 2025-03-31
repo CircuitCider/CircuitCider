@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::{
-    components::{BuildWidgetTarget, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, picking::components::{PickCollector, PickSelected}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildToolMode, BuildWidgetMode, HullsFolder}
+    components::{BuildWidgetTarget, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildWidgetMode, HullsFolder}
 };
 use bevy::{asset::LoadedFolder, gltf::{GltfMesh, GltfNode, GltfPrimitive}, math::Affine3A, prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
@@ -12,6 +12,7 @@ use bevy_serialization_extras::prelude::{colliders::ColliderFlag, RequestCollide
 use combat::components::Pistol;
 use derive_more::From;
 use egui::{Align2, Color32, RichText, Sense};
+use picking_core::components::{PickCollector, PickSelected};
 use shader_core::shaders::neon::NeonMaterial;
 use strum::IntoEnumIterator;
 
@@ -25,7 +26,6 @@ pub fn build_menu_ui(
     weapons_folder: Res<WeaponsFolder>,
     wheels_folder: Res<WheelsFolder>,
     mut display_model: ResMut<DisplayModel>,
-    mut tool_mode: ResMut<NextState<BuildToolMode>>,
     mut placer_materials: ResMut<Assets<NeonMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
@@ -121,7 +121,6 @@ pub fn build_menu_ui(
                             commands.entity(model).insert(Wheel::Right);
                         }
                     }
-                    tool_mode.set(BuildToolMode::PlacerMode);
                     build_widget_mode.set(BuildWidgetMode::Pointer);
                 }
                 //spawn display model for hovered over spawnables
@@ -203,22 +202,21 @@ pub fn window_follow_mouse(
     }
 }
 
-pub fn select_build_tool(
-    mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut tool_mode: ResMut<NextState<BuildToolMode>>,
-) {
-    for mut context in primary_window.iter_mut() {
-        egui::Window::new("BuildToolMode debug").show(context.get_mut(), |ui| {
-            ui.heading("select mode");
-            ui.label(format!("Current mode: {:#?}", *tool_mode));
-            for tool in BuildToolMode::iter() {
-                if ui.button(tool.to_string()).clicked() {
-                    tool_mode.set(tool);
-                }
-            }
-        });
-    }
-}
+// pub fn select_build_tool(
+//     mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
+// ) {
+//     for mut context in primary_window.iter_mut() {
+//         egui::Window::new("BuildToolMode debug").show(context.get_mut(), |ui| {
+//             ui.heading("select mode");
+//             ui.label(format!("Current mode: {:#?}", *tool_mode));
+//             for tool in BuildToolMode::iter() {
+//                 if ui.button(tool.to_string()).clicked() {
+//                     tool_mode.set(tool);
+//                 }
+//             }
+//         });
+//     }
+// }
 
 /// Sets mouse over window resource to true/false depending on mouse state.
 pub fn check_if_mouse_over_ui(

@@ -1,16 +1,16 @@
 use bevy::prelude::*;
 use bevy_picking::pointer::PointerInteraction;
 use bevy_serialization_assemble::AssemblyId;
+use picking_core::components::PickSelected;
 
 use crate::{
-    attaching::components::AttachCandidate, picking::components::PickSelected, resources::BuildToolMode, systems::{first_valid_other_hit, non_self_hits}
+    attaching::components::AttachCandidate, systems::{first_valid_other_hit, non_self_hits}
 };
 
 use super::components::Placer;
 
 /// gets rid of placers if current mode is not placermode
 pub fn delete_placers(
-    tool_mode: ResMut<State<BuildToolMode>>,
     placers: Query<Entity, With<Placer>>,
     mut commands: Commands,
     keys: Res<ButtonInput<MouseButton>>,
@@ -57,7 +57,6 @@ pub fn attach_placer(
                 PickSelected(true)
                 ))
                 ;
-                
                 commands.entity(e).remove::<Placer>();
             }
         }

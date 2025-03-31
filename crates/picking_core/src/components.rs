@@ -1,8 +1,7 @@
-use bevy::{ecs::component::*, prelude::{Deref, DerefMut}, reflect::Reflect};
-use bevy_picking::PickingBehavior;
-use bevy::prelude::ReflectComponent;
-use bevy::prelude::ReflectDefault;
-
+use bevy_derive::{Deref, DerefMut};
+use bevy_ecs::prelude::*;
+use bevy_reflect::prelude::*;
+use bevy_picking::prelude::*;
 
 #[derive(Component, Reflect, Deref, DerefMut)]
 #[require(PickingBehavior)]

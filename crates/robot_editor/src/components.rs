@@ -1,7 +1,7 @@
 pub use bevy::prelude::*;
+use picking_core::components::PickSelected;
 use strum_macros::Display;
 
-use crate::picking::components::PickSelected;
 
 
 #[derive(Component, Reflect, Display)]

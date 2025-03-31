@@ -1,6 +1,6 @@
 use std::any::type_name;
 
-use crate::{components::{BuildWidgetTarget, PointerFollowTarget}, picking::{components::PickSelected, PickMode}, placing::components::CursorRayCam, resources::{BuildToolMode, BuildWidgetMode, RobotControls}};
+use crate::{components::{BuildWidgetTarget, PointerFollowTarget}, placing::components::CursorRayCam, resources::{BuildWidgetMode, RobotControls}};
 pub use bevy::prelude::*;
 use bevy::{
     asset::LoadState, ecs::query::QuerySingleError, render::render_resource::{TextureViewDescriptor, TextureViewDimension}, state::commands
@@ -14,6 +14,7 @@ use bevy_serialization_extras::prelude::{
     rigidbodies::RigidBodyFlag,
 };
 use components::Wheel;
+use picking_core::{components::PickSelected, PickMode};
 use resources::ImageHandles;
 use bevy_rapier3d::prelude::*;
 use bevy_toon_material::*;
@@ -82,6 +83,10 @@ pub fn build_tool_controls(
             BuildWidgetMode::Pointer => build_widget_mode_setter.set(BuildWidgetMode::Gizmo),
         }
     }
+
+
+
+
 
     match build_widget_mode.get() {
         BuildWidgetMode::Pointer => {
