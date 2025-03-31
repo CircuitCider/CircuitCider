@@ -4,7 +4,8 @@ use bevy_serialization_assemble::AssemblyId;
 use picking_core::components::PickSelected;
 
 use crate::{
-    attaching::components::AttachCandidate, systems::{first_valid_other_hit, non_self_hits}
+    attaching::components::AttachCandidate,
+    systems::{first_valid_other_hit, non_self_hits},
 };
 
 use super::components::Placer;
@@ -39,24 +40,25 @@ pub fn attach_placer(
     valid_attach_targets: Query<&Mesh3d>,
 ) {
     //let Some(first_hit, ) = pointer.iter().nth(0);
-    if mouse.just_released(MouseButton::Left) && pointer.iter().nth(0).map(|(a, b)| b.position).is_some() {
+    if mouse.just_released(MouseButton::Left)
+        && pointer.iter().nth(0).map(|(a, b)| b.position).is_some()
+    {
         for (e, children, placer) in placers.iter() {
             let Some((target, hit)) = non_self_hits(children, &pointer).first() else {
-                return
+                return;
             };
             // don't attach when over a window.
             if hit.position == None {
-                return
+                return;
             }
             println!("Attaching: {:#}", e);
             if valid_attach_targets.contains(*target) {
                 commands.entity(e).insert((
                     AttachCandidate {
-                    attempt_target: Some(*target),
-                },
-                PickSelected(true)
-                ))
-                ;
+                        attempt_target: Some(*target),
+                    },
+                    PickSelected(true),
+                ));
                 commands.entity(e).remove::<Placer>();
             }
         }

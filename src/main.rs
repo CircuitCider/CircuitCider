@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_camera_extras::*;
 
-
 use app_core::plugins::AppSourcesPlugin;
 use bevy_serialization_extras::prelude::AssetSourcesUrdfPlugin;
 use bevy_ui_extras::{UiExtrasDebug, UiStyle};

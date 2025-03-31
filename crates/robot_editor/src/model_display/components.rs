@@ -10,7 +10,6 @@ pub struct DisplayModelCamera;
 // #[reflect(Component)]
 // pub struct DisplayModel;
 
-
 /// Root of model being displayed
 #[derive(Component, Reflect, Default)]
 #[reflect(Component)]

@@ -7,7 +7,7 @@ use bevy_rapier3d::prelude::Sensor;
 use bevy_serialization_extras::prelude::rigidbodies::RigidBodyFlag;
 use shader_core::shaders::neon::NeonMaterial;
 
-use crate::{resources::BuildWidgetMode, Spacing, Targeter, NO_OUTLINE};
+use crate::{NO_OUTLINE, Spacing, Targeter, resources::BuildWidgetMode};
 
 const ATTACHING_COLOR: Color = Color::LinearRgba(LinearRgba::GREEN);
 

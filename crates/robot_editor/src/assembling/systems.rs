@@ -1,6 +1,3 @@
-
-
-
 // /// managed transition to assembling mode
 // pub fn transition_to_assembler(
 //     mut outlines: Query<&mut OutlineVolume>,

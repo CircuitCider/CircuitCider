@@ -20,12 +20,9 @@ pub const EXIT_EARLY: RayCastSettings = RayCastSettings {
     early_exit_test: &|_| false,
 };
 
-
-
 /// Different modes for handling how "selecting" stuff works
 #[derive(States, Debug, Hash, PartialEq, Eq, Clone, Default)]
 pub enum PickMode {
-    
     #[default]
     /// pick to select, pick to deselect.
     PickSelfSelectDeselect,

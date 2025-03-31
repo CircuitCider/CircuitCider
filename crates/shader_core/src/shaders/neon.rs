@@ -1,11 +1,15 @@
 use bevy_asset::{Asset, Handle};
 
 use bevy_color::LinearRgba;
+use bevy_pbr::{MaterialPipeline, MaterialPipelineKey, prelude::*};
 use bevy_reflect::Reflect;
-use bevy_pbr::{prelude::*, MaterialPipeline, MaterialPipelineKey};
-use bevy_render::{alpha::AlphaMode, mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, RenderPipelineDescriptor, Shader, ShaderRef, SpecializedMeshPipelineError}};
-
-
+use bevy_render::{
+    alpha::AlphaMode,
+    mesh::MeshVertexBufferLayoutRef,
+    render_resource::{
+        AsBindGroup, RenderPipelineDescriptor, Shader, ShaderRef, SpecializedMeshPipelineError,
+    },
+};
 
 const SHADER_PATH: &str = "root://shaders/neon.wgsl";
 

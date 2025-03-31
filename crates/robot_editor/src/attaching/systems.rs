@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 use bevy_picking::pointer::PointerInteraction;
-use bevy_serialization_extras::prelude::{link::JointFlag, Dynamics, JointAxesMaskWrapper, JointInfo, JointLimitWrapper, JointMotorWrapper};
+use bevy_serialization_extras::prelude::{
+    Dynamics, JointAxesMaskWrapper, JointInfo, JointLimitWrapper, JointMotorWrapper,
+    link::JointFlag,
+};
 
 use super::components::*;
 use crate::placing::components::Placer;
@@ -23,7 +26,7 @@ pub fn confirm_attachment(
     candidates: Query<(Entity, &Transform, &AttachCandidate)>,
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
-    pointer: Single<&PointerInteraction>
+    pointer: Single<&PointerInteraction>,
 ) {
     let first_hit_pos = pointer.first().and_then(|(_, n)| n.position);
     if mouse.just_pressed(MouseButton::Left) && first_hit_pos.is_some() {
@@ -39,7 +42,7 @@ pub fn confirm_attachment(
             //         local_frame2: transform.clone(),
             //         contacts_enabled: false,
             //         enabled: true,
-            //         ..default()  
+            //         ..default()
             //     }
 
             // });

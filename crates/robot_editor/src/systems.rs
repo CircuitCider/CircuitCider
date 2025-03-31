@@ -1,32 +1,37 @@
 use std::any::type_name;
 
-use crate::{components::{BuildWidgetTarget, PointerFollowTarget}, placing::components::CursorRayCam, resources::{BuildWidgetMode, RobotControls}};
+use crate::{
+    components::{BuildWidgetTarget, PointerFollowTarget},
+    placing::components::CursorRayCam,
+    resources::{BuildWidgetMode, RobotControls},
+};
 pub use bevy::prelude::*;
 use bevy::{
-    asset::LoadState, ecs::query::QuerySingleError, render::render_resource::{TextureViewDescriptor, TextureViewDimension}, state::commands
+    asset::LoadState,
+    ecs::query::QuerySingleError,
+    render::render_resource::{TextureViewDescriptor, TextureViewDimension},
+    state::commands,
 };
-use bevy_picking::{backend::{HitData, PointerHits}, pointer::{PointerInput, PointerInteraction}};
+use bevy_picking::{
+    backend::{HitData, PointerHits},
+    pointer::{PointerInput, PointerInteraction},
+};
 use bevy_rapier3d::plugin::DefaultRapierContext;
 use bevy_serialization_assemble::AssemblyId;
 //use bevy_camera_extras::Watched;
-use bevy_serialization_extras::prelude::{
-    link::{JointFlag},
-    rigidbodies::RigidBodyFlag,
-};
-use components::Wheel;
-use picking_core::{components::PickSelected, PickMode};
-use resources::ImageHandles;
-use bevy_rapier3d::prelude::*;
-use bevy_toon_material::*;
-use transform_gizmo_bevy::GizmoTarget;
 use super::*;
-
+use bevy_rapier3d::prelude::*;
+use bevy_serialization_extras::prelude::{link::JointFlag, rigidbodies::RigidBodyFlag};
+use bevy_toon_material::*;
+use components::Wheel;
+use picking_core::{PickMode, components::PickSelected};
+use resources::ImageHandles;
+use transform_gizmo_bevy::GizmoTarget;
 
 pub fn add_gizmo_targets(
     items: Query<Entity, With<BuildWidgetTarget>>,
     mut pick_mode: ResMut<NextState<PickMode>>,
     mut commands: Commands,
-
 ) {
     for e in &items {
         commands.entity(e).insert(GizmoTarget::default());
@@ -48,13 +53,9 @@ pub fn manage_gizmo_targets(
         }
         //commands.entity(e).insert(GizmoTarget::default());
     }
-
 }
 
-pub fn cleanup_gizmos(
-    items: Query<Entity, With<BuildWidgetTarget>>,
-    mut commands: Commands,
-) {
+pub fn cleanup_gizmos(items: Query<Entity, With<BuildWidgetTarget>>, mut commands: Commands) {
     for e in &items {
         commands.entity(e).remove::<GizmoTarget>();
     }
@@ -68,10 +69,12 @@ pub fn build_tool_controls(
 
     keys: Res<ButtonInput<KeyCode>>,
 ) {
-
     let Ok(mut target) = targets.get_single_mut().inspect_err(|e| {
         if matches!(e, QuerySingleError::MultipleEntities(_)) {
-            warn!("multiple {:#} found. Build tool only works with one", type_name::<BuildWidgetTarget>());
+            warn!(
+                "multiple {:#} found. Build tool only works with one",
+                type_name::<BuildWidgetTarget>()
+            );
         }
     }) else {
         return;
@@ -83,10 +86,6 @@ pub fn build_tool_controls(
             BuildWidgetMode::Pointer => build_widget_mode_setter.set(BuildWidgetMode::Gizmo),
         }
     }
-
-
-
-
 
     match build_widget_mode.get() {
         BuildWidgetMode::Pointer => {
@@ -102,10 +101,9 @@ pub fn build_tool_controls(
             if keys.pressed(KeyCode::Numpad5) {
                 target.rotate_x(-0.1);
             }
-        },
-        _ => return
+        }
+        _ => return,
     }
-
 }
 /// find models with given component, and change their material based on if it has any intersections or not.
 pub fn intersection_colors_for<T: Component, U: Material>(
@@ -117,16 +115,17 @@ pub fn intersection_colors_for<T: Component, U: Material>(
 ) where
     U: From<LinearRgba>,
 {
-    let Ok(rapier_context_simulation) = rapier_context_simulation.get_single()
-    .inspect_err(|err| {
-        warn!("{:#}", err)
-    }) else {
+    let Ok(rapier_context_simulation) = rapier_context_simulation
+        .get_single()
+        .inspect_err(|err| warn!("{:#}", err))
+    else {
         return;
     };
-    let Ok(rapier_context_colliders) = rapier_context_colliders.get_single().inspect_err(|err| {
-        warn!("{:#}", err)
-    }) else {
-        return
+    let Ok(rapier_context_colliders) = rapier_context_colliders
+        .get_single()
+        .inspect_err(|err| warn!("{:#}", err))
+    else {
+        return;
     };
     for (e, mat_handle) in thing_query.iter() {
         let Some(mat) = materials.get_mut(mat_handle) else {
@@ -146,31 +145,42 @@ pub fn intersection_colors_for<T: Component, U: Material>(
     }
 }
 /// collect hits that aren't on self(so childed primitives)
-pub fn non_self_hits<'a: 'b, 'b>(children: Option<&Children>, pointer: &'a PointerInteraction) -> Vec<&'b (Entity, HitData)> {
-    pointer.iter().filter(|(e, ..)| {
-        if let Some(children) = children {
-            children.contains(e) == false
-        } else {
-            true
-        }
-    }).collect::<Vec<_>>()
+pub fn non_self_hits<'a: 'b, 'b>(
+    children: Option<&Children>,
+    pointer: &'a PointerInteraction,
+) -> Vec<&'b (Entity, HitData)> {
+    pointer
+        .iter()
+        .filter(|(e, ..)| {
+            if let Some(children) = children {
+                children.contains(e) == false
+            } else {
+                true
+            }
+        })
+        .collect::<Vec<_>>()
 }
 
 /// return first valid hit on something that:
 /// 1. has a hit position(not a window)
 /// 2. is not it self/children of it self(self/sub-primitives of self)
-pub fn first_valid_other_hit<'a: 'b, 'b>(entity: Entity, children: Option<&Children>, pointer: &'a PointerInteraction) -> Option<(Entity, &'b HitData)> {
-    let Some((e, hit_data)) = pointer.iter()
-    
-    .filter(|(e, ..)| {
-        if let Some(children) = children {
-            children.contains(e) == false
-        } else {
-            true
-        }
-    })    
-    .find(|(target, data)| target != &entity && data.position.is_some()) else {
-        return None
+pub fn first_valid_other_hit<'a: 'b, 'b>(
+    entity: Entity,
+    children: Option<&Children>,
+    pointer: &'a PointerInteraction,
+) -> Option<(Entity, &'b HitData)> {
+    let Some((e, hit_data)) = pointer
+        .iter()
+        .filter(|(e, ..)| {
+            if let Some(children) = children {
+                children.contains(e) == false
+            } else {
+                true
+            }
+        })
+        .find(|(target, data)| target != &entity && data.position.is_some())
+    else {
+        return None;
     };
     Some((e.clone(), hit_data))
 }
@@ -178,11 +188,20 @@ pub fn first_valid_other_hit<'a: 'b, 'b>(entity: Entity, children: Option<&Child
 /// moves entities of type `<T>` to cursor
 pub fn move_to_pointer(
     pointer: Single<&PointerInteraction>,
-    mut movables: Query<(Entity, &mut Transform, Option<&Children>, &PickSelected, &PointerFollowTarget)>,
+    mut movables: Query<(
+        Entity,
+        &mut Transform,
+        Option<&Children>,
+        &PickSelected,
+        &PointerFollowTarget,
+    )>,
 ) {
     let Ok((e, mut trans, children, picked, _)) = movables.get_single_mut().inspect_err(|e| {
         if matches!(e, QuerySingleError::MultipleEntities(_)) {
-            warn!("multiple {:#} found. Build tool only works with one", type_name::<BuildWidgetTarget>());
+            warn!(
+                "multiple {:#} found. Build tool only works with one",
+                type_name::<BuildWidgetTarget>()
+            );
         }
     }) else {
         return;
@@ -191,10 +210,10 @@ pub fn move_to_pointer(
         return;
     }
     let Some((_, hit_data)) = first_valid_other_hit(e, children, &pointer) else {
-        return
+        return;
     };
     let Some(hit_pos) = hit_data.position else {
-        return
+        return;
     };
 
     // let offset = match T::spacing() {
@@ -213,7 +232,6 @@ pub fn add_pointer_move_targets(
         commands.entity(e).insert(PointerFollowTarget);
     }
     pick_mode.set(PickMode::PickSelfSelectAirDeselect)
-
 }
 
 pub fn cleanup_pointer_move_targets(
@@ -221,7 +239,7 @@ pub fn cleanup_pointer_move_targets(
     mut commands: Commands,
 ) {
     for e in &movables {
-        commands.entity(e).remove::<PointerFollowTarget>();    
+        commands.entity(e).remove::<PointerFollowTarget>();
     }
 }
 
@@ -252,9 +270,7 @@ pub fn configure_skybox_texture(
 pub struct WasFrozen;
 
 pub fn control_robot(
-    mut rigid_body_flag: Query<&mut RigidBodyFlag, (Without<JointFlag>, 
-        With<Part>
-    )>,
+    mut rigid_body_flag: Query<&mut RigidBodyFlag, (Without<JointFlag>, With<Part>)>,
     keys: Res<ButtonInput<KeyCode>>,
     controls: Res<RobotControls>,
     //mut primary_window: Query<&mut EguiContext, With<PrimaryWindow>>,
@@ -334,9 +350,7 @@ pub fn control_robot(
 pub fn freeze_spawned_robots(
     mut robots: Query<
         (Entity, &mut RigidBodyFlag),
-        (
-            With<AssemblyId>, 
-            Without<JointFlag>, Without<WasFrozen>),
+        (With<AssemblyId>, Without<JointFlag>, Without<WasFrozen>),
     >,
     mut commands: Commands,
 ) {
@@ -365,21 +379,23 @@ pub fn bind_left_and_right_wheel(
     }
 }
 
-
-
 /// change robots to use toon shader
 pub fn set_robot_to_toon_shader(
     mut commands: Commands,
     standard_mats: ResMut<Assets<StandardMaterial>>,
     mut toon_mats: ResMut<Assets<ToonMaterial>>,
-    bots: Query<(Entity, Option<&MeshMaterial3d<StandardMaterial>>), (
-        With<Part>, 
-        Without<MeshMaterial3d<ToonMaterial>>)>,
+    bots: Query<
+        (Entity, Option<&MeshMaterial3d<StandardMaterial>>),
+        (With<Part>, Without<MeshMaterial3d<ToonMaterial>>),
+    >,
 ) {
     for (bot, mat) in bots.iter() {
         println!("setting {:#} to toon shader..", bot);
         let mat = match mat {
-            Some(handle) => &standard_mats.get(&handle.0).map(|n| n.clone()).unwrap_or_default(),
+            Some(handle) => &standard_mats
+                .get(&handle.0)
+                .map(|n| n.clone())
+                .unwrap_or_default(),
             None => &StandardMaterial::default(),
         };
         // let mat = match handle {
@@ -397,11 +413,10 @@ pub fn set_robot_to_toon_shader(
             texture: None,
             ..default()
         });
-        commands.entity(bot).insert(
-            MeshMaterial3d(toon_mat)
-        );
+        commands.entity(bot).insert(MeshMaterial3d(toon_mat));
 
-        commands.entity(bot).remove::<MeshMaterial3d<StandardMaterial>>();
-
+        commands
+            .entity(bot)
+            .remove::<MeshMaterial3d<StandardMaterial>>();
     }
 }

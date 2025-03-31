@@ -2,8 +2,6 @@ pub use bevy::prelude::*;
 use picking_core::components::PickSelected;
 use strum_macros::Display;
 
-
-
 #[derive(Component, Reflect, Display)]
 #[reflect(Component)]
 pub enum Wheel {
@@ -15,7 +13,6 @@ pub enum Wheel {
 #[reflect(Component)]
 #[require(PickSelected)]
 pub struct BuildWidgetTarget;
-
 
 #[derive(Component)]
 pub struct PointerFollowTarget;

@@ -6,7 +6,7 @@ use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use bevy_ui_extras::{states::DebugMenuState, UiExtrasDebug};
+use bevy_ui_extras::{UiExtrasDebug, states::DebugMenuState};
 use combat::{
     components::{Health, Pistol},
     despawn::DespawnPlugin,

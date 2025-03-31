@@ -1,4 +1,3 @@
-
 use app_core::ROOT;
 use assembling::plugins::AssemblingPlugin;
 use attaching::plugins::AttachingToolingPlugin;
@@ -17,7 +16,6 @@ use bevy_rapier3d::render::RapierDebugRenderPlugin;
 use bevy_serialization_assemble::components::DisassembleAssetRequest;
 use bevy_serialization_assemble::components::RollDown;
 //use bevy_mod_raycast::DefaultRaycastingPlugin;
-use bevy_serialization_extras::prelude::link::JointFlag;
 use bevy_serialization_extras::prelude::AssetSpawnRequest;
 use bevy_serialization_extras::prelude::AssetSpawnRequestQueue;
 use bevy_serialization_extras::prelude::RequestCollider;
@@ -29,6 +27,7 @@ use bevy_serialization_extras::prelude::SerializationPlugin;
 use bevy_serialization_extras::prelude::Urdf;
 use bevy_serialization_extras::prelude::UrdfSerializationPlugin;
 use bevy_serialization_extras::prelude::UrdfWrapper;
+use bevy_serialization_extras::prelude::link::JointFlag;
 use camera_controls::plugins::RobotEditorCameraPlugin;
 use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
@@ -46,12 +45,12 @@ use shader_core::plugins::ShaderCorePlugin;
 use states::RobotEditorState;
 use systems::configure_skybox_texture;
 use systems::*;
-use transform_gizmo_bevy::enum_set;
 use transform_gizmo_bevy::GizmoCamera;
 use transform_gizmo_bevy::GizmoMode;
 use transform_gizmo_bevy::GizmoOptions;
 use transform_gizmo_bevy::GizmoOrientation;
 use transform_gizmo_bevy::TransformGizmoPlugin;
+use transform_gizmo_bevy::enum_set;
 use ui::*;
 
 use crate::resources::BuildWidgetMode;
@@ -63,8 +62,7 @@ pub struct RobotEditorUiPlugin;
 
 impl Plugin for RobotEditorUiPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_systems(
+        app.add_systems(
             Update,
             save_load_model_ui.run_if(in_state(RobotEditorState::Active)),
         );
@@ -75,8 +73,7 @@ pub struct RobotEditorPlugin;
 
 impl Plugin for RobotEditorPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .register_type::<Wheel>()
+        app.register_type::<Wheel>()
             //TODO: Add back
             // .add_plugins(ToonShaderPlugin)
             .init_collection::<ImageHandles>()
@@ -96,7 +93,6 @@ impl Plugin for RobotEditorPlugin {
                 AttachingToolingPlugin,
                 AssemblingPlugin,
             ))
-
             .add_plugins(ModelDisplayerPlugin)
             // ui
             .add_plugins(RobotEditorUiPlugin)
@@ -117,9 +113,6 @@ impl Plugin for RobotEditorPlugin {
             )
             .add_systems(Update, make_window_not_block_picking)
             .add_systems(Update, make_models_pickable);
-
-            ;
-            
     }
 }
 
@@ -127,14 +120,10 @@ pub struct CachePrefabsPlugin;
 
 impl Plugin for CachePrefabsPlugin {
     fn build(&self, app: &mut App) {
-        app
-
-        .insert_resource(HullsFolder::default())
+        app.insert_resource(HullsFolder::default())
             .insert_resource(WeaponsFolder::default())
             .insert_resource(WheelsFolder::default())
-            .add_systems(Startup, cache_initial_folders)
-            
-            ;
+            .add_systems(Startup, cache_initial_folders);
     }
 }
 
@@ -143,39 +132,44 @@ pub struct GizmoFeaturesPlugin;
 
 impl Plugin for GizmoFeaturesPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_plugins(TransformGizmoPlugin)
-        .insert_resource(GizmoOptions {
-            gizmo_modes: enum_set!(
-                GizmoMode::RotateX
-                    | GizmoMode::RotateY
-                    | GizmoMode::RotateZ
-                    | GizmoMode::TranslateX
-                    | GizmoMode::TranslateY
-                    | GizmoMode::TranslateZ
-            ),
-            gizmo_orientation: GizmoOrientation::Global,
-            ..default()
-        })
-        .add_systems(OnEnter(BuildWidgetMode::Gizmo), add_gizmo_targets)
-        .add_systems(Update, manage_gizmo_targets.run_if(in_state(BuildWidgetMode::Gizmo)))
-        .add_systems(OnExit(BuildWidgetMode::Gizmo), cleanup_gizmos)
-
-        ;
-
+        app.add_plugins(TransformGizmoPlugin)
+            .insert_resource(GizmoOptions {
+                gizmo_modes: enum_set!(
+                    GizmoMode::RotateX
+                        | GizmoMode::RotateY
+                        | GizmoMode::RotateZ
+                        | GizmoMode::TranslateX
+                        | GizmoMode::TranslateY
+                        | GizmoMode::TranslateZ
+                ),
+                gizmo_orientation: GizmoOrientation::Global,
+                ..default()
+            })
+            .add_systems(OnEnter(BuildWidgetMode::Gizmo), add_gizmo_targets)
+            .add_systems(
+                Update,
+                manage_gizmo_targets.run_if(in_state(BuildWidgetMode::Gizmo)),
+            )
+            .add_systems(OnExit(BuildWidgetMode::Gizmo), cleanup_gizmos);
     }
 }
-
 
 pub struct PointerEditFeaturesPlugin;
 
 impl Plugin for PointerEditFeaturesPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_systems(Update, add_pointer_move_targets.run_if(in_state(BuildWidgetMode::Pointer)))
-        .add_systems(Update, move_to_pointer.run_if(in_state(BuildWidgetMode::Pointer)))
-        .add_systems(OnExit(BuildWidgetMode::Pointer), cleanup_pointer_move_targets)
-        ;
+        app.add_systems(
+            Update,
+            add_pointer_move_targets.run_if(in_state(BuildWidgetMode::Pointer)),
+        )
+        .add_systems(
+            Update,
+            move_to_pointer.run_if(in_state(BuildWidgetMode::Pointer)),
+        )
+        .add_systems(
+            OnExit(BuildWidgetMode::Pointer),
+            cleanup_pointer_move_targets,
+        );
     }
 }
 
@@ -183,13 +177,10 @@ pub struct EditorToolsPlugin;
 
 impl Plugin for EditorToolsPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .init_state::<BuildWidgetMode>()
-        .add_plugins(GizmoFeaturesPlugin)
-        .add_plugins(PointerEditFeaturesPlugin)
-        .add_systems(Update, build_tool_controls)
-        ;
-
+        app.init_state::<BuildWidgetMode>()
+            .add_plugins(GizmoFeaturesPlugin)
+            .add_plugins(PointerEditFeaturesPlugin)
+            .add_systems(Update, build_tool_controls);
     }
 }
 
@@ -248,15 +239,16 @@ fn setup_editor_area(
     ));
 
     // robot
-    commands.spawn(
-        (
-            DisassembleAssetRequest::<UrdfWrapper>::path(format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT).to_owned().into(), None),
-            Transform::from_xyz(0.0, 2.0, 0.0),
-            RollDown(PickCollector, vec![]),
-
-        )
-    );
-    
+    commands.spawn((
+        DisassembleAssetRequest::<UrdfWrapper>::path(
+            format!("{:#}://model_pkg/urdf/diff_bot.xml", ROOT)
+                .to_owned()
+                .into(),
+            None,
+        ),
+        Transform::from_xyz(0.0, 2.0, 0.0),
+        RollDown(PickCollector, vec![]),
+    ));
 
     // plane
     commands.spawn((
@@ -267,7 +259,7 @@ fn setup_editor_area(
         MeshMaterial3d(materials.add(Color::srgb(0.3, 0.5, 0.3))),
         RigidBodyFlag::Fixed,
         Name::new("Editor baseplate"),
-        RequestCollider::Convex
+        RequestCollider::Convex,
     ));
     // Sun(TODO: ADD BACK)
     // commands
@@ -301,10 +293,7 @@ fn setup_editor_area(
 
 pub fn make_models_pickable(
     mut commands: Commands,
-    models_query: Query<Entity, (
-        With<Mesh3d>,
-        Without<RayCastPickable>
-    )>,
+    models_query: Query<Entity, (With<Mesh3d>, Without<RayCastPickable>)>,
 ) {
     for e in models_query.iter() {
         commands.entity(e).insert((
@@ -317,7 +306,6 @@ pub fn make_models_pickable(
         ));
     }
 }
-
 
 pub fn set_robot_to_follow(
     cameras: Query<Entity, With<CameraRestrained>>,

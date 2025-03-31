@@ -1,9 +1,6 @@
 use bevy_mod_outline::OutlinePlugin;
 use bevy_pbr::wireframe::WireframePlugin;
 
-use bevy_app::prelude::*;
-use bevy_pbr::MaterialPlugin;
-use bevy_toon_material::ToonShaderPlugin;
 use crate::resources::{ShadersFolder, WgslCache};
 use crate::shaders::flow_wireframe::FlowWireframeMaterial;
 use crate::shaders::glow::GlowMaterial;
@@ -11,6 +8,9 @@ use crate::shaders::grid::GridMaterial;
 use crate::shaders::neon::NeonMaterial;
 use crate::systems::spawn_toon_shader_cam;
 use crate::*;
+use bevy_app::prelude::*;
+use bevy_pbr::MaterialPlugin;
+use bevy_toon_material::ToonShaderPlugin;
 pub struct ShaderDebugPlugin;
 
 impl Plugin for ShaderDebugPlugin {
@@ -39,18 +39,15 @@ pub struct ShaderCorePlugin;
 
 impl Plugin for ShaderCorePlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_plugins(OutlinePlugin)
-        .add_plugins(WireframePlugin)
-        .add_plugins(ToonShaderPlugin)
-        .register_asset_reflect::<NeonMaterial>()
-        .register_asset_reflect::<GlowMaterial>()
-        .register_asset_reflect::<FlowWireframeMaterial>()
-        .add_plugins(MaterialPlugin::<FlowWireframeMaterial>::default())
-        .add_plugins(MaterialPlugin::<NeonMaterial>::default())
-        .add_plugins(MaterialPlugin::<GlowMaterial>::default())
-        .add_plugins(MaterialPlugin::<GridMaterial>::default());
-    ;
-
+        app.add_plugins(OutlinePlugin)
+            .add_plugins(WireframePlugin)
+            .add_plugins(ToonShaderPlugin)
+            .register_asset_reflect::<NeonMaterial>()
+            .register_asset_reflect::<GlowMaterial>()
+            .register_asset_reflect::<FlowWireframeMaterial>()
+            .add_plugins(MaterialPlugin::<FlowWireframeMaterial>::default())
+            .add_plugins(MaterialPlugin::<NeonMaterial>::default())
+            .add_plugins(MaterialPlugin::<GlowMaterial>::default())
+            .add_plugins(MaterialPlugin::<GridMaterial>::default());
     }
 }

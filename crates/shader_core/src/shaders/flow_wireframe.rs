@@ -1,10 +1,16 @@
 use bevy_asset::Asset;
 use bevy_color::LinearRgba;
 use bevy_ecs::component::Component;
+use bevy_pbr::{MaterialPipeline, MaterialPipelineKey, prelude::*};
 use bevy_reflect::Reflect;
-use bevy_pbr::{prelude::*, MaterialPipeline, MaterialPipelineKey};
 use bevy_reflect::prelude::ReflectDefault;
-use bevy_render::{mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, CompareFunction, PolygonMode, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError}};
+use bevy_render::{
+    mesh::MeshVertexBufferLayoutRef,
+    render_resource::{
+        AsBindGroup, CompareFunction, PolygonMode, RenderPipelineDescriptor, ShaderRef,
+        SpecializedMeshPipelineError,
+    },
+};
 
 const SHADER_PATH: &str = "root://shaders/flow_wireframe.wgsl";
 // const SHADER_PATH: &str = "../../../assets/shaders/flow_wireframe.wgsl";

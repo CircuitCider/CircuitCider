@@ -11,7 +11,6 @@ use picking_core::EXIT_EARLY;
 
 use crate::NO_OUTLINE;
 
-
 // #[derive(Resource, Default)]
 // pub struct AssemblingTarget {
 //     pub target: Option<Entity>,

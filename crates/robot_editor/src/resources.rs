@@ -23,7 +23,7 @@ use strum_macros::{Display, EnumIter};
 pub enum BuildWidgetMode {
     Gizmo,
     #[default]
-    Pointer
+    Pointer,
 }
 
 use bevy::{asset::LoadedFolder, prelude::*};

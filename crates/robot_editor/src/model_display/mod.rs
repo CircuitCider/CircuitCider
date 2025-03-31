@@ -1,8 +1,14 @@
 //! code for display models.
 use std::ops::Deref;
 
-use bevy::{gltf::{GltfMesh, GltfNode, GltfPrimitive}, prelude::*, render::view::RenderLayers};
-use bevy_serialization_assemble::{components::DisassembleStage, gltf::GltfVisualModel, traits::Disassemble};
+use bevy::{
+    gltf::{GltfMesh, GltfNode, GltfPrimitive},
+    prelude::*,
+    render::view::RenderLayers,
+};
+use bevy_serialization_assemble::{
+    components::DisassembleStage, gltf::GltfVisualModel, traits::Disassemble,
+};
 
 pub mod components;
 pub mod plugins;
@@ -23,7 +29,7 @@ pub enum GltfNodeLoadError {
     NodeLoading,
     MeshLoading,
     MoreThanOneMesh,
-    NoMesh
+    NoMesh,
 }
 
 #[derive(Component)]
@@ -36,10 +42,10 @@ pub struct DisplayModelLoading;
 pub struct DisplayModel(pub Option<DisplayOption>);
 
 // /// gltf_mesh handle
-// pub struct 
+// pub struct
 
 /// extracts mesh from gltf
-/// errors if there is more then one 
+/// errors if there is more then one
 // pub fn mesh_extract_gltf(gltf: Gltf) -> Result<Handle<GltfMesh>, GltfMeshExtractError>{
 //     if gltf.meshes.len() > 1 {
 //         return Err(GltfMeshExtractError::MoreThanOneMesh)
@@ -47,7 +53,7 @@ pub struct DisplayModel(pub Option<DisplayOption>);
 //     let Some(mesh) = gltf.meshes.first() else {
 //         return Err(GltfMeshExtractError::NoMesh)
 //     };
-    
+
 //     Ok(mesh.clone())
 // }
 
@@ -58,13 +64,13 @@ pub fn extract_gltf_node(
     gltf_nodes: Res<Assets<GltfNode>>,
 ) -> Result<(Transform, GltfMesh), GltfNodeLoadError> {
     let Some(gltf_node) = gltf_nodes.get(handle) else {
-        return Err(GltfNodeLoadError::NodeLoading)
+        return Err(GltfNodeLoadError::NodeLoading);
     };
     let Some(ref gltf_mesh) = gltf_node.mesh else {
         return Err(GltfNodeLoadError::NoMesh);
     };
     let Some(gltf_mesh) = gltf_meshes.get(&gltf_mesh.clone()) else {
-        return Err(GltfNodeLoadError::MeshLoading)
+        return Err(GltfNodeLoadError::MeshLoading);
     };
-    return Ok((gltf_node.transform, gltf_mesh.clone()))
+    return Ok((gltf_node.transform, gltf_mesh.clone()));
 }

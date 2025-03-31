@@ -1,9 +1,11 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
-use bevy_rapier3d::{plugin::{DefaultRapierContext, RapierContext, ReadRapierContext}, prelude::{RapierContextColliders, RapierContextSimulation}};
+use bevy_rapier3d::{
+    plugin::{DefaultRapierContext, RapierContext, ReadRapierContext},
+    prelude::{RapierContextColliders, RapierContextSimulation},
+};
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;
 use egui::{Color32, RichText};
-
 
 use crate::ui::window_follow_mouse;
 
@@ -19,16 +21,17 @@ pub fn attach_candidate_edit_ui(
     named: Query<&Name>,
     mut commands: Commands,
 ) {
-    let Ok(rapier_context_simulation) = rapier_context_simulation.get_single()
-    .inspect_err(|err| {
-        warn!("{:#}", err)
-    }) else {
+    let Ok(rapier_context_simulation) = rapier_context_simulation
+        .get_single()
+        .inspect_err(|err| warn!("{:#}", err))
+    else {
         return;
     };
-    let Ok(rapier_context_colliders) = rapier_context_colliders.get_single().inspect_err(|err| {
-        warn!("{:#}", err)
-    }) else {
-        return
+    let Ok(rapier_context_colliders) = rapier_context_colliders
+        .get_single()
+        .inspect_err(|err| warn!("{:#}", err))
+    else {
+        return;
     };
     //don't render this ui if there is nothing its focusing on.
     if attach_candidates.iter().len() <= 0 {
@@ -36,7 +39,7 @@ pub fn attach_candidate_edit_ui(
     }
     let Ok((part, part_trans, part_collider, part_target)) = attach_candidates.get_single() else {
         warn!("multiple attachers not supported. aborting");
-        return
+        return;
     };
 
     let valid_button_color = Color32::GREEN;
@@ -76,12 +79,9 @@ pub fn attach_candidate_edit_ui(
             {
                 println!("attaching candidate");
                 commands.entity(part).remove::<AttachCandidate>();
-
             }
             let target_name = match part_target.attempt_target {
-                Some(target) => {
-                    named.get(target).map_or("???", |name| name.as_str())
-                },
+                Some(target) => named.get(target).map_or("???", |name| name.as_str()),
                 None => "None",
             };
             ui.label(format!("Target: {:#}", target_name));

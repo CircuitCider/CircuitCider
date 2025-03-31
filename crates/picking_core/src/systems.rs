@@ -1,9 +1,12 @@
 use bevy_ecs::prelude::*;
-use bevy_input::{mouse::MouseButton, ButtonInput};
-use bevy_picking::pointer::PointerInteraction;
 use bevy_hierarchy::prelude::*;
+use bevy_input::{ButtonInput, mouse::MouseButton};
+use bevy_picking::pointer::PointerInteraction;
 
-use crate::{components::{PickCollector, PickSelected}, get_top_pickable_entity};
+use crate::{
+    components::{PickCollector, PickSelected},
+    get_top_pickable_entity,
+};
 
 pub fn pick_self_select_air_deselect(
     pointer: Single<&PointerInteraction>,
@@ -18,10 +21,9 @@ pub fn pick_self_select_air_deselect(
             for mut selected in &mut interactables {
                 selected.0 = false;
             }
-         }
+        }
         return;
     };
-
 
     if mouse_pressed {
         // remove all preivous selection if hiting something that is in the world(not a window)
@@ -31,10 +33,11 @@ pub fn pick_self_select_air_deselect(
                 for mut selected in &mut interactables {
                     selected.0 = false;
                 }
-             }
+            }
         }
-        let Ok(mut picked) = interactables.get_mut(get_top_pickable_entity(*e, pick_collectors)) else {
-            return
+        let Ok(mut picked) = interactables.get_mut(get_top_pickable_entity(*e, pick_collectors))
+        else {
+            return;
         };
 
         picked.0 = true;
@@ -48,12 +51,11 @@ pub fn pick_self_select_deselect(
     pointer: Single<&PointerInteraction>,
     mouse: ResMut<ButtonInput<MouseButton>>,
 ) {
-
     let Some((e, _hit)) = pointer.first() else {
         return;
     };
     let Ok(mut picked) = interactables.get_mut(get_top_pickable_entity(*e, pick_collectors)) else {
-        return
+        return;
     };
 
     if mouse.just_pressed(MouseButton::Left) {
@@ -63,5 +65,4 @@ pub fn pick_self_select_deselect(
             picked.0 = true;
         }
     }
-
 }

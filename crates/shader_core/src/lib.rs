@@ -5,7 +5,7 @@ mod systems;
 
 use std::any::TypeId;
 
-use bevy_asset::{prelude::*, LoadedFolder};
+use bevy_asset::{LoadedFolder, prelude::*};
 use bevy_ecs::prelude::*;
 use bevy_render::render_resource::{Shader, Source};
 use resources::{ShadersFolder, WgslCache};

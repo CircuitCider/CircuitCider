@@ -1,11 +1,18 @@
+use bevy::{
+    gltf::{GltfMesh, GltfNode},
+    prelude::*,
+    render::view::RenderLayers,
+};
+use bevy_serialization_assemble::{
+    Assemblies,
+    components::{DisassembleAssetRequest, RollDown},
+    gltf::GltfVisualModel,
+    traits::DisassembleSettings,
+};
 
-use bevy::{gltf::{GltfMesh, GltfNode}, prelude::*, render::view::RenderLayers};
-use bevy_serialization_assemble::{components::{DisassembleAssetRequest, RollDown}, gltf::GltfVisualModel, traits::DisassembleSettings, Assemblies};
+use crate::model_display::{DisplayOption, extract_gltf_node};
 
-
-use crate::model_display::{extract_gltf_node, DisplayOption};
-
-use super::{components::*, plugins::DISPLAY_MODEL_TRANSLATION, DisplayModel, DisplayModelLoading};
+use super::{DisplayModel, DisplayModelLoading, components::*, plugins::DISPLAY_MODEL_TRANSLATION};
 
 /// enviorment display models are showcased in.
 pub fn setup_display_area(
@@ -46,16 +53,14 @@ pub fn stage_display_model(
 ) {
     println!("staging display model");
     if display_model.0.is_some() {
-        commands.spawn(
-            (
-                DisplayRoot,
-                Name::new("display model"),
-                Transform::from_translation(DISPLAY_MODEL_TRANSLATION),
-                RenderLayers::layer(1),
-                Visibility::default(),
-                DisplayModelLoading,
-            )
-        );
+        commands.spawn((
+            DisplayRoot,
+            Name::new("display model"),
+            Transform::from_translation(DISPLAY_MODEL_TRANSLATION),
+            RenderLayers::layer(1),
+            Visibility::default(),
+            DisplayModelLoading,
+        ));
     } else {
         for e in display_models.iter() {
             commands.entity(e).despawn_recursive();
@@ -75,18 +80,14 @@ pub fn populate_display_model(
         return;
     };
     println!("spawning desplay model");
-    
+
     let request = match kind {
         DisplayOption::Path(path) => DisassembleAssetRequest::<GltfVisualModel>::path(path, None),
         DisplayOption::Handle(handle) => DisassembleAssetRequest::handle(handle, None),
     };
-    commands.entity(root).insert(
-        (
-            request,
-            RollDown(RenderLayers::layer(1), vec![]),
-            
-        )
-    );
+    commands
+        .entity(root)
+        .insert((request, RollDown(RenderLayers::layer(1), vec![])));
     commands.entity(root).remove::<DisplayModelLoading>();
 }
 
@@ -114,8 +115,6 @@ pub fn manage_display_platform_visibility(
         }
     }
 }
-
-
 
 // /// helper function for displaying display models
 // pub fn display_model(

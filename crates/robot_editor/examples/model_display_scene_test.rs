@@ -2,10 +2,15 @@
 //!
 
 use app_core::plugins::AppSourcesPlugin;
-use bevy::{gltf::{GltfMesh, GltfNode}, prelude::*};
-use bevy_serialization_extras::prelude::{SerializationAssembleBasePlugin, SerializationBasePlugin};
+use bevy::{
+    gltf::{GltfMesh, GltfNode},
+    prelude::*,
+};
+use bevy_serialization_extras::prelude::{
+    SerializationAssembleBasePlugin, SerializationBasePlugin,
+};
 use bevy_ui_extras::UiExtrasDebug;
-use robot_editor::model_display::{plugins::ModelDisplayerPlugin, DisplayModel, DisplayOption};
+use robot_editor::model_display::{DisplayModel, DisplayOption, plugins::ModelDisplayerPlugin};
 use shader_core::shaders::plugins::CustomShadersPlugin;
 
 pub fn main() {
@@ -26,13 +31,15 @@ pub fn display_model_test(
     mut meshes: ResMut<Assets<Mesh>>,
     //mut gltfs: ResMut<Assets<Gltf>>,
     mut asset_server: Res<AssetServer>,
-    mut display_model: ResMut<DisplayModel>
+    mut display_model: ResMut<DisplayModel>,
 ) {
     // let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0).mesh());
     // display_model.0 = Some(DisplayOption::Mesh(cube));
 
     //let gun = asset_server.load("root://models/weapons.robot_gun.glb");
-    let gun = asset_server.load::<GltfNode>(GltfAssetLabel::Node(0).from_asset("root://models/weapons/robot_gun.glb"));
+    let gun = asset_server.load::<GltfNode>(
+        GltfAssetLabel::Node(0).from_asset("root://models/weapons/robot_gun.glb"),
+    );
     //let gun = asset_server.load("root://models/weapons/robot_gun.glb");
     display_model.0 = Some(DisplayOption::Handle(gun))
 }

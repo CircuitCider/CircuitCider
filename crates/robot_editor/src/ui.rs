@@ -1,14 +1,37 @@
 use std::f32::consts::PI;
 
 use crate::{
-    components::{BuildWidgetTarget, Wheel}, load_assets_in, model_display::{DisplayModel, DisplayOption}, placing::components::Placer, prelude::{WeaponsFolder, WheelsFolder}, resources::{BuildMenuTarget, BuildWidgetMode, HullsFolder}
+    components::{BuildWidgetTarget, Wheel},
+    load_assets_in,
+    model_display::{DisplayModel, DisplayOption},
+    placing::components::Placer,
+    prelude::{WeaponsFolder, WheelsFolder},
+    resources::{BuildMenuTarget, BuildWidgetMode, HullsFolder},
 };
-use bevy::{asset::LoadedFolder, gltf::{GltfMesh, GltfNode, GltfPrimitive}, math::Affine3A, prelude::*, window::PrimaryWindow};
+use bevy::{
+    asset::LoadedFolder,
+    gltf::{GltfMesh, GltfNode, GltfPrimitive},
+    math::Affine3A,
+    prelude::*,
+    window::PrimaryWindow,
+};
 use bevy_egui::EguiContext;
-use bevy_mod_outline::{bundles::InheritOutlineBundle, AsyncSceneInheritOutline, ComputedOutline, InheritOutline, OutlineVolume};
+use bevy_mod_outline::{
+    AsyncSceneInheritOutline, ComputedOutline, InheritOutline, OutlineVolume,
+    bundles::InheritOutlineBundle,
+};
 use bevy_rapier3d::prelude::Sensor;
-use bevy_serialization_assemble::{components::{DisassembleAssetRequest, Maybe, RollDown}, gltf::{gltf_collider_request, GltfNodeColliderVisualChilds, GltfNodeMeshOne, GltfNodeVisuals, GltfPhysicsMeshPrimitive, GltfPhysicsModel}, traits::{Disassemble, Split, Structure}};
-use bevy_serialization_extras::prelude::{colliders::ColliderFlag, RequestCollider, RequestColliderFromChildren, RigidBodyFlag};
+use bevy_serialization_assemble::{
+    components::{DisassembleAssetRequest, Maybe, RollDown},
+    gltf::{
+        GltfNodeColliderVisualChilds, GltfNodeMeshOne, GltfNodeVisuals, GltfPhysicsMeshPrimitive,
+        GltfPhysicsModel, gltf_collider_request,
+    },
+    traits::{Disassemble, Split, Structure},
+};
+use bevy_serialization_extras::prelude::{
+    RequestCollider, RequestColliderFromChildren, RigidBodyFlag, colliders::ColliderFlag,
+};
 use combat::components::Pistol;
 use derive_more::From;
 use egui::{Align2, Color32, RichText, Sense};
@@ -71,11 +94,9 @@ pub fn build_menu_ui(
         for handle in handles {
             //let mesh = meshes.get(mesh_handle.clone()).expect("not loaded");
             if let Some(path) = handle.path() {
-                
                 let str_path = path.path().to_string_lossy();
-                
-                let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
 
+                let model_name = str_path.split('/').last().unwrap_or_default().to_owned();
 
                 let spawn_button = ui
                     .button(model_name.clone())
@@ -83,20 +104,25 @@ pub fn build_menu_ui(
 
                 let model_path = path.to_string() + "#Node0";
                 if spawn_button.drag_started() {
-
                     println!("spawning model");
-                    let model = commands.spawn(
-                        (
-                            DisassembleAssetRequest::<GltfPhysicsModel>::path(model_path.clone(), None),
+                    let model = commands
+                        .spawn((
+                            DisassembleAssetRequest::<GltfPhysicsModel>::path(
+                                model_path.clone(),
+                                None,
+                            ),
                             Sensor,
                             Transform::default(),
                             RigidBodyFlag::Fixed,
                             Name::new("pistol"),
                             Placer::from_path(&str_path),
-                            RollDown(PickingBehavior {
-                                should_block_lower: false,
-                                is_hoverable: true
-                            }, vec![]),
+                            RollDown(
+                                PickingBehavior {
+                                    should_block_lower: false,
+                                    is_hoverable: true,
+                                },
+                                vec![],
+                            ),
                             OutlineVolume {
                                 visible: true,
                                 width: 3.0,
@@ -109,8 +135,8 @@ pub fn build_menu_ui(
                             //RollDown(ComputedOutline, vec![]),
 
                             //AsyncSceneInheritOutline::default()
-                        )
-                    ).id();
+                        ))
+                        .id();
                     match model_king {
                         BuildMenuTarget::Hulls => {}
                         BuildMenuTarget::Weapons => {
@@ -126,10 +152,8 @@ pub fn build_menu_ui(
                 //spawn display model for hovered over spawnables
                 let mut new_display_model = None;
                 if spawn_button.contains_pointer() {
-                    
-
                     new_display_model = Some(DisplayOption::Path(model_path.clone()))
-                } 
+                }
                 if display_model.0 != new_display_model {
                     display_model.0 = new_display_model
                 }
@@ -265,7 +289,7 @@ pub fn save_load_model_ui(
 
 pub fn make_window_not_block_picking(
     windows: Query<(Entity, &Window), Without<PickingBehavior>>,
-    mut commands: Commands
+    mut commands: Commands,
 ) {
     for (e, window) in windows.iter() {
         commands.entity(e).insert(PickingBehavior {

@@ -1,4 +1,3 @@
-
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 

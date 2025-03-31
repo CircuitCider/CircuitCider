@@ -1,9 +1,15 @@
 use bevy_asset::Asset;
 
+use bevy_pbr::{MaterialPipeline, MaterialPipelineKey, prelude::*};
 use bevy_reflect::Reflect;
-use bevy_pbr::{prelude::*, MaterialPipeline, MaterialPipelineKey};
 use bevy_reflect::prelude::ReflectDefault;
-use bevy_render::{alpha::AlphaMode, mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError}};
+use bevy_render::{
+    alpha::AlphaMode,
+    mesh::MeshVertexBufferLayoutRef,
+    render_resource::{
+        AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError,
+    },
+};
 
 const SHADER_PATH: &str = "root://shaders/glow.wgsl";
 // const SHADER_PATH: &str = "../../../assets/shaders/glow.wgsl";
