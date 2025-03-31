@@ -9,9 +9,9 @@ use crate::{components::PickSelected, systems::{pick_self_select_air_deselect, p
 
 
 /// picking settings for this project
-pub struct CustomPickingPlugin;
+pub struct PickingCorePlugin;
 
-impl Plugin for CustomPickingPlugin {
+impl Plugin for PickingCorePlugin {
     fn build(&self, app: &mut App) {
         app
             .init_state::<PickMode>()

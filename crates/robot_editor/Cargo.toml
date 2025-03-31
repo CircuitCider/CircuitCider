@@ -16,8 +16,9 @@ egui = {workspace = true}
 combat = {workspace = true}
 bevy_serialization_extras = {workspace = true}
 bevy_serialization_assemble = {workspace = true}
-bevy_mod_outline = {workspace = true}
 bevy_picking = {workspace = true}
+bevy_mod_outline = {workspace = true}
+
 transform-gizmo-bevy = {workspace = true}
 bevy_camera_extras = {workspace = true}
 bevy_ui_extras = {workspace = true}

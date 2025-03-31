@@ -1,14 +1,13 @@
 pub mod plugins;
 mod resources;
 pub mod shaders;
+mod systems;
 
 use std::any::TypeId;
 
-use bevy::asset::LoadedFolder;
-use bevy::ecs::system::Resource;
-use bevy::prelude::*;
-
-use derive_more::From;
+use bevy_asset::{prelude::*, LoadedFolder};
+use bevy_ecs::prelude::*;
+use bevy_render::render_resource::{Shader, Source};
 use resources::{ShadersFolder, WgslCache};
 
 pub struct TreeBehavior {}
@@ -23,12 +22,12 @@ pub struct Pane {
 /// loads assets of type T in a given folder.
 pub fn load_assets_for<T: Asset>(
     folders: &Res<Assets<LoadedFolder>>,
-    folder_handle: &bevy::asset::Handle<LoadedFolder>,
-) -> Option<Vec<bevy::asset::Handle<T>>> {
+    folder_handle: &Handle<LoadedFolder>,
+) -> Option<Vec<Handle<T>>> {
     let typeid = TypeId::of::<T>();
 
     if let Some(folder) = folders.get(folder_handle) {
-        let handles: Vec<bevy::asset::Handle<T>> = folder
+        let handles: Vec<Handle<T>> = folder
             .handles
             .clone()
             .into_iter()
@@ -68,7 +67,7 @@ pub fn update_wgsl_cache(
                 .to_string();
 
             let source_str = match &shader.source {
-                bevy::render::render_resource::Source::Wgsl(str) => str,
+                Source::Wgsl(str) => str,
                 _ => todo!("implement sources other then wgsl later."),
             }
             .to_string();
@@ -79,7 +78,7 @@ pub fn update_wgsl_cache(
 }
 
 /// Adds a folder to app by path and binds it to a given newtype struct resource with its handle.
-pub fn add_folder<T: From<bevy::asset::Handle<LoadedFolder>> + Resource>(
+pub fn add_folder<T: From<Handle<LoadedFolder>> + Resource>(
     local_path: String,
 ) -> impl Fn(&mut World) {
     move |world| {

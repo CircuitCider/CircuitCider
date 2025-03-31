@@ -1,13 +1,12 @@
-use bevy::{
-    pbr::{MaterialPipeline, MaterialPipelineKey},
-    prelude::*,
-    render::{
-        mesh::MeshVertexBufferLayoutRef,
-        render_resource::{
-            AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError,
-        },
-    },
-};
+use bevy_asset::{Asset, Handle};
+
+use bevy_color::LinearRgba;
+use bevy_reflect::Reflect;
+use bevy_pbr::{prelude::*, MaterialPipeline, MaterialPipelineKey};
+use bevy_render::{alpha::AlphaMode, mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, RenderPipelineDescriptor, Shader, ShaderRef, SpecializedMeshPipelineError}};
+
+
+
 const SHADER_PATH: &str = "root://shaders/neon.wgsl";
 
 pub const NEON_SHADER_HANDLE: Handle<Shader> = Handle::weak_from_u128(13953800272683943019);

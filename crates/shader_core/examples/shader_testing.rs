@@ -1,22 +1,17 @@
 //! A simple 3D scene with light shining over a cube sitting on a plane.
 
 use app_core::plugins::AppSourcesPlugin;
-use bevy::{
-    color::palettes::css::LIME,
-    pbr::{
-        wireframe::{Wireframe, WireframeColor, WireframePlugin},
-        MeshLayouts,
-    },
-    prelude::*,
-    render::{render_resource::ShaderRef, renderer::RenderDevice},
-};
+
+use bevy::prelude::*;
 use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraMode, CameraRestrained};
+use bevy_pbr::MeshLayouts;
+use bevy_render::renderer::RenderDevice;
 // use bevy_ui_extras::UiExtrasDebug;
 use shader_core::{
-    plugins::ShaderDebugPlugin,
+    plugins::{ShaderCorePlugin, ShaderDebugPlugin},
     shaders::{
         flow_wireframe::FlowWireframeMaterial, glow::GlowMaterial, grid::GridMaterial,
-        neon::NeonMaterial, plugins::CustomShadersPlugin,
+        neon::NeonMaterial,
     },
 };
 
@@ -28,7 +23,7 @@ fn main() {
             watch_for_changes_override: Some(true),
             ..default()
         }))
-        .add_plugins(WireframePlugin)
+        .add_plugins(ShaderCorePlugin)
         .add_plugins(CameraExtrasPlugin {
             cursor_grabbed_by_default: false,
             keybinds_override: None,
@@ -36,7 +31,6 @@ fn main() {
         })
         // .add_plugins(UiExtrasDebug::default())
         //.add_plugins(ShaderDebugPlugin)
-        .add_plugins(CustomShadersPlugin)
         .add_systems(Startup, setup)
         //.add_systems(Startup, display_mesh_bindgroup_info)
         .run();

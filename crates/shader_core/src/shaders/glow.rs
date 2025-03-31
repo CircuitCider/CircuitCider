@@ -1,13 +1,9 @@
-use bevy::{
-    pbr::{MaterialPipeline, MaterialPipelineKey},
-    prelude::*,
-    render::{
-        mesh::MeshVertexBufferLayoutRef,
-        render_resource::{
-            AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError,
-        },
-    },
-};
+use bevy_asset::Asset;
+
+use bevy_reflect::Reflect;
+use bevy_pbr::{prelude::*, MaterialPipeline, MaterialPipelineKey};
+use bevy_reflect::prelude::ReflectDefault;
+use bevy_render::{alpha::AlphaMode, mesh::MeshVertexBufferLayoutRef, render_resource::{AsBindGroup, RenderPipelineDescriptor, ShaderRef, SpecializedMeshPipelineError}};
 
 const SHADER_PATH: &str = "root://shaders/glow.wgsl";
 // const SHADER_PATH: &str = "../../../assets/shaders/glow.wgsl";
@@ -18,18 +14,6 @@ pub struct GlowMaterial {
     #[uniform(0)]
     pub heat: f32,
 }
-
-// impl From<LinearRgba> for GlowMaterial {
-//     fn from(color: LinearRgba) -> Self {
-//         GlowMaterial { color }
-//     }
-// }
-
-// impl From<GlowMaterial> for LinearRgba {
-//     fn from(value: GlowMaterial) -> Self {
-//         value.color
-//     }
-// }
 
 impl Material for GlowMaterial {
     fn vertex_shader() -> ShaderRef {

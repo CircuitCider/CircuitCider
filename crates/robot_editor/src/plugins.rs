@@ -33,7 +33,7 @@ use camera_controls::plugins::RobotEditorCameraPlugin;
 use components::Wheel;
 use model_display::plugins::ModelDisplayerPlugin;
 use picking_core::components::PickCollector;
-use picking_core::plugins::CustomPickingPlugin;
+use picking_core::plugins::PickingCorePlugin;
 use placing::plugins::PlacingToolingPlugin;
 // use raycast_utils::plugins::CursorRayHitsPlugin;
 // use raycast_utils::resources::MouseOverWindow;
@@ -42,7 +42,7 @@ use resources::ImageHandles;
 use resources::RobotControls;
 use resources::WeaponsFolder;
 use resources::WheelsFolder;
-use shader_core::shaders::plugins::CustomShadersPlugin;
+use shader_core::plugins::ShaderCorePlugin;
 use states::RobotEditorState;
 use systems::configure_skybox_texture;
 use systems::*;
@@ -75,11 +75,10 @@ pub struct RobotEditorPlugin;
 
 impl Plugin for RobotEditorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(WireframePlugin)
+        app
             .register_type::<Wheel>()
-            .add_plugins(OutlinePlugin)
             // load shaders
-            .add_plugins(CustomShadersPlugin)
+            .add_plugins(ShaderCorePlugin)
             //TODO: Add back
             // .add_plugins(ToonShaderPlugin)
             .init_collection::<ImageHandles>()
@@ -91,7 +90,7 @@ impl Plugin for RobotEditorPlugin {
             // PickingRobotEditorPlugin
             .add_plugins(RobotEditorCameraPlugin)
             //.add_plugins(CursorRayHitsPlugin { debug_mode: false })
-            .add_plugins(CustomPickingPlugin)
+            .add_plugins(PickingCorePlugin)
             // Serialization
             .add_plugins(SerializationPlugin)
             .add_plugins(SerializationBasePlugin)
@@ -121,7 +120,6 @@ impl Plugin for RobotEditorPlugin {
             //.add_systems(Update, freeze_spawned_robots)
             .add_systems(Update, bind_left_and_right_wheel)
             .add_systems(Update, set_robot_to_toon_shader)
-            .add_systems(Startup, spawn_toon_shader_cam)
             //.add_systems(Update, build_menu_ui)
             //FIXME: takes 5+ seconds to load like this for whatever reason. Load differently for main and robot_editor to save time.
             .add_systems(OnEnter(RobotEditorState::Active), setup_editor_area)
