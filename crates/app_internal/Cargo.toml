@@ -4,10 +4,18 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+bevy_ui_extras = {workspace = true}
 bevy_app = {workspace = true}
-shader_core = {workspace = true}
-picking_core = {workspace = true}
-combat = {workspace = true}
-bevy_serialization_assemble = {workspace = true}
-bevy_serialization_extras = {workspace = true}
-bevy_rapier3d = {workspace = true}
+shader_core = {workspace = true, optional = true}
+picking_core = {workspace = true, optional = true}
+combat = {workspace = true, optional = true}
+bevy_serialization_assemble = {workspace = true, optional = true}
+bevy_serialization_extras = {workspace = true, optional = true}
+bevy_rapier3d = {workspace = true, optional = true}
+
+[features]
+shaders = ["dep:shader_core"]
+picking = ["dep:picking_core"]
+physics = ["dep:bevy_rapier3d"]
+serialization = ["dep:bevy_serialization_assemble", "dep:bevy_serialization_extras"]
+combat = ["dep:combat"]

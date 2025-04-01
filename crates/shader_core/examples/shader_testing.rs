@@ -2,6 +2,7 @@
 
 use app_core::plugins::AppSourcesPlugin;
 
+use app_internal::AppDefaultPlugins;
 use bevy::prelude::*;
 use bevy_camera_extras::{CameraController, CameraExtrasPlugin, CameraMode, CameraRestrained};
 use bevy_pbr::MeshLayouts;
@@ -23,14 +24,13 @@ fn main() {
             watch_for_changes_override: Some(true),
             ..default()
         }))
+        .add_plugins(AppDefaultPlugins)
         .add_plugins(ShaderCorePlugin)
         .add_plugins(CameraExtrasPlugin {
             cursor_grabbed_by_default: false,
             keybinds_override: None,
             movement_settings_override: None,
         })
-        // .add_plugins(UiExtrasDebug::default())
-        //.add_plugins(ShaderDebugPlugin)
         .add_systems(Startup, setup)
         //.add_systems(Startup, display_mesh_bindgroup_info)
         .run();

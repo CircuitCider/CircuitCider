@@ -19,7 +19,6 @@ bevy_math = {workspace = true}
 bevy_color = {workspace = true}
 bevy_pbr = {workspace = true}
 bevy_reflect = {workspace = true}
-#bevy = {version = "0.14", features = ["file_watcher"]}
 app_core = {workspace = true}
 bevy_toon_material = {workspace = true}
 bevy_mod_outline = {workspace = true}
@@ -28,5 +27,6 @@ bevy_mod_outline = {workspace = true}
 derive_more = {workspace = true}
 
 [dev-dependencies]
+app_internal = {workspace = true}
 bevy = {workspace = true, features = ["dynamic_linking"]}
 bevy_camera_extras = {workspace = true}
