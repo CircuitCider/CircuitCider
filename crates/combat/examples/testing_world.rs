@@ -7,6 +7,7 @@ use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
+use bevy_serialization_assemble::{components::DisassembleAssetRequest, gltf::GltfPhysicsModel};
 use combat::{
     components::{Health, Pistol},
     despawn::DespawnPlugin,
@@ -37,7 +38,7 @@ fn setup(
     // scene_assets: Res<SceneAssets>,
     asset_server: Res<AssetServer>,
 ) {
-    let mesh: Handle<Mesh> = asset_server.load("root://models/weapons/pistol.glb");
+    // let mesh: Handle<Mesh> = asset_server.load("root://models/weapons/pistol.glb");
 
     // circular base
     commands.spawn((
@@ -47,13 +48,13 @@ fn setup(
     ));
     // pistol
     commands.spawn((
-        
+        DisassembleAssetRequest::<GltfPhysicsModel>::path("root://models/weapons/robot_gun.glb#Node0".to_string(), None),
         //Mesh3d(mesh),
         Transform::from_xyz(0.0, 0.5, 0.0),
         MeshMaterial3d(materials.add(Color::WHITE)),
         Health::default(),
         Pistol,
-        Name::new("Player"),
+        Name::new("Pistol"),
     ));
     // light
     commands.spawn((
