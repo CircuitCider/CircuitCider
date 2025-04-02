@@ -45,7 +45,6 @@ pub fn manage_gizmo_targets(
     mut commands: Commands,
 ) {
     for (e, picked) in &items {
-        println!("pick selected changed for {:#}", e);
         if **picked {
             commands.entity(e).insert(GizmoTarget::default());
         } else {

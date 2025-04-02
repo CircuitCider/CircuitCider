@@ -9,6 +9,9 @@ edition = "2024"
 bevy = {workspace = true}
 bevy-inspector-egui = {workspace = true}
 egui = {workspace = true}
-bevy_ui_extras = {workspace = true}
 bevy_rapier3d = {workspace = true}
 app_core = {workspace = true}
+bevy_serialization_assemble = {workspace = true}
+
+[dev-dependencies]
+app_internal = {workspace = true, features = ["serialization", "physics", "picking"]}

@@ -18,7 +18,6 @@ bevy_serialization_extras = {workspace = true}
 bevy_serialization_assemble = {workspace = true}
 bevy_picking = {workspace = true}
 bevy_mod_outline = {workspace = true}
-# app_internal = {workspace = true}
 transform-gizmo-bevy = {workspace = true}
 bevy_camera_extras = {workspace = true}
 bevy_ui_extras = {workspace = true}
@@ -30,6 +29,24 @@ derive_more = {workspace = true}
 bevy_toon_material = {workspace = true}
 #async-trait = "*"
 
+# [[example]]
+# name = "editor_testing"
+# required-features = ["editor_testing"]
+
+# [features]
+# editor_testing = ["app_internal", "app_internal/serialization", "app_internal/physics", "app_internal/picking", "app_internal/shaders", "app_internal/combat"]
+
+# [features]
+# editor_testing = [
+#     "dep:app_internal", 
+#     "app_internal/serialization", 
+#     "app_internal/physics",
+#     "app_internal/picking",
+#     "app_internal/"
+# ]
+
+[dev-dependencies]
+app_internal = {workspace = true, features = ["serialization", "physics", "picking", "shaders", "combat"]}
 # parrallize compile
 # [build]
 # rustflags = ["-Z", "threads=8"]

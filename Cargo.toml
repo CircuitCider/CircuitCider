@@ -20,6 +20,7 @@ app_core = {workspace = true}
 ui_core = {workspace = true}
 robot_editor = {workspace = true}
 combat = {workspace = true}
+app_internal = {workspace = true, features = ["serialization", "physics", "picking", "shaders", "combat", "robot_editor"]}
 
 [workspace.dependencies]
 bevy_toon_material = {git = "https://github.com/rydb/bevy_toon_material", rev = "cd1bae5599e8d3654014f0174035a19483192283"}
@@ -51,6 +52,7 @@ bevy_pbr = "0.15"
 bevy_core = "0.15"
 bevy_render = "0.15"
 bevy_core_pipeline = "0.15"
+
 bevy_color = "0.15"
 strum = "0.27"
 strum_macros = "0.27"

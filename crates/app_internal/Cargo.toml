@@ -9,6 +9,7 @@ bevy_app = {workspace = true}
 shader_core = {workspace = true, optional = true}
 picking_core = {workspace = true, optional = true}
 combat = {workspace = true, optional = true}
+robot_editor = {workspace = true, optional = true}
 bevy_serialization_assemble = {workspace = true, optional = true}
 bevy_serialization_extras = {workspace = true, optional = true}
 bevy_rapier3d = {workspace = true, optional = true}
@@ -19,3 +20,4 @@ picking = ["dep:picking_core"]
 physics = ["dep:bevy_rapier3d"]
 serialization = ["dep:bevy_serialization_assemble", "dep:bevy_serialization_extras"]
 combat = ["dep:combat"]
+robot_editor = ["dep:robot_editor"]

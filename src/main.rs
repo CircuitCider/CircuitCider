@@ -1,3 +1,4 @@
+use app_internal::AppDefaultPlugins;
 use bevy::prelude::*;
 use bevy_camera_extras::*;
 
@@ -15,13 +16,8 @@ fn main() {
             assets_folder_local_path: "assets".to_owned(),
         })
         .add_plugins(DefaultPlugins)
-        .add_plugins(UiExtrasDebug {
-            ui_style: UiStyle::BLACK_GLASS,
-            ..default()
-        })
+        .add_plugins(AppDefaultPlugins)
         .add_plugins(StartMenuPlugin)
-        .add_plugins(CombatPlugin)
-        .add_plugins(RobotEditorPlugin)
         // setup systems
         .add_systems(Startup, setup_camera)
         .run();

@@ -15,14 +15,15 @@ pub fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugins(AppDefaultPlugins)
-        //.add_plugins(DefaultPlugins.set(bevy_mod_raycast::low_latency_window_plugin()))
         .insert_state(RobotEditorState::Active)
         // robot editor
         .add_plugins(RobotEditorPlugin)
-        .add_plugins(UiExtrasDebug {
-            ui_style: UiStyle::BLACK_GLASS,
-            alignment: Some(Align2::RIGHT_TOP),
-            ..default()
-        })
+        // .add_plugins(UiExtrasDebug {
+        //     ui_style: UiStyle::BLACK_GLASS,
+        //     alignment: Some(Align2::RIGHT_TOP),
+        //     ..default()
+        // })
         .run();
+
+
 }

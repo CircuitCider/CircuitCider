@@ -1,12 +1,12 @@
 //! A simple 3D scene with light shining over a cube sitting on a plane.
 
 use app_core::plugins::AppSourcesPlugin;
+use app_internal::AppDefaultPlugins;
 use bevy::prelude::*;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use bevy_ui_extras::{UiExtrasDebug, states::DebugMenuState};
 use combat::{
     components::{Health, Pistol},
     despawn::DespawnPlugin,
@@ -19,18 +19,11 @@ fn main() {
     App::new()
         .add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(DefaultPlugins)
-        .add_plugins(ObjPlugin)
-        //.add_plugins(WorldInspectorPlugin::default())
-        .add_plugins(UiExtrasDebug {
-            menu_mode: DebugMenuState::Open,
-            ..default()
-        })
+        .add_plugins(AppDefaultPlugins)
+
         .add_plugins(CollisionPlugin)
         .add_plugins(BulletPlugin)
         .add_plugins(DespawnPlugin)
-        // .add_plugins(AssetLoaderPlugin)
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugins(RapierDebugRenderPlugin::default())
         .add_systems(Startup, setup)
         .add_systems(Update, health_ui)
         .run();
@@ -52,9 +45,10 @@ fn setup(
         MeshMaterial3d(materials.add(Color::WHITE)),
         Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
     ));
-    // cube
+    // pistol
     commands.spawn((
-        Mesh3d(mesh),
+        
+        //Mesh3d(mesh),
         Transform::from_xyz(0.0, 0.5, 0.0),
         MeshMaterial3d(materials.add(Color::WHITE)),
         Health::default(),

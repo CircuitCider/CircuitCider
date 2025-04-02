@@ -22,19 +22,26 @@ impl Plugin for AppDefaultPlugins {
         }
         #[cfg(feature = "physics")]
         {
+            use physics::PhysicsCorePlugin;
             app.add_plugins(physics::PhysicsCorePlugin);
         }
         #[cfg(feature = "serialization")] {
-            app.add_plugins(SerializationCorePlugin)
+            use serialization::SerializationCorePlugin;
+            app.add_plugins(SerializationCorePlugin);
         }
         #[cfg(feature = "combat")] {
             use combat::weapon_attacks::plugins::CombatPlugin;
             app.add_plugins(CombatPlugin);
         }
+        #[cfg(feature = "robot_editor")] {
+            use robot_editor::plugins::RobotEditorPlugin;
+            app.add_plugins(RobotEditorPlugin);
+        }
     }
 }
 #[cfg(feature = "physics")]
 pub mod physics {
+    use bevy_app::{App, Plugin};
     use bevy_rapier3d::prelude::NoUserData;
     use bevy_rapier3d::{plugin::RapierPhysicsPlugin, render::RapierDebugRenderPlugin};
 
@@ -51,6 +58,7 @@ pub mod physics {
 
 #[cfg(feature = "serialization")]
 pub mod serialization {
+    use bevy_app::{App, Plugin};
     use bevy_serialization_assemble::urdf::UrdfSerializationPlugin;
     use bevy_serialization_extras::prelude::{
         SerializationAssembleBasePlugin, SerializationBasePlugin, SerializationPhysicsPlugin,
