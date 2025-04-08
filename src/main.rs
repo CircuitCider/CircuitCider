@@ -4,9 +4,6 @@ use bevy_camera_extras::*;
 
 use app_core::plugins::AppSourcesPlugin;
 use bevy_serialization_extras::prelude::AssetSourcesUrdfPlugin;
-use bevy_ui_extras::{UiExtrasDebug, UiStyle};
-use combat::weapon_attacks::plugins::CombatPlugin;
-use robot_editor::plugins::RobotEditorPlugin;
 use ui_core::plugins::StartMenuPlugin;
 
 fn main() {

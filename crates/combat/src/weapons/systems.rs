@@ -1,13 +1,12 @@
 use crate::components::{Bullet, CollisionDamage, Health, Velocity};
 use bevy::prelude::*;
-use bevy_rapier3d::prelude::*;
 
 pub fn apply_collision_damage(
     collision_damage_query: Query<(Entity, &CollisionDamage)>,
-    mut health_query: Query<&mut Health>,
+    health_query: Query<&mut Health>,
     //rapier_context: Res<RapierContext>,
     name_query: Query<&Bullet>,
-    mut commands: Commands,
+    commands: Commands,
 ) {
     //   for (e, damage) in collision_damage_query.iter() {
     //         for (collided, collider, _) in rapier_context.intersection_pairs_with(e)

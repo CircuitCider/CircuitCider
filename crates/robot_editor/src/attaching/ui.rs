@@ -1,7 +1,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::EguiContext;
 use bevy_rapier3d::{
-    plugin::{DefaultRapierContext, RapierContext, ReadRapierContext},
+    plugin::DefaultRapierContext,
     prelude::{RapierContextColliders, RapierContextSimulation},
 };
 use bevy_serialization_extras::prelude::colliders::ColliderFlag;

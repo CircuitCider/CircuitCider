@@ -1,16 +1,13 @@
 use bevy::{
-    gltf::{GltfMesh, GltfNode},
     prelude::*,
     render::view::RenderLayers,
 };
 use bevy_serialization_assemble::{
-    Assemblies,
     components::{DisassembleAssetRequest, RollDown},
     gltf::GltfVisualModel,
-    traits::DisassembleSettings,
 };
 
-use crate::model_display::{DisplayOption, extract_gltf_node};
+use crate::model_display::DisplayOption;
 
 use super::{DisplayModel, DisplayModelLoading, components::*, plugins::DISPLAY_MODEL_TRANSLATION};
 

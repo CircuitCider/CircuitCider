@@ -3,10 +3,6 @@
 use app_core::plugins::AppSourcesPlugin;
 use app_internal::AppDefaultPlugins;
 use bevy::prelude::*;
-use bevy_rapier3d::{
-    plugin::{NoUserData, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
-};
 use bevy_serialization_assemble::{components::DisassembleAssetRequest, gltf::GltfPhysicsModel};
 use combat::{
     components::{Health, Pistol},
@@ -21,7 +17,6 @@ fn main() {
         .add_plugins(AppSourcesPlugin::CRATE)
         .add_plugins(DefaultPlugins)
         .add_plugins(AppDefaultPlugins)
-
         .add_plugins(CollisionPlugin)
         .add_plugins(BulletPlugin)
         .add_plugins(DespawnPlugin)
@@ -48,7 +43,10 @@ fn setup(
     ));
     // pistol
     commands.spawn((
-        DisassembleAssetRequest::<GltfPhysicsModel>::path("root://models/weapons/robot_gun.glb#Node0".to_string(), None),
+        DisassembleAssetRequest::<GltfPhysicsModel>::path(
+            "root://models/weapons/robot_gun.glb#Node0".to_string(),
+            None,
+        ),
         //Mesh3d(mesh),
         Transform::from_xyz(0.0, 0.5, 0.0),
         MeshMaterial3d(materials.add(Color::WHITE)),

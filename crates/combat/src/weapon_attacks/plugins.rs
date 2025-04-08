@@ -1,6 +1,6 @@
 use super::fire_shot::*;
 use crate::{
-    components::{CollisionDamage, SpawnTimer},
+    components::SpawnTimer,
     weapons::plugins::CollisionPlugin,
 };
 use bevy::prelude::*;

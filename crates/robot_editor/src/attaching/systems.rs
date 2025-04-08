@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 use bevy_picking::pointer::PointerInteraction;
-use bevy_serialization_extras::prelude::{
-    Dynamics, JointAxesMaskWrapper, JointInfo, JointLimitWrapper, JointMotorWrapper,
-    link::JointFlag,
-};
+use bevy_serialization_extras::prelude::link::JointFlag;
 
 use super::components::*;
 use crate::placing::components::Placer;
@@ -54,11 +51,11 @@ pub fn confirm_attachment(
 /// switch to attach move to placer
 pub fn switch_to_attach_from_placer(
     keys: ResMut<ButtonInput<KeyCode>>,
-    mut placers: Query<(Entity, Option<&mut AttachCandidate>), With<Placer>>,
+    placers: Query<(Entity, Option<&mut AttachCandidate>), With<Placer>>,
     joints: Query<&JointFlag>,
     mouse: Res<ButtonInput<MouseButton>>,
     // hits: ResMut<CursorRayHits>,
-    mut commands: Commands,
+    commands: Commands,
 ) {
     // if keys.pressed(KeyCode::ShiftLeft) {
     //     let Ok((e, current_target, ..)) = placers.get_single_mut().inspect_err(|err| {

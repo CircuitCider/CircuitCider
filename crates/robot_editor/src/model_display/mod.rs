@@ -1,13 +1,8 @@
 //! code for display models.
-use std::ops::Deref;
 
 use bevy::{
-    gltf::{GltfMesh, GltfNode, GltfPrimitive},
+    gltf::{GltfMesh, GltfNode},
     prelude::*,
-    render::view::RenderLayers,
-};
-use bevy_serialization_assemble::{
-    components::DisassembleStage, gltf::GltfVisualModel, traits::Disassemble,
 };
 
 pub mod components;

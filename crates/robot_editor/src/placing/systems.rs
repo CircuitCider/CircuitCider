@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 use bevy_picking::pointer::PointerInteraction;
-use bevy_serialization_assemble::AssemblyId;
 use picking_core::components::PickSelected;
 
 use crate::{
     attaching::components::AttachCandidate,
-    systems::{first_valid_other_hit, non_self_hits},
+    systems::non_self_hits,
 };
 
 use super::components::Placer;

@@ -1,8 +1,6 @@
 use bevy_app::prelude::*;
 use bevy_ui_extras::UiExtrasDebug;
 
-
-
 /// Default plugins for this app. Should consolidate all plugin initialization for this project.
 /// !!! LOAD AFTER [`DefaultPlugins`] OR THIS WILL CRASH !!!
 pub struct AppDefaultPlugins;
@@ -15,7 +13,7 @@ impl Plugin for AppDefaultPlugins {
             use shader_core::plugins::ShaderCorePlugin;
             app.add_plugins(ShaderCorePlugin);
         }
-        #[cfg(feature = "picking")] 
+        #[cfg(feature = "picking")]
         {
             use picking_core::plugins::PickingCorePlugin;
             app.add_plugins(PickingCorePlugin);
@@ -24,15 +22,18 @@ impl Plugin for AppDefaultPlugins {
         {
             app.add_plugins(physics::PhysicsCorePlugin);
         }
-        #[cfg(feature = "serialization")] {
+        #[cfg(feature = "serialization")]
+        {
             use serialization::SerializationCorePlugin;
             app.add_plugins(SerializationCorePlugin);
         }
-        #[cfg(feature = "combat")] {
+        #[cfg(feature = "combat")]
+        {
             use combat::weapon_attacks::plugins::CombatPlugin;
             app.add_plugins(CombatPlugin);
         }
-        #[cfg(feature = "robot_editor")] {
+        #[cfg(feature = "robot_editor")]
+        {
             use robot_editor::plugins::RobotEditorPlugin;
             app.add_plugins(RobotEditorPlugin);
         }
@@ -76,5 +77,3 @@ pub mod serialization {
         }
     }
 }
-
-

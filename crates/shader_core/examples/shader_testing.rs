@@ -9,10 +9,9 @@ use bevy_pbr::MeshLayouts;
 use bevy_render::renderer::RenderDevice;
 // use bevy_ui_extras::UiExtrasDebug;
 use shader_core::{
-    plugins::{ShaderCorePlugin, ShaderDebugPlugin},
+    plugins::ShaderCorePlugin,
     shaders::{
         flow_wireframe::FlowWireframeMaterial, glow::GlowMaterial, grid::GridMaterial,
-        neon::NeonMaterial,
     },
 };
 
@@ -49,8 +48,8 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut glow_materials: ResMut<Assets<GlowMaterial>>,
-    mut flowing_wireframe_mat: ResMut<Assets<FlowWireframeMaterial>>,
-    mut grid_mat: ResMut<Assets<GridMaterial>>,
+    flowing_wireframe_mat: ResMut<Assets<FlowWireframeMaterial>>,
+    grid_mat: ResMut<Assets<GridMaterial>>,
 ) {
     // circular base
     commands.spawn((

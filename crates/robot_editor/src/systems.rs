@@ -2,7 +2,6 @@ use std::any::type_name;
 
 use crate::{
     components::{BuildWidgetTarget, PointerFollowTarget},
-    placing::components::CursorRayCam,
     resources::{BuildWidgetMode, RobotControls},
 };
 pub use bevy::prelude::*;
@@ -10,13 +9,11 @@ use bevy::{
     asset::LoadState,
     ecs::query::QuerySingleError,
     render::render_resource::{TextureViewDescriptor, TextureViewDimension},
-    state::commands,
 };
 use bevy_picking::{
-    backend::{HitData, PointerHits},
-    pointer::{PointerInput, PointerInteraction},
+    backend::HitData,
+    pointer::PointerInteraction,
 };
-use bevy_rapier3d::plugin::DefaultRapierContext;
 use bevy_serialization_assemble::AssemblyId;
 //use bevy_camera_extras::Watched;
 use super::*;
