@@ -22,7 +22,6 @@ impl Plugin for AppDefaultPlugins {
         }
         #[cfg(feature = "physics")]
         {
-            use physics::PhysicsCorePlugin;
             app.add_plugins(physics::PhysicsCorePlugin);
         }
         #[cfg(feature = "serialization")] {
