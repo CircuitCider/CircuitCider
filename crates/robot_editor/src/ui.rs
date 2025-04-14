@@ -5,7 +5,7 @@ use crate::{
     model_display::{DisplayModel, DisplayOption},
     placing::components::Placer,
     prelude::{WeaponsFolder, WheelsFolder},
-    resources::{BuildMenuTarget, BuildWidgetMode, HullsFolder},
+    resources::{BuildMenuTarget, BuildWidgetMode, HullsFolder, MotorsFolder},
 };
 use bevy::{
     asset::LoadedFolder,
@@ -37,6 +37,7 @@ pub fn build_menu_ui(
     hulls_folder: Res<HullsFolder>,
     weapons_folder: Res<WeaponsFolder>,
     wheels_folder: Res<WheelsFolder>,
+    motors_folder: Res<MotorsFolder>,
     mut display_model: ResMut<DisplayModel>,
     placer_materials: ResMut<Assets<NeonMaterial>>,
     materials: ResMut<Assets<StandardMaterial>>,
@@ -75,6 +76,8 @@ pub fn build_menu_ui(
             BuildMenuTarget::Hulls => load_assets_in::<Gltf>(&folders, &hulls_folder.0),
             BuildMenuTarget::Weapons => load_assets_in::<Gltf>(&folders, &weapons_folder.0),
             BuildMenuTarget::Wheels => load_assets_in::<Gltf>(&folders, &wheels_folder.0),
+            BuildMenuTarget::Motors => load_assets_in::<Gltf>(&folders, &motors_folder.0),
+
         }) else {
             ui.label("could not load folder..");
             return;
@@ -131,10 +134,12 @@ pub fn build_menu_ui(
                         BuildMenuTarget::Weapons => {
                             commands.entity(model).insert(Pistol);
                         }
-                        //TODO: Wheel should NOT have "left-right" quality. This should be user defined/face defined/relativistic to other wheels.
                         BuildMenuTarget::Wheels => {
                             commands.entity(model).insert(Wheel::Right);
                         }
+                        BuildMenuTarget::Motors => {
+                            warn!("implement this!")
+                        },
                     }
                     build_widget_mode.set(BuildWidgetMode::Pointer);
                 }

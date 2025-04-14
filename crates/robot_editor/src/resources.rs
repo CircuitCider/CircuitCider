@@ -37,6 +37,9 @@ pub struct WheelsFolder(pub Handle<LoadedFolder>);
 #[derive(Resource, Default, Deref)]
 pub struct WeaponsFolder(pub Handle<LoadedFolder>);
 
+#[derive(Resource, Default, Deref)]
+pub struct MotorsFolder(pub Handle<LoadedFolder>);
+
 // #[derive(Resource)]
 // pub struct BuildMenuTarget(pub BuildMenuTargets);
 
@@ -50,6 +53,7 @@ pub enum BuildMenuTarget {
     Hulls,
     Weapons,
     Wheels,
+    Motors,
 }
 
 #[derive(AssetCollection, Resource)]
