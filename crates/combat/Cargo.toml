@@ -12,6 +12,8 @@ egui = {workspace = true}
 bevy_rapier3d = {workspace = true}
 app_core = {workspace = true}
 bevy_serialization_assemble = {workspace = true}
+bevy_serialization_extras = {workspace = true}
+
 
 [dev-dependencies]
 app_internal = {workspace = true, features = ["serialization", "physics", "picking"]}

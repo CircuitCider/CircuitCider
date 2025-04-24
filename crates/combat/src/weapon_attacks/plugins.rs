@@ -6,7 +6,7 @@ use crate::{
 use bevy::prelude::*;
 
 pub struct BulletPlugin;
-pub const SPAWN_TIME_SECONDS: f32 = 0.1;
+pub const SPAWN_TIME_SECONDS: f32 = 0.5;
 //Update constant to change bullet fire rate
 impl Plugin for BulletPlugin {
     fn build(&self, app: &mut App) {
