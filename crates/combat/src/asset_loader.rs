@@ -16,5 +16,6 @@ impl Plugin for AssetLoaderPlugin {
 fn load_assets(mut scene_assets: ResMut<SceneAssets>, asset_server: Res<AssetServer>) {
     *scene_assets = SceneAssets {
         pistol: asset_server.load("models/robot_gun.glb#Scene0"),
+        
     }
 }

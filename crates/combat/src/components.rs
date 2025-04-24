@@ -23,6 +23,12 @@ pub struct CollisionDamage(pub f32);
 pub struct Bullet;
 
 #[derive(Component)]
+pub struct Enemy;
+
+#[derive(Component)]
+pub struct Weapon;
+
+#[derive(Component)]
 pub struct Velocity {
     pub value: Vec3,
 }
@@ -40,3 +46,12 @@ pub struct Pistol;
 pub struct SpawnTimer {
     pub timer: Timer,
 }
+
+#[derive(Resource)]
+pub struct Animations {
+    pub animations: Vec<AnimationNodeIndex>,
+    pub graph: Handle<AnimationGraph>,
+}
+
+#[derive(Component, Clone)]
+pub struct Graph(pub Handle<AnimationGraph>);
